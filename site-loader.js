@@ -55,17 +55,13 @@
 
   async function loadSite() {
     try {
-      /* --- fetch products --- */
-      let rows = cacheGet('products_v2');
-      if (!rows) {
-        const { data, error } = await _sb
-          .from('products')
-          .select('*, categories(name), brands(name)')
-          .eq('is_active', true);
-        if (error) throw error;
-        rows = data || [];
-        cacheSet('products_v2', rows);
-      }
+      /* --- always fetch fresh products (no cache) so admin changes show instantly --- */
+      const { data, error } = await _sb
+        .from('products')
+        .select('*, categories(name), brands(name)')
+        .eq('is_active', true);
+      if (error) throw error;
+      const rows = data || [];
 
       if (!rows.length) return; // nothing in Supabase yet — keep sample data
 
