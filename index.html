@@ -729,16 +729,19 @@ window.renderGrid=function renderGrid(id,products){
 }
 
 window.renderAll=function renderAll(){
-  const S=SAMPLE_PRODUCTS;
-  renderGrid('featured-grid',S.filter(p=>p.is_featured));
-  renderGrid('skincare-grid',S.filter(p=>p.category==='skincare'));
-  renderGrid('makeup-grid',S.filter(p=>p.category==='makeup'));
-  renderGrid('hair-grid',S.filter(p=>p.category==='hair'));
-  renderGrid('bath-grid',S.filter(p=>p.category==='bath'));
-  renderGrid('bestsellers-grid',S.filter(p=>p.is_bestseller));
-  renderGrid('newarrivals-grid',S.filter(p=>p.is_new_arrival));
+  /* use Supabase products if loaded, otherwise fall back to sample data */
+  const S=(window._allProducts&&window._allProducts.length)?window._allProducts:SAMPLE_PRODUCTS;
+  window.renderGrid('featured-grid',S.filter(function(p){return p.is_featured;}));
+  window.renderGrid('skincare-grid',S.filter(function(p){return p.category==='skincare';}));
+  window.renderGrid('makeup-grid',S.filter(function(p){return p.category==='makeup';}));
+  window.renderGrid('hair-grid',S.filter(function(p){return p.category==='hair';}));
+  window.renderGrid('bath-grid',S.filter(function(p){return p.category==='bath';}));
+  window.renderGrid('bestsellers-grid',S.filter(function(p){return p.is_bestseller;}));
+  window.renderGrid('newarrivals-grid',S.filter(function(p){return p.is_new_arrival;}));
   renderTestimonials();
-  filterCat('skincare',document.querySelector('.cat-card'));
+  /* refresh category filter grid with active category */
+  var firstCard=document.querySelector('.cat-card.active-cat')||document.querySelector('.cat-card');
+  if(firstCard){var cat=firstCard.getAttribute('onclick')||'';var m=cat.match(/filterCat\('([^']+)'/);if(m)filterCat(m[1],firstCard);}
 }
 
 /* Category filter */
@@ -746,7 +749,8 @@ const CAT_LABELS={skincare:'Skin Care',makeup:'Makeup',hair:'Hair Care',bath:'Ba
 function filterCat(cat,cardEl){
   document.querySelectorAll('.cat-card').forEach(c=>c.classList.remove('active-cat'));
   if(cardEl)cardEl.classList.add('active-cat');
-  const products=SAMPLE_PRODUCTS.filter(p=>p.category===cat);
+  const S=(window._allProducts&&window._allProducts.length)?window._allProducts:SAMPLE_PRODUCTS;
+  const products=S.filter(function(p){return p.category===cat;});
   renderGrid('cat-filter-grid',products);
   document.getElementById('cat-filter-label').textContent=CAT_LABELS[cat]||cat;
   document.getElementById('cat-filter-sec').scrollIntoView({behavior:'smooth',block:'start'});
@@ -874,7 +878,8 @@ function closeWish(){document.getElementById('wish-overlay').classList.remove('o
 
 /* QUICK VIEW */
 function openQV(id){
-  const p=SAMPLE_PRODUCTS.find(x=>x.id===id);if(!p)return;
+  const S=(window._allProducts&&window._allProducts.length)?window._allProducts:SAMPLE_PRODUCTS;
+  const p=S.find(function(x){return x.id===id;});if(!p)return;
   const price=p.discount_price&&p.discount_price<p.price?p.discount_price:p.price;
   const hasDisc=p.discount_price&&p.discount_price<p.price;
   const pct=hasDisc?Math.round((1-p.discount_price/p.price)*100):0;
@@ -913,7 +918,8 @@ function toggleSearch(){var o=document.getElementById('search-overlay');o.classL
 function closeSearchOvl(e){if(e.target===document.getElementById('search-overlay'))document.getElementById('search-overlay').classList.remove('open')}
 function doSearch(q){
   var r=document.getElementById('search-res');if(!q.trim()){r.innerHTML='';return}
-  var filtered=SAMPLE_PRODUCTS.filter(function(p){return p.name.toLowerCase().includes(q.toLowerCase())}).slice(0,7);
+  var S=(window._allProducts&&window._allProducts.length)?window._allProducts:SAMPLE_PRODUCTS;
+  var filtered=S.filter(function(p){return p.name.toLowerCase().includes(q.toLowerCase())}).slice(0,7);
   if(!filtered.length){r.innerHTML='<p style="color:var(--text3);text-align:center;padding:16px">No results found</p>';return}
   r.innerHTML=filtered.map(function(p){return`<div class="search-result-item" onclick="openQV(${p.id});toggleSearch()">
     <img src="${sanitizeURL(p.image)}" onerror="this.src='https://placehold.co/46x46/FFE4EC/E8547A?text=L'" alt="${escapeHTML(p.name)}"/>
