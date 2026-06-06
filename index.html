@@ -809,9 +809,13 @@ function renderCartItems(){
     </div>
   </div>`).join('');
 }
+function getProduct(id){
+  const list=(window._allProducts&&window._allProducts.length)?window._allProducts:SAMPLE_PRODUCTS;
+  return list.find(function(x){return x.id==id;});
+}
 function addToCart(id,qty){
   qty=qty||1;
-  const p=SAMPLE_PRODUCTS.find(x=>x.id===id);if(!p)return;
+  const p=getProduct(id);if(!p)return;
   const price=p.discount_price&&p.discount_price<p.price?p.discount_price:p.price;
   const ex=cart.findIndex(i=>i.id===id);
   if(ex>=0)cart[ex].qty+=qty;else cart.push({id,name:p.name,price,image:p.image,qty});
@@ -830,7 +834,7 @@ function changeQty(id,d){
   const nw=Math.max(0,cur+d);
   window._qtys[id]=nw;
   document.querySelectorAll('#qty-'+id).forEach(function(el){el.textContent=nw});
-  const p=SAMPLE_PRODUCTS.find(x=>x.id===id);if(!p)return;
+  const p=getProduct(id);if(!p)return;
   const price=p.discount_price&&p.discount_price<p.price?p.discount_price:p.price;
   if(d>0){
     const ex=cart.findIndex(i=>i.id===id);
@@ -852,7 +856,7 @@ function syncQtys(){
 let wish=JSON.parse(localStorage.getItem('ll_wish')||'[]');
 function saveWish(){localStorage.setItem('ll_wish',JSON.stringify(wish))}
 function toggleWish(id){
-  const p=SAMPLE_PRODUCTS.find(x=>x.id===id);if(!p)return;
+  const p=getProduct(id);if(!p)return;
   const idx=wish.findIndex(w=>w.id===id);
   if(idx>=0){wish.splice(idx,1);showToast('Removed from wishlist','info')}
   else{wish.push({id,name:p.name,price:p.discount_price||p.price,image:p.image});showToast('Added to wishlist ❤️','ok')}
@@ -878,8 +882,7 @@ function closeWish(){document.getElementById('wish-overlay').classList.remove('o
 
 /* QUICK VIEW */
 function openQV(id){
-  const S=(window._allProducts&&window._allProducts.length)?window._allProducts:SAMPLE_PRODUCTS;
-  const p=S.find(function(x){return x.id===id;});if(!p)return;
+  const p=getProduct(id);if(!p)return;
   const price=p.discount_price&&p.discount_price<p.price?p.discount_price:p.price;
   const hasDisc=p.discount_price&&p.discount_price<p.price;
   const pct=hasDisc?Math.round((1-p.discount_price/p.price)*100):0;
