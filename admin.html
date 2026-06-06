@@ -552,6 +552,15 @@ async function renderOverview() {
       <div class="stat-card"><div class="stat-card-header"><div><div class="stat-num">${brands.length}</div><div class="stat-label">Brands</div></div><div class="stat-icon blue"><i class="fas fa-star"></i></div></div></div>
       <div class="stat-card"><div class="stat-card-header"><div><div class="stat-num">${orders.length}</div><div class="stat-label">Orders</div></div><div class="stat-icon green"><i class="fas fa-shopping-cart"></i></div></div><div class="stat-change">$${revenue.toFixed(2)} total</div></div>
     </div>
+    ${!prods.length ? `<div class="admin-card" style="margin-bottom:24px;border-color:rgba(212,175,55,0.5)">
+      <div class="admin-card-body" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:16px">
+        <div>
+          <div style="font-size:1rem;font-weight:700;color:var(--gold);margin-bottom:4px">⚠️ No products in database</div>
+          <div style="color:var(--gray);font-size:0.88rem">Your Supabase database is empty. Import the 40 sample products to get started instantly.</div>
+        </div>
+        <button class="btn-add" onclick="importSampleProducts()" style="white-space:nowrap"><i class="fas fa-cloud-upload-alt"></i> Import 40 Sample Products</button>
+      </div>
+    </div>` : ''}
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px">
       <div class="admin-card">
         <div class="admin-card-header"><div class="admin-card-title"><i class="fas fa-clock" style="color:var(--gold)"></i> Recent Orders</div></div>
@@ -567,6 +576,86 @@ async function renderOverview() {
       </div>
     </div>
   `;
+}
+
+// IMPORT SAMPLE PRODUCTS
+const SAMPLE_PRODUCTS = [
+  {name:'Vitamin C Serum',brand:'The Ordinary',category:'Skin Care',price:25,discount_price:19,image:'https://placehold.co/380x380/FFE4EC/E8547A?text=Vit+C+Serum',is_featured:true,is_bestseller:true,is_new_arrival:false,stock:50},
+  {name:'Ultra Moisturizing Cream',brand:'Neutrogena',category:'Skin Care',price:35,discount_price:null,image:'https://placehold.co/380x380/FFD6E0/C9556A?text=Moisturizer',is_featured:false,is_bestseller:true,is_new_arrival:false,stock:30},
+  {name:'Gentle Face Cleanser',brand:'CeraVe',category:'Skin Care',price:18,discount_price:null,image:'https://placehold.co/380x380/FFDDE8/E8547A?text=Cleanser',is_featured:false,is_bestseller:false,is_new_arrival:true,stock:45},
+  {name:'SPF 50+ Sunscreen',brand:'La Roche-Posay',category:'Skin Care',price:28,discount_price:22,image:'https://placehold.co/380x380/FFE8F0/C9556A?text=SPF+50',is_featured:true,is_bestseller:false,is_new_arrival:false,stock:60},
+  {name:'Retinol Eye Cream',brand:'The Ordinary',category:'Skin Care',price:42,discount_price:null,image:'https://placehold.co/380x380/FFD0E4/E8547A?text=Eye+Cream',is_featured:false,is_bestseller:false,is_new_arrival:true,stock:20},
+  {name:'Deep Clay Mask',brand:'Freeman',category:'Skin Care',price:22,discount_price:17,image:'https://placehold.co/380x380/FFEAF2/C9556A?text=Clay+Mask',is_featured:false,is_bestseller:false,is_new_arrival:false,stock:35},
+  {name:'Rose Water Toner',brand:'Mario Badescu',category:'Skin Care',price:15,discount_price:null,image:'https://placehold.co/380x380/FFC8DC/E8547A?text=Rose+Toner',is_featured:false,is_bestseller:true,is_new_arrival:false,stock:80},
+  {name:'Niacinamide 10% Serum',brand:'The Ordinary',category:'Skin Care',price:20,discount_price:null,image:'https://placehold.co/380x380/FFE0EB/C9556A?text=Niacinamide',is_featured:false,is_bestseller:false,is_new_arrival:false,stock:55},
+  {name:'Collagen Night Cream',brand:'Olay',category:'Skin Care',price:38,discount_price:29,image:'https://placehold.co/380x380/FFDAE6/E8547A?text=Collagen',is_featured:true,is_bestseller:false,is_new_arrival:false,stock:25},
+  {name:'Micellar Cleansing Water',brand:'Bioderma',category:'Skin Care',price:14,discount_price:null,image:'https://placehold.co/380x380/FFEDF5/C9556A?text=Micellar',is_featured:false,is_bestseller:true,is_new_arrival:true,stock:90},
+  {name:'Full Coverage Foundation',brand:'MAC',category:'Makeup',price:45,discount_price:35,image:'https://placehold.co/380x380/FCE4EC/C2185B?text=Foundation',is_featured:true,is_bestseller:true,is_new_arrival:false,stock:40},
+  {name:'Pro Concealer',brand:'NYX',category:'Makeup',price:32,discount_price:null,image:'https://placehold.co/380x380/F8BBD9/E91E63?text=Concealer',is_featured:false,is_bestseller:true,is_new_arrival:false,stock:50},
+  {name:'Contour Kit',brand:'Morphe',category:'Makeup',price:38,discount_price:28,image:'https://placehold.co/380x380/FCE4EC/880E4F?text=Contour',is_featured:false,is_bestseller:false,is_new_arrival:true,stock:30},
+  {name:'Pink Blush',brand:'Charlotte Tilbury',category:'Makeup',price:28,discount_price:null,image:'https://placehold.co/380x380/F8BBD0/C2185B?text=Blush',is_featured:true,is_bestseller:false,is_new_arrival:false,stock:45},
+  {name:'Shimmer Highlighter',brand:'Fenty Beauty',category:'Makeup',price:35,discount_price:27,image:'https://placehold.co/380x380/FDE8E8/B71C1C?text=Highlighter',is_featured:true,is_bestseller:true,is_new_arrival:false,stock:35},
+  {name:'Classic Red Lipstick',brand:'MAC',category:'Makeup',price:22,discount_price:null,image:'https://placehold.co/380x380/FFCDD2/C62828?text=Lipstick',is_featured:false,is_bestseller:true,is_new_arrival:false,stock:70},
+  {name:'Glossy Lip Gloss',brand:'NYX',category:'Makeup',price:18,discount_price:14,image:'https://placehold.co/380x380/FCE4EC/AD1457?text=Lip+Gloss',is_featured:false,is_bestseller:false,is_new_arrival:true,stock:60},
+  {name:'Precision Eyeliner',brand:'Urban Decay',category:'Makeup',price:15,discount_price:null,image:'https://placehold.co/380x380/F8BBD0/880E4F?text=Eyeliner',is_featured:false,is_bestseller:false,is_new_arrival:false,stock:80},
+  {name:'Lengthening Mascara',brand:'Maybelline',category:'Makeup',price:25,discount_price:19,image:'https://placehold.co/380x380/FCE4EC/C2185B?text=Mascara',is_featured:false,is_bestseller:true,is_new_arrival:false,stock:55},
+  {name:'Eyeshadow Palette',brand:'Huda Beauty',category:'Makeup',price:48,discount_price:38,image:'https://placehold.co/380x380/F48FB1/880E4F?text=Eyeshadow',is_featured:true,is_bestseller:true,is_new_arrival:false,stock:25},
+  {name:'Argan Oil Shampoo',brand:'Moroccanoil',category:'Hair',price:22,discount_price:null,image:'https://placehold.co/380x380/EDE7F6/512DA8?text=Argan+Shampoo',is_featured:false,is_bestseller:true,is_new_arrival:false,stock:40},
+  {name:'Nourishing Hair Mask',brand:'Schwarzkopf',category:'Hair',price:28,discount_price:21,image:'https://placehold.co/380x380/E8EAF6/303F9F?text=Hair+Mask',is_featured:false,is_bestseller:false,is_new_arrival:true,stock:35},
+  {name:'Keratin Treatment',brand:'Brazilian',category:'Hair',price:45,discount_price:35,image:'https://placehold.co/380x380/F3E5F5/7B1FA2?text=Keratin',is_featured:true,is_bestseller:false,is_new_arrival:false,stock:20},
+  {name:'Hair Growth Serum',brand:'Nioxin',category:'Hair',price:35,discount_price:null,image:'https://placehold.co/380x380/EDE7F6/4A148C?text=Hair+Serum',is_featured:false,is_bestseller:false,is_new_arrival:true,stock:30},
+  {name:'Coconut Hair Oil',brand:'Cantu',category:'Hair',price:18,discount_price:14,image:'https://placehold.co/380x380/E8EAF6/1A237E?text=Coconut+Oil',is_featured:false,is_bestseller:true,is_new_arrival:false,stock:65},
+  {name:'Color Protect Conditioner',brand:'Matrix',category:'Hair',price:24,discount_price:null,image:'https://placehold.co/380x380/F3E5F5/6A1B9A?text=Conditioner',is_featured:false,is_bestseller:false,is_new_arrival:false,stock:50},
+  {name:'Styling Cream',brand:'Tresemme',category:'Hair',price:20,discount_price:15,image:'https://placehold.co/380x380/EDE7F6/4527A0?text=Styling',is_featured:false,is_bestseller:false,is_new_arrival:false,stock:45},
+  {name:'Moroccan Argan Oil',brand:'Moroccanoil',category:'Hair',price:38,discount_price:null,image:'https://placehold.co/380x380/F3E5F5/7B1FA2?text=Moroccan+Oil',is_featured:true,is_bestseller:true,is_new_arrival:false,stock:30},
+  {name:'Volume Boost Spray',brand:'Redken',category:'Hair',price:22,discount_price:null,image:'https://placehold.co/380x380/E8EAF6/283593?text=Volume+Spray',is_featured:false,is_bestseller:false,is_new_arrival:true,stock:40},
+  {name:'Leave-in Conditioner',brand:'Dove',category:'Hair',price:25,discount_price:19,image:'https://placehold.co/380x380/EDE7F6/512DA8?text=Leave-in',is_featured:false,is_bestseller:false,is_new_arrival:false,stock:55},
+  {name:'Rose Body Scrub',brand:'Bath & Body Works',category:'Bath & Body',price:25,discount_price:19,image:'https://placehold.co/380x380/E0F7FA/006064?text=Rose+Scrub',is_featured:false,is_bestseller:true,is_new_arrival:false,stock:45},
+  {name:'Shea Butter Lotion',brand:'Jergens',category:'Bath & Body',price:22,discount_price:null,image:'https://placehold.co/380x380/E8F5E9/1B5E20?text=Body+Lotion',is_featured:false,is_bestseller:true,is_new_arrival:false,stock:60},
+  {name:'Lavender Bath Salts',brand:'Lush',category:'Bath & Body',price:18,discount_price:14,image:'https://placehold.co/380x380/EDE7F6/4A148C?text=Bath+Salts',is_featured:false,is_bestseller:false,is_new_arrival:true,stock:50},
+  {name:'Coconut Body Oil',brand:"Palmer's",category:'Bath & Body',price:28,discount_price:null,image:'https://placehold.co/380x380/E0F7FA/004D40?text=Body+Oil',is_featured:true,is_bestseller:false,is_new_arrival:false,stock:40},
+  {name:'Rose Shower Gel',brand:'Dove',category:'Bath & Body',price:15,discount_price:12,image:'https://placehold.co/380x380/FCE4EC/880E4F?text=Shower+Gel',is_featured:false,is_bestseller:true,is_new_arrival:false,stock:80},
+  {name:'Rich Body Butter',brand:'The Body Shop',category:'Bath & Body',price:32,discount_price:25,image:'https://placehold.co/380x380/E8F5E9/2E7D32?text=Body+Butter',is_featured:true,is_bestseller:false,is_new_arrival:false,stock:30},
+  {name:'Foot Care Kit',brand:'Scholl',category:'Bath & Body',price:28,discount_price:null,image:'https://placehold.co/380x380/E0F7FA/00695C?text=Foot+Kit',is_featured:false,is_bestseller:false,is_new_arrival:true,stock:25},
+  {name:'Colorful Bath Bombs',brand:'Lush',category:'Bath & Body',price:22,discount_price:17,image:'https://placehold.co/380x380/F3E5F5/6A1B9A?text=Bath+Bomb',is_featured:false,is_bestseller:true,is_new_arrival:false,stock:55},
+  {name:'Hand Moisturizer',brand:'Neutrogena',category:'Bath & Body',price:15,discount_price:null,image:'https://placehold.co/380x380/E8F5E9/388E3C?text=Hand+Cream',is_featured:false,is_bestseller:false,is_new_arrival:false,stock:70},
+  {name:'Body Fragrance Spray',brand:'Bath & Body Works',category:'Bath & Body',price:20,discount_price:15,image:'https://placehold.co/380x380/E0F7FA/00796B?text=Body+Spray',is_featured:false,is_bestseller:false,is_new_arrival:true,stock:65},
+];
+
+async function importSampleProducts() {
+  if (!rateLimit('import', 3000)) return;
+  toast('Importing products... please wait', 'info');
+  // load categories and brands
+  let cats = await dbFetch('categories', { order: 'name', asc: true });
+  let brands = await dbFetch('brands', { order: 'name', asc: true });
+  // create missing categories
+  const catNames = ['Skin Care','Makeup','Hair','Bath & Body'];
+  for (const cn of catNames) {
+    if (!cats.find(function(c) { return c.name === cn; })) {
+      const icons = {'Skin Care':'🧴','Makeup':'💄','Hair':'💇','Bath & Body':'🛁'};
+      await dbInsert('categories', { name: cn, icon: icons[cn] || '📦' });
+    }
+  }
+  cats = await dbFetch('categories', { order: 'name', asc: true });
+  // create missing brands
+  const brandNames = [...new Set(SAMPLE_PRODUCTS.map(function(p){return p.brand;}))];
+  for (const bn of brandNames) {
+    if (!brands.find(function(b) { return b.name === bn; })) {
+      await dbInsert('brands', { name: bn });
+    }
+  }
+  brands = await dbFetch('brands', { order: 'name', asc: true });
+  // insert products
+  let count = 0;
+  for (const p of SAMPLE_PRODUCTS) {
+    const cat = cats.find(function(c) { return c.name === p.category; });
+    const brand = brands.find(function(b) { return b.name === p.brand; });
+    const row = { name: p.name, price: p.price, discount_price: p.discount_price || null, stock_quantity: p.stock, image_url: p.image, images: [p.image], category_id: cat ? cat.id : null, brand_id: brand ? brand.id : null, is_active: true, is_featured: p.is_featured, is_bestseller: p.is_bestseller, is_new_arrival: p.is_new_arrival, description: '' };
+    const result = await dbInsert('products', row);
+    if (result) count++;
+  }
+  toast(count + ' products imported successfully! ✅', 'ok');
+  setTimeout(function() { renderOverview(); }, 1000);
 }
 
 // PRODUCTS
