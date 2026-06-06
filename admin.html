@@ -545,6 +545,9 @@ async function renderOverview() {
   ]);
   const active = prods.filter(function(p) { return p.is_active; }).length;
   const revenue = orders.reduce(function(s, o) { return s + parseFloat(o.total || 0); }, 0);
+  const importBanner = prods.length === 0
+    ? '<div class="admin-card" style="margin-bottom:24px;border-color:rgba(212,175,55,0.5)"><div class="admin-card-body" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:16px"><div><div style="font-size:1rem;font-weight:700;color:var(--gold);margin-bottom:4px">&#9888;&#65039; No products in database</div><div style="color:var(--gray);font-size:0.88rem">Your Supabase database is empty. Click the button to import all 40 sample products instantly.</div></div><button class="btn-add" onclick="importSampleProducts()" style="white-space:nowrap"><i class="fas fa-cloud-upload-alt"></i> Import 40 Sample Products</button></div></div>'
+    : '';
   document.getElementById('page-content').innerHTML = `
     <div class="stats-grid">
       <div class="stat-card"><div class="stat-card-header"><div><div class="stat-num">${prods.length}</div><div class="stat-label">Total Products</div></div><div class="stat-icon red"><i class="fas fa-box"></i></div></div><div class="stat-change">✓ ${active} active</div></div>
@@ -552,15 +555,7 @@ async function renderOverview() {
       <div class="stat-card"><div class="stat-card-header"><div><div class="stat-num">${brands.length}</div><div class="stat-label">Brands</div></div><div class="stat-icon blue"><i class="fas fa-star"></i></div></div></div>
       <div class="stat-card"><div class="stat-card-header"><div><div class="stat-num">${orders.length}</div><div class="stat-label">Orders</div></div><div class="stat-icon green"><i class="fas fa-shopping-cart"></i></div></div><div class="stat-change">$${revenue.toFixed(2)} total</div></div>
     </div>
-    ${!prods.length ? `<div class="admin-card" style="margin-bottom:24px;border-color:rgba(212,175,55,0.5)">
-      <div class="admin-card-body" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:16px">
-        <div>
-          <div style="font-size:1rem;font-weight:700;color:var(--gold);margin-bottom:4px">⚠️ No products in database</div>
-          <div style="color:var(--gray);font-size:0.88rem">Your Supabase database is empty. Import the 40 sample products to get started instantly.</div>
-        </div>
-        <button class="btn-add" onclick="importSampleProducts()" style="white-space:nowrap"><i class="fas fa-cloud-upload-alt"></i> Import 40 Sample Products</button>
-      </div>
-    </div>` : ''}
+    ${importBanner}
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px">
       <div class="admin-card">
         <div class="admin-card-header"><div class="admin-card-title"><i class="fas fa-clock" style="color:var(--gold)"></i> Recent Orders</div></div>
