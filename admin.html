@@ -1179,6 +1179,10 @@ async function renderContent() {
         </div>
 
         <h3 style="color:var(--gold);font-size:.95rem;margin:20px 0 14px;border-bottom:1px solid var(--border);padding-bottom:8px">🏷️ Offer Banner & Countdown Timer</h3>
+        <label class="form-check" style="margin-bottom:14px;font-size:.95rem;font-weight:600">
+          <input type="checkbox" id="ct-offer-active" ${s.offer_active!==false?'checked':''} />
+          <span>Show offer banner on website</span>
+        </label>
         <div class="form-row">
           <div class="form-group"><label>Offer Title</label><input id="ct-offer-title" value="${v('offer_title','🎀 Special Makeup Sale')}" /></div>
           <div class="form-group"><label>Offer Subtitle</label><input id="ct-offer-sub" value="${v('offer_sub','30% off all makeup products — limited time only!')}" /></div>
@@ -1215,6 +1219,7 @@ async function saveContent() {
     stat_products: g('ct-stat-products'),
     stat_brands: g('ct-stat-brands'),
     stat_customers: g('ct-stat-customers'),
+    offer_active: document.getElementById('ct-offer-active').checked,
     offer_title: g('ct-offer-title'),
     offer_sub: g('ct-offer-sub'),
     offer_code: g('ct-offer-code'),

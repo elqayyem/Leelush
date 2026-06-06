@@ -143,7 +143,11 @@
       if (hImg) hImg.src = s.hero_image;
     }
 
-    /* Offer banner */
+    /* Offer banner — show or hide */
+    var offerSec = document.getElementById('offers-sec');
+    if(offerSec){
+      offerSec.style.display = (s.offer_active === false) ? 'none' : '';
+    }
     set('offer-title', s.offer_title);
     set('offer-sub', s.offer_sub);
     set('offer-code', s.offer_code);
