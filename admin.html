@@ -1,0 +1,1383 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self' https://*.supabase.co https://cdnjs.cloudflare.com; img-src 'self' data: blob: https://*.supabase.co https://*.supabase.in https://placehold.co; style-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://fonts.googleapis.com; font-src 'self' https://cdnjs.cloudflare.com https://fonts.gstatic.com; script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://cdn.jsdelivr.net;" />
+  <meta name="referrer" content="strict-origin-when-cross-origin" />
+  <title>Leelush Admin</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;900&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <style>
+    :root{--primary:#C8102E;--accent:#E8A020;--dark:#0E1117;--dark2:#161B22;--dark3:#1C2333;--gold:#D4AF37;--white:#FFFFFF;--gray:#8B949E;--text:#E6EDF3;--card-bg:rgba(22,27,34,0.9);--glass:rgba(255,255,255,0.05);--border:rgba(212,175,55,0.2);--shadow:0 8px 32px rgba(0,0,0,0.4);--radius:12px;--transition:all 0.3s ease;--sidebar:260px}
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    html{font-size:15px}
+    body{font-family:'Cairo',sans-serif;background:var(--dark);color:var(--text);min-height:100vh;overflow-x:hidden}
+    a{text-decoration:none;color:inherit}
+    button{cursor:pointer;font-family:'Cairo',sans-serif;border:none;outline:none}
+    input,select,textarea{font-family:'Cairo',sans-serif}
+    ::-webkit-scrollbar{width:5px;height:5px}
+    ::-webkit-scrollbar-track{background:var(--dark2)}
+    ::-webkit-scrollbar-thumb{background:var(--gold);border-radius:3px}
+    @keyframes spin{to{transform:rotate(360deg)}}
+    @keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+    @keyframes shimmer{0%{background-position:-200% 0}100%{background-position:200% 0}}
+    .skeleton{background:linear-gradient(90deg,var(--dark2) 25%,var(--dark3) 50%,var(--dark2) 75%);background-size:200% 100%;animation:shimmer 1.5s infinite;border-radius:8px}
+
+    /* ===== LOGIN ===== */
+    #login-screen{position:fixed;inset:0;background:var(--dark);display:flex;align-items:center;justify-content:center;z-index:9999}
+    .login-card{background:var(--dark2);border:1px solid var(--border);border-radius:20px;padding:48px;width:90%;max-width:420px;text-align:center;box-shadow:var(--shadow)}
+    .login-logo{font-size:2.5rem;font-weight:900;background:linear-gradient(135deg,var(--gold),var(--accent));-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:8px}
+    .login-sub{color:var(--gray);margin-bottom:32px;font-size:0.9rem}
+    .login-field{margin-bottom:16px;text-align:right}
+    .login-field label{display:block;margin-bottom:6px;font-size:0.85rem;font-weight:600;color:var(--gray)}
+    .login-field input{width:100%;background:var(--dark3);border:1px solid var(--border);color:var(--text);padding:12px 16px;border-radius:10px;font-size:0.95rem;direction:rtl;transition:var(--transition)}
+    .login-field input:focus{outline:none;border-color:var(--gold)}
+    .login-btn{width:100%;background:linear-gradient(135deg,var(--primary),#a00d25);color:#fff;padding:14px;border-radius:10px;font-size:1rem;font-weight:700;margin-top:8px;transition:var(--transition)}
+    .login-btn:hover{transform:translateY(-2px);box-shadow:0 8px 20px rgba(200,16,46,0.4)}
+    .login-error{color:var(--primary);font-size:0.85rem;margin-top:12px;display:none}
+    .login-spinner{display:none;width:28px;height:28px;border:3px solid rgba(255,255,255,0.3);border-top-color:#fff;border-radius:50%;animation:spin 0.8s linear infinite;margin:0 auto}
+
+    /* ===== LAYOUT ===== */
+    #admin-app{display:none;min-height:100vh}
+    .admin-layout{display:flex;min-height:100vh}
+
+    /* ===== SIDEBAR ===== */
+    #sidebar{width:var(--sidebar);background:var(--dark2);border-left:1px solid var(--border);display:flex;flex-direction:column;position:fixed;top:0;right:0;bottom:0;z-index:200;transition:var(--transition);overflow-y:auto}
+    .sidebar-header{padding:24px 20px;border-bottom:1px solid var(--border)}
+    .sidebar-logo{font-size:1.6rem;font-weight:900;background:linear-gradient(135deg,var(--gold),var(--accent));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+    .sidebar-role{font-size:0.75rem;color:var(--gray);margin-top:2px}
+    .sidebar-user{display:flex;align-items:center;gap:12px;padding:16px 20px;border-bottom:1px solid var(--border)}
+    .sidebar-avatar{width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,var(--primary),var(--accent));display:flex;align-items:center;justify-content:center;font-size:1rem;font-weight:700;flex-shrink:0}
+    .sidebar-email{font-size:0.78rem;color:var(--gray);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+    .sidebar-nav{flex:1;padding:16px 12px}
+    .nav-section-label{font-size:0.7rem;font-weight:700;color:var(--gray);text-transform:uppercase;letter-spacing:1px;padding:12px 8px 6px;margin-top:8px}
+    .nav-item{display:flex;align-items:center;gap:12px;padding:10px 12px;border-radius:10px;cursor:pointer;transition:var(--transition);color:var(--gray);font-size:0.9rem;font-weight:600;margin-bottom:2px}
+    .nav-item:hover{background:var(--glass);color:var(--text)}
+    .nav-item.active{background:linear-gradient(135deg,rgba(200,16,46,0.2),rgba(212,175,55,0.1));color:var(--gold);border:1px solid rgba(212,175,55,0.2)}
+    .nav-item i{width:18px;text-align:center;font-size:0.95rem}
+    .sidebar-footer{padding:16px 20px;border-top:1px solid var(--border)}
+    .logout-btn{width:100%;background:rgba(200,16,46,0.1);border:1px solid rgba(200,16,46,0.3);color:var(--primary);padding:10px;border-radius:10px;font-size:0.9rem;font-weight:600;display:flex;align-items:center;justify-content:center;gap:8px;transition:var(--transition)}
+    .logout-btn:hover{background:var(--primary);color:#fff}
+
+    /* ===== MAIN ===== */
+    #main-content{margin-right:var(--sidebar);flex:1;min-height:100vh;display:flex;flex-direction:column}
+    .topbar{background:var(--dark2);border-bottom:1px solid var(--border);padding:0 28px;height:60px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100}
+    .topbar-title{font-size:1.1rem;font-weight:700}
+    .topbar-actions{display:flex;align-items:center;gap:12px}
+    .topbar-btn{background:var(--glass);border:1px solid var(--border);color:var(--text);padding:8px 16px;border-radius:8px;font-size:0.85rem;font-weight:600;display:flex;align-items:center;gap:6px;transition:var(--transition)}
+    .topbar-btn:hover{background:var(--gold);color:var(--dark);border-color:var(--gold)}
+    .page-content{padding:28px;animation:fadeIn 0.3s ease;flex:1}
+
+    /* ===== OVERVIEW STATS ===== */
+    .stats-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:20px;margin-bottom:28px}
+    .stat-card{background:var(--card-bg);border:1px solid var(--border);border-radius:var(--radius);padding:20px;transition:var(--transition)}
+    .stat-card:hover{transform:translateY(-3px);border-color:var(--gold)}
+    .stat-card-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+    .stat-icon{width:44px;height:44px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1.2rem}
+    .stat-icon.red{background:rgba(200,16,46,0.15);color:var(--primary)}
+    .stat-icon.gold{background:rgba(212,175,55,0.15);color:var(--gold)}
+    .stat-icon.green{background:rgba(76,175,80,0.15);color:#4CAF50}
+    .stat-icon.blue{background:rgba(33,150,243,0.15);color:#2196F3}
+    .stat-num{font-size:1.8rem;font-weight:900}
+    .stat-label{font-size:0.8rem;color:var(--gray);margin-top:4px}
+    .stat-change{font-size:0.75rem;color:#4CAF50;margin-top:4px}
+
+    /* ===== CARD ===== */
+    .admin-card{background:var(--card-bg);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;margin-bottom:24px}
+    .admin-card-header{padding:16px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+    .admin-card-title{font-size:1rem;font-weight:700;display:flex;align-items:center;gap:10px}
+    .admin-card-body{padding:20px}
+
+    /* ===== TABLE ===== */
+    .admin-table-wrap{overflow-x:auto}
+    table{width:100%;border-collapse:collapse;font-size:0.88rem}
+    thead th{background:var(--dark3);padding:12px 16px;text-align:right;font-weight:700;color:var(--gray);border-bottom:1px solid var(--border);white-space:nowrap}
+    tbody tr{border-bottom:1px solid rgba(255,255,255,0.04);transition:var(--transition)}
+    tbody tr:hover{background:var(--glass)}
+    tbody td{padding:12px 16px;vertical-align:middle}
+    .table-img{width:44px;height:44px;border-radius:8px;object-fit:cover}
+    .badge-active{background:rgba(76,175,80,0.15);color:#4CAF50;padding:3px 10px;border-radius:20px;font-size:0.75rem;font-weight:600}
+    .badge-inactive{background:rgba(200,16,46,0.15);color:var(--primary);padding:3px 10px;border-radius:20px;font-size:0.75rem;font-weight:600}
+    .badge-flag{background:rgba(212,175,55,0.15);color:var(--gold);padding:3px 10px;border-radius:20px;font-size:0.75rem;font-weight:600}
+    .tbl-actions{display:flex;gap:6px;flex-wrap:wrap}
+    .tbl-btn{padding:6px 12px;border-radius:6px;font-size:0.8rem;font-weight:600;transition:var(--transition);display:flex;align-items:center;gap:4px}
+    .tbl-btn.edit{background:rgba(33,150,243,0.1);border:1px solid rgba(33,150,243,0.3);color:#2196F3}
+    .tbl-btn.edit:hover{background:#2196F3;color:#fff}
+    .tbl-btn.del{background:rgba(200,16,46,0.1);border:1px solid rgba(200,16,46,0.3);color:var(--primary)}
+    .tbl-btn.del:hover{background:var(--primary);color:#fff}
+    .tbl-btn.toggle{background:rgba(212,175,55,0.1);border:1px solid rgba(212,175,55,0.3);color:var(--gold)}
+    .tbl-btn.toggle:hover{background:var(--gold);color:var(--dark)}
+
+    /* ===== FORM MODAL ===== */
+    #modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:500;align-items:center;justify-content:center;backdrop-filter:blur(6px)}
+    #modal-overlay.open{display:flex}
+    #modal-box{background:var(--dark2);border:1px solid var(--border);border-radius:20px;width:90%;max-width:700px;max-height:90vh;overflow-y:auto;box-shadow:var(--shadow)}
+    .modal-header{padding:20px 24px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;background:var(--dark2);z-index:1}
+    .modal-title{font-size:1.1rem;font-weight:700}
+    .modal-close{background:var(--glass);border:1px solid var(--border);color:var(--text);width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1rem;transition:var(--transition)}
+    .modal-close:hover{background:var(--primary);border-color:var(--primary)}
+    .modal-body{padding:24px}
+    .modal-footer{padding:16px 24px;border-top:1px solid var(--border);display:flex;gap:12px;justify-content:flex-end;position:sticky;bottom:0;background:var(--dark2)}
+
+    /* ===== FORM ELEMENTS ===== */
+    .form-row{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px}
+    .form-row.full{grid-template-columns:1fr}
+    .form-group{margin-bottom:16px}
+    .form-group label{display:block;margin-bottom:6px;font-size:0.85rem;font-weight:600;color:var(--gray)}
+    .form-group input,.form-group select,.form-group textarea{width:100%;background:var(--dark3);border:1px solid var(--border);color:var(--text);padding:10px 14px;border-radius:8px;font-size:0.9rem;direction:rtl;transition:var(--transition)}
+    .form-group input:focus,.form-group select:focus,.form-group textarea:focus{outline:none;border-color:var(--gold)}
+    .form-group textarea{resize:vertical;min-height:80px}
+    .form-check{display:flex;align-items:center;gap:10px;cursor:pointer;font-size:0.9rem;margin-bottom:8px}
+    .form-check input{width:16px;height:16px;cursor:pointer;accent-color:var(--gold)}
+    .btn-save{background:linear-gradient(135deg,var(--primary),#a00d25);color:#fff;padding:10px 28px;border-radius:8px;font-size:0.95rem;font-weight:700;transition:var(--transition)}
+    .btn-save:hover{transform:translateY(-2px);box-shadow:0 6px 18px rgba(200,16,46,0.4)}
+    .btn-cancel{background:var(--glass);border:1px solid var(--border);color:var(--text);padding:10px 24px;border-radius:8px;font-size:0.95rem;font-weight:600;transition:var(--transition)}
+    .btn-cancel:hover{background:var(--dark3)}
+    .btn-add{background:linear-gradient(135deg,var(--gold),var(--accent));color:var(--dark);padding:10px 20px;border-radius:8px;font-size:0.9rem;font-weight:700;display:flex;align-items:center;gap:8px;transition:var(--transition)}
+    .btn-add:hover{transform:translateY(-2px);box-shadow:0 6px 18px rgba(212,175,55,0.4)}
+    .btn-danger{background:rgba(200,16,46,0.1);border:1px solid rgba(200,16,46,0.3);color:var(--primary);padding:10px 20px;border-radius:8px;font-size:0.9rem;font-weight:700;transition:var(--transition)}
+    .btn-danger:hover{background:var(--primary);color:#fff}
+
+    /* ===== IMAGE UPLOAD ===== */
+    .img-upload-area{border:2px dashed var(--border);border-radius:var(--radius);padding:32px;text-align:center;cursor:pointer;transition:var(--transition);position:relative}
+    .img-upload-area:hover,.img-upload-area.drag-over{border-color:var(--gold);background:rgba(212,175,55,0.05)}
+    .img-upload-area input[type="file"]{position:absolute;inset:0;opacity:0;cursor:pointer}
+    .img-upload-icon{font-size:2.5rem;color:var(--gold);margin-bottom:12px}
+    .img-upload-text{color:var(--gray);font-size:0.9rem}
+    .img-preview-wrap{display:flex;flex-wrap:wrap;gap:10px;margin-top:16px}
+    .img-preview-item{position:relative;width:80px;height:80px;border-radius:8px;overflow:hidden;border:1px solid var(--border)}
+    .img-preview-item img{width:100%;height:100%;object-fit:cover}
+    .img-preview-remove{position:absolute;top:2px;left:2px;background:rgba(200,16,46,0.9);color:#fff;width:20px;height:20px;border-radius:50%;border:none;display:flex;align-items:center;justify-content:center;font-size:0.7rem;cursor:pointer}
+    .img-url-input{margin-top:12px;display:flex;gap:8px}
+    .img-url-input input{flex:1;background:var(--dark3);border:1px solid var(--border);color:var(--text);padding:8px 12px;border-radius:8px;font-size:0.85rem;direction:ltr}
+    .img-url-input button{background:var(--glass);border:1px solid var(--border);color:var(--text);padding:8px 14px;border-radius:8px;font-size:0.85rem;font-weight:600;transition:var(--transition)}
+    .img-url-input button:hover{background:var(--gold);color:var(--dark);border-color:var(--gold)}
+
+    /* ===== SEARCH/FILTER BAR ===== */
+    .table-toolbar{display:flex;gap:12px;flex-wrap:wrap;align-items:center;margin-bottom:16px}
+    .toolbar-search{flex:1;min-width:200px;background:var(--dark3);border:1px solid var(--border);color:var(--text);padding:9px 14px;border-radius:8px;font-size:0.88rem;direction:rtl}
+    .toolbar-search:focus{outline:none;border-color:var(--gold)}
+    .toolbar-select{background:var(--dark3);border:1px solid var(--border);color:var(--text);padding:9px 12px;border-radius:8px;font-size:0.85rem;direction:rtl;cursor:pointer}
+    .toolbar-select:focus{outline:none;border-color:var(--gold)}
+
+    /* ===== SETTINGS / DESIGN ===== */
+    .settings-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+    .color-row{display:flex;align-items:center;gap:12px;margin-bottom:12px}
+    .color-row label{min-width:140px;font-size:0.88rem;color:var(--gray)}
+    .color-row input[type="color"]{width:44px;height:36px;border:1px solid var(--border);border-radius:6px;background:none;cursor:pointer;padding:2px}
+    .color-row input[type="text"]{flex:1;background:var(--dark3);border:1px solid var(--border);color:var(--text);padding:8px 12px;border-radius:6px;font-size:0.85rem;direction:ltr}
+
+    /* ===== PAGINATION ===== */
+    .pagination{display:flex;gap:6px;align-items:center;justify-content:center;padding:16px 0}
+    .page-btn{background:var(--glass);border:1px solid var(--border);color:var(--text);width:36px;height:36px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:0.85rem;transition:var(--transition);cursor:pointer}
+    .page-btn:hover,.page-btn.active{background:var(--gold);color:var(--dark);border-color:var(--gold)}
+
+    /* ===== TOAST ===== */
+    #admin-toast{position:fixed;bottom:24px;right:24px;z-index:9999;display:flex;flex-direction:column;gap:8px}
+    .a-toast{background:var(--dark2);border:1px solid var(--border);border-radius:10px;padding:12px 18px;font-size:0.9rem;font-weight:600;box-shadow:var(--shadow);animation:fadeIn 0.3s ease;max-width:320px}
+    .a-toast.ok{border-color:rgba(76,175,80,0.5);color:#4CAF50}
+    .a-toast.err{border-color:rgba(200,16,46,0.5);color:var(--primary)}
+    .a-toast.info{border-color:rgba(212,175,55,0.5);color:var(--gold)}
+
+    /* ===== CONFIRM DIALOG ===== */
+    #confirm-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.8);z-index:600;align-items:center;justify-content:center;backdrop-filter:blur(6px)}
+    #confirm-overlay.open{display:flex}
+    .confirm-box{background:var(--dark2);border:1px solid var(--border);border-radius:16px;padding:32px;width:90%;max-width:380px;text-align:center;box-shadow:var(--shadow)}
+    .confirm-icon{font-size:3rem;margin-bottom:16px}
+    .confirm-title{font-size:1.1rem;font-weight:700;margin-bottom:8px}
+    .confirm-sub{color:var(--gray);font-size:0.88rem;margin-bottom:24px}
+    .confirm-actions{display:flex;gap:12px;justify-content:center}
+
+    /* ===== MEDIA LIBRARY ===== */
+    .media-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:12px}
+    .media-item{border-radius:10px;overflow:hidden;border:2px solid var(--border);aspect-ratio:1;cursor:pointer;transition:var(--transition);position:relative}
+    .media-item:hover{border-color:var(--gold)}
+    .media-item img{width:100%;height:100%;object-fit:cover}
+    .media-item-overlay{position:absolute;inset:0;background:rgba(0,0,0,0.6);opacity:0;transition:var(--transition);display:flex;align-items:center;justify-content:center;gap:8px}
+    .media-item:hover .media-item-overlay{opacity:1}
+    .media-action{background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);color:#fff;width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:0.8rem;transition:var(--transition)}
+    .media-action:hover{background:#fff;color:var(--dark)}
+    .media-action.del:hover{background:var(--primary);border-color:var(--primary)}
+
+    /* ===== ORDERS ===== */
+    .order-status{padding:4px 10px;border-radius:20px;font-size:0.75rem;font-weight:600}
+    .order-status.pending{background:rgba(255,193,7,0.15);color:#FFC107}
+    .order-status.completed{background:rgba(76,175,80,0.15);color:#4CAF50}
+    .order-status.cancelled{background:rgba(200,16,46,0.15);color:var(--primary)}
+
+    /* ===== MOBILE ===== */
+    #sidebar-toggle{display:none;position:fixed;top:16px;right:16px;z-index:300;background:var(--dark2);border:1px solid var(--border);color:var(--text);width:44px;height:44px;border-radius:10px;align-items:center;justify-content:center;font-size:1.2rem}
+    #sidebar-backdrop{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:199}
+    @media(max-width:900px){
+      #sidebar{transform:translateX(100%)}
+      #sidebar.mobile-open{transform:translateX(0)}
+      #main-content{margin-right:0}
+      #sidebar-toggle{display:flex}
+      #sidebar-backdrop.open{display:block}
+      .form-row{grid-template-columns:1fr}
+      .settings-grid{grid-template-columns:1fr}
+    }
+    @media(max-width:600px){
+      .stats-grid{grid-template-columns:1fr 1fr}
+      .page-content{padding:16px}
+    }
+  </style>
+</head>
+<body>
+
+<!-- LOGIN SCREEN -->
+<div id="login-screen">
+  <div class="login-card">
+    <div class="login-logo">Leelush</div>
+    <p class="login-sub">لوحة إدارة المتجر</p>
+    <div class="login-field"><label>البريد الإلكتروني</label><input type="email" id="login-email" placeholder="admin@leelush.com" /></div>
+    <div class="login-field"><label>كلمة المرور</label><input type="password" id="login-password" placeholder="••••••••" onkeydown="if(event.key==='Enter')doLogin()" /></div>
+    <button class="login-btn" onclick="doLogin()">دخول</button>
+    <div class="login-spinner" id="login-spinner"></div>
+    <div class="login-error" id="login-error">بريد أو كلمة مرور خاطئة</div>
+  </div>
+</div>
+
+<!-- SIDEBAR TOGGLE (mobile) -->
+<button id="sidebar-toggle" onclick="toggleSidebar()"><i class="fas fa-bars"></i></button>
+<div id="sidebar-backdrop" onclick="closeSidebar()"></div>
+
+<!-- ADMIN APP -->
+<div id="admin-app">
+  <div class="admin-layout">
+
+    <!-- SIDEBAR -->
+    <aside id="sidebar">
+      <div class="sidebar-header">
+        <div class="sidebar-logo">Leelush</div>
+        <div class="sidebar-role">لوحة الإدارة</div>
+      </div>
+      <div class="sidebar-user">
+        <div class="sidebar-avatar" id="sb-avatar">A</div>
+        <div><div style="font-size:0.85rem;font-weight:600" id="sb-name">Admin</div><div class="sidebar-email" id="sb-email"></div></div>
+      </div>
+      <nav class="sidebar-nav">
+        <div class="nav-section-label">الرئيسية</div>
+        <div class="nav-item active" onclick="showPage('overview')"><i class="fas fa-chart-pie"></i> نظرة عامة</div>
+        <div class="nav-section-label">المنتجات</div>
+        <div class="nav-item" onclick="showPage('products')"><i class="fas fa-box"></i> المنتجات</div>
+        <div class="nav-item" onclick="showPage('categories')"><i class="fas fa-tags"></i> الفئات</div>
+        <div class="nav-item" onclick="showPage('brands')"><i class="fas fa-star"></i> الماركات</div>
+        <div class="nav-item" onclick="showPage('featured')"><i class="fas fa-crown"></i> المنتجات المميزة</div>
+        <div class="nav-item" onclick="showPage('bestsellers')"><i class="fas fa-fire"></i> الأكثر مبيعاً</div>
+        <div class="nav-item" onclick="showPage('newarrivals')"><i class="fas fa-sparkles"></i> أحدث الوصول</div>
+        <div class="nav-section-label">المحتوى</div>
+        <div class="nav-item" onclick="showPage('offers')"><i class="fas fa-percent"></i> العروض</div>
+        <div class="nav-item" onclick="showPage('testimonials')"><i class="fas fa-comment-dots"></i> التقييمات</div>
+        <div class="nav-item" onclick="showPage('content')"><i class="fas fa-edit"></i> محرر المحتوى</div>
+        <div class="nav-item" onclick="showPage('media')"><i class="fas fa-images"></i> مكتبة الصور</div>
+        <div class="nav-section-label">الطلبات والإعدادات</div>
+        <div class="nav-item" onclick="showPage('orders')"><i class="fas fa-shopping-cart"></i> الطلبات</div>
+        <div class="nav-item" onclick="showPage('design')"><i class="fas fa-palette"></i> تصميم الموقع</div>
+        <div class="nav-item" onclick="showPage('settings')"><i class="fas fa-cog"></i> الإعدادات</div>
+      </nav>
+      <div class="sidebar-footer">
+        <button class="logout-btn" onclick="doLogout()"><i class="fas fa-sign-out-alt"></i> تسجيل الخروج</button>
+      </div>
+    </aside>
+
+    <!-- MAIN -->
+    <main id="main-content">
+      <div class="topbar">
+        <div class="topbar-title" id="topbar-title">نظرة عامة</div>
+        <div class="topbar-actions">
+          <a href="index.html" target="_blank" class="topbar-btn"><i class="fas fa-external-link-alt"></i> عرض الموقع</a>
+          <div style="font-size:0.8rem;color:var(--gray)" id="topbar-time"></div>
+        </div>
+      </div>
+      <div class="page-content" id="page-content">
+        <!-- pages rendered here -->
+      </div>
+    </main>
+  </div>
+</div>
+
+<!-- MODAL -->
+<div id="modal-overlay" onclick="closeModalOnOverlay(event)">
+  <div id="modal-box">
+    <div class="modal-header">
+      <div class="modal-title" id="modal-title">نموذج</div>
+      <button class="modal-close" onclick="closeModal()"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="modal-body" id="modal-body"></div>
+    <div class="modal-footer" id="modal-footer">
+      <button class="btn-cancel" onclick="closeModal()">إلغاء</button>
+      <button class="btn-save" id="modal-save-btn" onclick="submitModal()">حفظ</button>
+    </div>
+  </div>
+</div>
+
+<!-- CONFIRM -->
+<div id="confirm-overlay">
+  <div class="confirm-box">
+    <div class="confirm-icon">⚠️</div>
+    <div class="confirm-title" id="confirm-title">هل أنت متأكد؟</div>
+    <div class="confirm-sub" id="confirm-sub">هذا الإجراء لا يمكن التراجع عنه</div>
+    <div class="confirm-actions">
+      <button class="btn-cancel" onclick="document.getElementById('confirm-overlay').classList.remove('open')">إلغاء</button>
+      <button class="btn-danger" id="confirm-ok-btn">تأكيد الحذف</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div id="admin-toast"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+'use strict';
+
+// ===== CONFIG =====
+const SUPABASE_URL = 'https://tigusdkstanturuhtsrw.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRpZ3VzZGtzdGFudHVydWh0c3J3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA2Nzg3NjEsImV4cCI6MjA5NjI1NDc2MX0.eo3e_Y3K6kdqZ4MKqdnfnyhQhjDWrVGLaqE2wOk3s1Y';
+const INACTIVITY_TIMEOUT = 30 * 60 * 1000; // 30 min
+
+// ===== INIT SUPABASE =====
+const _supa = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+// ===== HELPERS =====
+function escapeHTML(str) {
+  if (typeof str !== 'string') return String(str || '');
+  const d = document.createElement('div');
+  d.appendChild(document.createTextNode(str));
+  return d.innerHTML;
+}
+function sanitizeURL(url) {
+  if (!url) return 'https://placehold.co/400x400/1C2333/D4AF37?text=L';
+  try {
+    const u = new URL(url, location.origin);
+    if (['http:','https:','data:','blob:'].includes(u.protocol)) return url;
+  } catch(e) {}
+  return 'https://placehold.co/400x400/1C2333/D4AF37?text=L';
+}
+function toast(msg, type = 'info') {
+  const c = document.getElementById('admin-toast');
+  const t = document.createElement('div');
+  t.className = 'a-toast ' + type;
+  t.textContent = msg;
+  c.appendChild(t);
+  setTimeout(() => { t.style.opacity = '0'; t.style.transition = 'opacity 0.3s'; setTimeout(() => t.remove(), 300); }, 3000);
+}
+function formatDate(d) { if (!d) return '-'; return new Date(d).toLocaleDateString('ar-EG', { year:'numeric',month:'short',day:'numeric' }); }
+function fmtPrice(v) { return '$' + parseFloat(v || 0).toFixed(2); }
+
+// ===== INACTIVITY LOGOUT =====
+let _inactTimer;
+function resetInact() {
+  clearTimeout(_inactTimer);
+  _inactTimer = setTimeout(doLogout, INACTIVITY_TIMEOUT);
+}
+['mousemove','keydown','click','scroll','touchstart'].forEach(ev => document.addEventListener(ev, resetInact));
+
+// ===== RATE LIMITING =====
+const _rateLimits = {};
+function rateLimit(key, limitMs = 1000) {
+  const now = Date.now();
+  if (_rateLimits[key] && now - _rateLimits[key] < limitMs) { toast('يرجى الانتظار قبل المحاولة مجدداً', 'err'); return false; }
+  _rateLimits[key] = now;
+  return true;
+}
+
+// ===== AUTH =====
+let _currentUser = null;
+async function doLogin() {
+  if (!rateLimit('login', 2000)) return;
+  const email = document.getElementById('login-email').value.trim();
+  const pass = document.getElementById('login-password').value;
+  if (!email || !pass) { showLoginError('يرجى ملء جميع الحقول'); return; }
+  const spinner = document.getElementById('login-spinner');
+  const btn = document.querySelector('.login-btn');
+  spinner.style.display = 'block';
+  btn.style.display = 'none';
+  hideLoginError();
+  const { data, error } = await _supa.auth.signInWithPassword({ email, password: pass });
+  spinner.style.display = 'none';
+  btn.style.display = 'block';
+  if (error) { showLoginError(error.message || 'بريد أو كلمة مرور خاطئة'); return; }
+  _currentUser = data.user;
+  initAdmin();
+}
+function showLoginError(msg) { const e = document.getElementById('login-error'); e.textContent = msg; e.style.display = 'block'; }
+function hideLoginError() { document.getElementById('login-error').style.display = 'none'; }
+async function doLogout() {
+  await _supa.auth.signOut();
+  _currentUser = null;
+  document.getElementById('admin-app').style.display = 'none';
+  document.getElementById('login-screen').style.display = 'flex';
+  document.getElementById('login-password').value = '';
+}
+async function checkSession() {
+  const { data } = await _supa.auth.getSession();
+  if (data?.session?.user) { _currentUser = data.session.user; initAdmin(); }
+  else { document.getElementById('login-screen').style.display = 'flex'; }
+}
+
+// ===== INIT ADMIN =====
+function initAdmin() {
+  document.getElementById('login-screen').style.display = 'none';
+  document.getElementById('admin-app').style.display = 'block';
+  const u = _currentUser;
+  document.getElementById('sb-email').textContent = u.email || '';
+  document.getElementById('sb-name').textContent = u.email?.split('@')[0] || 'Admin';
+  document.getElementById('sb-avatar').textContent = (u.email?.[0] || 'A').toUpperCase();
+  resetInact();
+  startClock();
+  showPage('overview');
+}
+
+// ===== CLOCK =====
+function startClock() {
+  function tick() { const el = document.getElementById('topbar-time'); if (el) el.textContent = new Date().toLocaleTimeString('ar-EG'); }
+  tick(); setInterval(tick, 1000);
+}
+
+// ===== SIDEBAR NAVIGATION =====
+let _currentPage = 'overview';
+function showPage(page) {
+  _currentPage = page;
+  document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+  document.querySelector(`.nav-item[onclick*="'${page}'"]`)?.classList.add('active');
+  const titles = { overview:'نظرة عامة', products:'المنتجات', categories:'الفئات', brands:'الماركات', featured:'المنتجات المميزة', bestsellers:'الأكثر مبيعاً', newarrivals:'أحدث الوصول', offers:'العروض الخاصة', testimonials:'التقييمات', content:'محرر المحتوى', media:'مكتبة الصور', orders:'الطلبات', design:'تصميم الموقع', settings:'الإعدادات' };
+  document.getElementById('topbar-title').textContent = titles[page] || page;
+  const pages = { overview: renderOverview, products: renderProducts, categories: renderCategories, brands: renderBrands, featured: () => renderFlaggedProducts('featured','is_featured','المنتجات المميزة'), bestsellers: () => renderFlaggedProducts('bestsellers','is_bestseller','الأكثر مبيعاً'), newarrivals: () => renderFlaggedProducts('newarrivals','is_new_arrival','أحدث الوصول'), offers: renderOffers, testimonials: renderTestimonials, content: renderContent, media: renderMedia, orders: renderOrders, design: renderDesign, settings: renderSettings };
+  const fn = pages[page];
+  if (fn) fn();
+  closeSidebar();
+}
+function toggleSidebar() { document.getElementById('sidebar').classList.toggle('mobile-open'); document.getElementById('sidebar-backdrop').classList.toggle('open'); }
+function closeSidebar() { document.getElementById('sidebar').classList.remove('mobile-open'); document.getElementById('sidebar-backdrop').classList.remove('open'); }
+
+// ===== MODAL =====
+let _modalSubmitFn = null;
+function openModal(title, bodyHTML, submitFn, saveBtnText = 'حفظ') {
+  document.getElementById('modal-title').textContent = title;
+  document.getElementById('modal-body').innerHTML = bodyHTML;
+  document.getElementById('modal-save-btn').textContent = saveBtnText;
+  _modalSubmitFn = submitFn;
+  document.getElementById('modal-overlay').classList.add('open');
+  bindImageUpload();
+}
+function closeModal() { document.getElementById('modal-overlay').classList.remove('open'); _modalSubmitFn = null; }
+function closeModalOnOverlay(e) { if (e.target === document.getElementById('modal-overlay')) closeModal(); }
+function submitModal() { if (_modalSubmitFn) _modalSubmitFn(); }
+
+// ===== CONFIRM =====
+function confirmAction(title, sub, onOk) {
+  document.getElementById('confirm-title').textContent = title;
+  document.getElementById('confirm-sub').textContent = sub;
+  const btn = document.getElementById('confirm-ok-btn');
+  btn.onclick = () => { document.getElementById('confirm-overlay').classList.remove('open'); onOk(); };
+  document.getElementById('confirm-overlay').classList.add('open');
+}
+
+// ===== DATA LAYER =====
+async function dbFetch(table, query = {}) {
+  let q = _supa.from(table).select(query.select || '*');
+  if (query.eq) Object.entries(query.eq).forEach(([k,v]) => { q = q.eq(k, v); });
+  if (query.order) q = q.order(query.order, { ascending: query.asc ?? false });
+  if (query.limit) q = q.limit(query.limit);
+  const { data, error } = await q;
+  if (error) { toast('خطأ في قراءة البيانات: ' + error.message, 'err'); return []; }
+  return data || [];
+}
+async function dbInsert(table, row) {
+  const { data, error } = await _supa.from(table).insert([row]).select();
+  if (error) { toast('خطأ في الإضافة: ' + error.message, 'err'); return null; }
+  return data?.[0];
+}
+async function dbUpdate(table, id, row) {
+  const { data, error } = await _supa.from(table).update(row).eq('id', id).select();
+  if (error) { toast('خطأ في التحديث: ' + error.message, 'err'); return null; }
+  return data?.[0];
+}
+async function dbDelete(table, id) {
+  const { error } = await _supa.from(table).delete().eq('id', id);
+  if (error) { toast('خطأ في الحذف: ' + error.message, 'err'); return false; }
+  return true;
+}
+
+// ===== IMAGE UPLOAD =====
+let _uploadedImages = [];
+function bindImageUpload() {
+  _uploadedImages = [];
+  const area = document.getElementById('img-upload-area');
+  if (!area) return;
+  area.addEventListener('dragover', e => { e.preventDefault(); area.classList.add('drag-over'); });
+  area.addEventListener('dragleave', () => area.classList.remove('drag-over'));
+  area.addEventListener('drop', e => { e.preventDefault(); area.classList.remove('drag-over'); handleFiles(e.dataTransfer.files); });
+  const fileInput = document.getElementById('img-file-input');
+  if (fileInput) fileInput.addEventListener('change', () => handleFiles(fileInput.files));
+}
+async function handleFiles(files) {
+  if (!files?.length) return;
+  for (const file of files) {
+    if (!file.type.startsWith('image/')) { toast('يجب اختيار صورة فقط', 'err'); continue; }
+    if (file.size > 5 * 1024 * 1024) { toast('الصورة أكبر من 5MB', 'err'); continue; }
+    const fileName = Date.now() + '_' + file.name.replace(/[^a-zA-Z0-9._-]/g, '_');
+    const { data, error } = await _supa.storage.from('beauty-images').upload(fileName, file, { upsert: true });
+    if (error) { toast('خطأ في رفع الصورة', 'err'); continue; }
+    const { data: urlData } = _supa.storage.from('beauty-images').getPublicUrl(fileName);
+    addImagePreview(urlData.publicUrl);
+    toast('تم رفع الصورة', 'ok');
+  }
+}
+function addImageURL() {
+  const input = document.getElementById('img-url-field');
+  if (!input?.value) return;
+  addImagePreview(input.value.trim());
+  input.value = '';
+}
+function addImagePreview(url) {
+  if (!url) return;
+  _uploadedImages.push(url);
+  renderImagePreviews();
+}
+function removeImagePreview(i) {
+  _uploadedImages.splice(i, 1);
+  renderImagePreviews();
+}
+function renderImagePreviews() {
+  const wrap = document.getElementById('img-preview-wrap');
+  if (!wrap) return;
+  wrap.innerHTML = _uploadedImages.map((url, i) => `
+    <div class="img-preview-item">
+      <img src="${sanitizeURL(url)}" onerror="this.src='https://placehold.co/80x80/1C2333/D4AF37?text=?'" />
+      <button class="img-preview-remove" onclick="removeImagePreview(${i})"><i class="fas fa-times"></i></button>
+    </div>
+  `).join('');
+}
+
+// ===== OVERVIEW PAGE =====
+async function renderOverview() {
+  document.getElementById('page-content').innerHTML = '<div style="display:flex;align-items:center;justify-content:center;padding:60px"><div style="width:40px;height:40px;border:3px solid var(--border);border-top-color:var(--gold);border-radius:50%;animation:spin 0.8s linear infinite"></div></div>';
+  const [prods, cats, brands, orders] = await Promise.all([
+    dbFetch('products', { select: 'id,is_active' }),
+    dbFetch('categories', { select: 'id' }),
+    dbFetch('brands', { select: 'id' }),
+    dbFetch('orders', { select: 'id,total,created_at', order: 'created_at', limit: 10 })
+  ]);
+  const active = prods.filter(p => p.is_active).length;
+  const revenue = orders.reduce((s, o) => s + parseFloat(o.total || 0), 0);
+  document.getElementById('page-content').innerHTML = `
+    <div class="stats-grid">
+      <div class="stat-card"><div class="stat-card-header"><div><div class="stat-num">${prods.length}</div><div class="stat-label">إجمالي المنتجات</div></div><div class="stat-icon red"><i class="fas fa-box"></i></div></div><div class="stat-change">✓ ${active} نشط</div></div>
+      <div class="stat-card"><div class="stat-card-header"><div><div class="stat-num">${cats.length}</div><div class="stat-label">الفئات</div></div><div class="stat-icon gold"><i class="fas fa-tags"></i></div></div></div>
+      <div class="stat-card"><div class="stat-card-header"><div><div class="stat-num">${brands.length}</div><div class="stat-label">الماركات</div></div><div class="stat-icon blue"><i class="fas fa-star"></i></div></div></div>
+      <div class="stat-card"><div class="stat-card-header"><div><div class="stat-num">${orders.length}</div><div class="stat-label">الطلبات</div></div><div class="stat-icon green"><i class="fas fa-shopping-cart"></i></div></div><div class="stat-change">$${revenue.toFixed(2)} إجمالي</div></div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px">
+      <div class="admin-card">
+        <div class="admin-card-header"><div class="admin-card-title"><i class="fas fa-clock" style="color:var(--gold)"></i> آخر الطلبات</div></div>
+        <div class="admin-card-body">
+          <div class="admin-table-wrap"><table><thead><tr><th>رقم</th><th>العميل</th><th>المجموع</th><th>التاريخ</th></tr></thead><tbody>
+          ${orders.slice(0,5).map(o => `<tr><td>#${o.id}</td><td>${escapeHTML(o.customer_name || 'زائر')}</td><td>${fmtPrice(o.total)}</td><td>${formatDate(o.created_at)}</td></tr>`).join('') || '<tr><td colspan="4" style="text-align:center;color:var(--gray);padding:20px">لا توجد طلبات</td></tr>'}
+          </tbody></table></div>
+        </div>
+      </div>
+      <div class="admin-card">
+        <div class="admin-card-header"><div class="admin-card-title"><i class="fas fa-box" style="color:var(--gold)"></i> أحدث المنتجات</div></div>
+        <div class="admin-card-body">
+          <div class="admin-table-wrap"><table><thead><tr><th>الاسم</th><th>السعر</th><th>الحالة</th></tr></thead><tbody>
+          ${prods.slice(0,5).map(p => `<tr><td>${escapeHTML(p.name || '')}</td><td>${fmtPrice(p.price)}</td><td><span class="${p.is_active ? 'badge-active' : 'badge-inactive'}">${p.is_active ? 'نشط' : 'مخفي'}</span></td></tr>`).join('') || '<tr><td colspan="3" style="text-align:center;color:var(--gray);padding:20px">لا توجد منتجات</td></tr>'}
+          </tbody></table></div>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+// ===== PRODUCTS PAGE =====
+let _categories = [], _brands = [], _allProducts = [];
+async function renderProducts() {
+  document.getElementById('page-content').innerHTML = '<div style="display:flex;align-items:center;justify-content:center;padding:60px"><div style="width:40px;height:40px;border:3px solid var(--border);border-top-color:var(--gold);border-radius:50%;animation:spin 0.8s linear infinite"></div></div>';
+  [_categories, _brands, _allProducts] = await Promise.all([
+    dbFetch('categories', { order: 'name', asc: true }),
+    dbFetch('brands', { order: 'name', asc: true }),
+    dbFetch('products', { select: '*, categories(name), brands(name)', order: 'created_at' })
+  ]);
+  renderProductsTable(_allProducts);
+}
+function renderProductsTable(products) {
+  document.getElementById('page-content').innerHTML = `
+    <div class="admin-card">
+      <div class="admin-card-header">
+        <div class="admin-card-title"><i class="fas fa-box" style="color:var(--gold)"></i> إدارة المنتجات (${products.length})</div>
+        <button class="btn-add" onclick="openProductForm()"><i class="fas fa-plus"></i> منتج جديد</button>
+      </div>
+      <div class="admin-card-body">
+        <div class="table-toolbar">
+          <input class="toolbar-search" placeholder="بحث..." oninput="filterProductsTable(this.value)" id="prod-search" />
+          <select class="toolbar-select" onchange="filterProductsTable()" id="prod-cat-filter">
+            <option value="">كل الفئات</option>
+            ${_categories.map(c => `<option value="${c.id}">${escapeHTML(c.name)}</option>`).join('')}
+          </select>
+          <select class="toolbar-select" onchange="filterProductsTable()" id="prod-status-filter">
+            <option value="">كل الحالات</option>
+            <option value="active">نشط</option>
+            <option value="inactive">مخفي</option>
+          </select>
+        </div>
+        <div class="admin-table-wrap" id="prod-table-wrap">
+          ${buildProductsTable(products)}
+        </div>
+      </div>
+    </div>
+  `;
+}
+function buildProductsTable(products) {
+  if (!products.length) return '<p style="text-align:center;color:var(--gray);padding:40px">لا توجد منتجات</p>';
+  return `<table><thead><tr><th>الصورة</th><th>الاسم</th><th>الفئة</th><th>الماركة</th><th>السعر</th><th>المخزون</th><th>الحالة</th><th>العلامات</th><th>الإجراءات</th></tr></thead><tbody>
+  ${products.map(p => `<tr>
+    <td><img class="table-img" src="${sanitizeURL(p.image_url)}" onerror="this.src='https://placehold.co/44x44/1C2333/D4AF37?text=L'" /></td>
+    <td style="max-width:180px;font-weight:600">${escapeHTML(p.name || '')}</td>
+    <td>${escapeHTML(p.categories?.name || '-')}</td>
+    <td>${escapeHTML(p.brands?.name || '-')}</td>
+    <td>${fmtPrice(p.price)}${p.discount_price ? `<br><span style="color:var(--primary);font-size:0.8rem">${fmtPrice(p.discount_price)}</span>` : ''}</td>
+    <td>${p.stock_quantity ?? '-'}</td>
+    <td><span class="${p.is_active ? 'badge-active' : 'badge-inactive'}">${p.is_active ? 'نشط' : 'مخفي'}</span></td>
+    <td style="display:flex;flex-wrap:wrap;gap:3px">
+      ${p.is_featured ? '<span class="badge-flag">مميز</span>' : ''}
+      ${p.is_bestseller ? '<span class="badge-flag">مبيعاً</span>' : ''}
+      ${p.is_new_arrival ? '<span class="badge-flag">جديد</span>' : ''}
+    </td>
+    <td><div class="tbl-actions">
+      <button class="tbl-btn edit" onclick="openProductForm(${p.id})"><i class="fas fa-edit"></i> تعديل</button>
+      <button class="tbl-btn toggle" onclick="toggleProductActive(${p.id},${p.is_active})">${p.is_active ? 'إخفاء' : 'تفعيل'}</button>
+      <button class="tbl-btn del" onclick="deleteProduct(${p.id})"><i class="fas fa-trash"></i></button>
+    </div></td>
+  </tr>`).join('')}
+  </tbody></table>`;
+}
+function filterProductsTable(val) {
+  const search = (val ?? document.getElementById('prod-search')?.value ?? '').toLowerCase();
+  const cat = document.getElementById('prod-cat-filter')?.value || '';
+  const status = document.getElementById('prod-status-filter')?.value || '';
+  let filtered = _allProducts;
+  if (search) filtered = filtered.filter(p => p.name?.toLowerCase().includes(search));
+  if (cat) filtered = filtered.filter(p => String(p.category_id) === String(cat));
+  if (status === 'active') filtered = filtered.filter(p => p.is_active);
+  if (status === 'inactive') filtered = filtered.filter(p => !p.is_active);
+  document.getElementById('prod-table-wrap').innerHTML = buildProductsTable(filtered);
+}
+async function openProductForm(id) {
+  let p = {};
+  if (id) { const found = _allProducts.find(x => x.id === id); if (found) p = { ...found }; }
+  if (!_categories.length) _categories = await dbFetch('categories', { order: 'name', asc: true });
+  if (!_brands.length) _brands = await dbFetch('brands', { order: 'name', asc: true });
+  _uploadedImages = p.images ? (Array.isArray(p.images) ? p.images : [p.images]) : (p.image_url ? [p.image_url] : []);
+  const catOpts = _categories.map(c => `<option value="${c.id}" ${p.category_id == c.id ? 'selected' : ''}>${escapeHTML(c.name)}</option>`).join('');
+  const brandOpts = _brands.map(b => `<option value="${b.id}" ${p.brand_id == b.id ? 'selected' : ''}>${escapeHTML(b.name)}</option>`).join('');
+  openModal(id ? 'تعديل منتج' : 'إضافة منتج جديد', `
+    <div class="form-row">
+      <div class="form-group"><label>اسم المنتج *</label><input id="pf-name" value="${escapeHTML(p.name || '')}" placeholder="اسم المنتج" /></div>
+      <div class="form-group"><label>الماركة</label><select id="pf-brand"><option value="">-- اختر --</option>${brandOpts}</select></div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label>الفئة *</label><select id="pf-cat"><option value="">-- اختر --</option>${catOpts}</select></div>
+      <div class="form-group"><label>المخزون</label><input type="number" id="pf-stock" value="${p.stock_quantity ?? ''}" placeholder="0" min="0" /></div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label>السعر *</label><input type="number" id="pf-price" value="${p.price || ''}" placeholder="0.00" step="0.01" min="0" /></div>
+      <div class="form-group"><label>سعر الخصم</label><input type="number" id="pf-discount" value="${p.discount_price || ''}" placeholder="اختياري" step="0.01" min="0" /></div>
+    </div>
+    <div class="form-row full"><div class="form-group"><label>الوصف</label><textarea id="pf-desc" rows="3" placeholder="وصف المنتج...">${escapeHTML(p.description || '')}</textarea></div></div>
+    <div style="display:flex;flex-wrap:wrap;gap:16px;margin-bottom:16px">
+      <label class="form-check"><input type="checkbox" id="pf-active" ${p.is_active !== false ? 'checked' : ''} /> <span>نشط / ظاهر</span></label>
+      <label class="form-check"><input type="checkbox" id="pf-featured" ${p.is_featured ? 'checked' : ''} /> <span>منتج مميز</span></label>
+      <label class="form-check"><input type="checkbox" id="pf-bestseller" ${p.is_bestseller ? 'checked' : ''} /> <span>الأكثر مبيعاً</span></label>
+      <label class="form-check"><input type="checkbox" id="pf-newarrival" ${p.is_new_arrival ? 'checked' : ''} /> <span>وصول جديد</span></label>
+    </div>
+    <div class="form-group"><label>الصور</label>
+      <div class="img-upload-area" id="img-upload-area">
+        <input type="file" id="img-file-input" accept="image/*" multiple />
+        <div class="img-upload-icon"><i class="fas fa-cloud-upload-alt"></i></div>
+        <div class="img-upload-text">اسحبي الصور هنا أو انقري للاختيار</div>
+      </div>
+      <div class="img-url-input">
+        <input type="text" id="img-url-field" placeholder="أو أدخلي رابط صورة..." />
+        <button onclick="addImageURL()"><i class="fas fa-link"></i> إضافة</button>
+      </div>
+      <div class="img-preview-wrap" id="img-preview-wrap"></div>
+    </div>
+  `, async () => {
+    if (!rateLimit('save-product', 500)) return;
+    const name = document.getElementById('pf-name').value.trim();
+    const price = parseFloat(document.getElementById('pf-price').value);
+    if (!name || isNaN(price)) { toast('يرجى ملء الاسم والسعر', 'err'); return; }
+    const row = {
+      name, price,
+      category_id: document.getElementById('pf-cat').value || null,
+      brand_id: document.getElementById('pf-brand').value || null,
+      description: document.getElementById('pf-desc').value.trim(),
+      stock_quantity: parseInt(document.getElementById('pf-stock').value) || 0,
+      discount_price: parseFloat(document.getElementById('pf-discount').value) || null,
+      is_active: document.getElementById('pf-active').checked,
+      is_featured: document.getElementById('pf-featured').checked,
+      is_bestseller: document.getElementById('pf-bestseller').checked,
+      is_new_arrival: document.getElementById('pf-newarrival').checked,
+      image_url: _uploadedImages[0] || null,
+      images: _uploadedImages
+    };
+    let result;
+    if (id) result = await dbUpdate('products', id, row);
+    else result = await dbInsert('products', row);
+    if (result) { toast(id ? 'تم تحديث المنتج' : 'تمت إضافة المنتج', 'ok'); closeModal(); renderProducts(); }
+  });
+  renderImagePreviews();
+}
+async function toggleProductActive(id, current) {
+  if (!rateLimit('toggle-' + id, 500)) return;
+  const result = await dbUpdate('products', id, { is_active: !current });
+  if (result) { toast(!current ? 'تم تفعيل المنتج' : 'تم إخفاء المنتج', 'ok'); renderProducts(); }
+}
+async function deleteProduct(id) {
+  confirmAction('حذف المنتج', 'هل تريد حذف هذا المنتج نهائياً؟', async () => {
+    if (await dbDelete('products', id)) { toast('تم الحذف', 'ok'); renderProducts(); }
+  });
+}
+
+// ===== CATEGORIES PAGE =====
+async function renderCategories() {
+  const cats = await dbFetch('categories', { order: 'name', asc: true });
+  document.getElementById('page-content').innerHTML = `
+    <div class="admin-card">
+      <div class="admin-card-header">
+        <div class="admin-card-title"><i class="fas fa-tags" style="color:var(--gold)"></i> الفئات (${cats.length})</div>
+        <button class="btn-add" onclick="openCategoryForm()"><i class="fas fa-plus"></i> فئة جديدة</button>
+      </div>
+      <div class="admin-card-body"><div class="admin-table-wrap"><table>
+        <thead><tr><th>الاسم</th><th>الوصف</th><th>الأيقونة</th><th>الإجراءات</th></tr></thead>
+        <tbody>${cats.map(c => `<tr>
+          <td style="font-weight:600">${escapeHTML(c.name || '')}</td>
+          <td style="color:var(--gray);font-size:0.85rem">${escapeHTML(c.description || '-')}</td>
+          <td style="font-size:1.5rem">${escapeHTML(c.icon || '📦')}</td>
+          <td><div class="tbl-actions">
+            <button class="tbl-btn edit" onclick="openCategoryForm(${c.id})"><i class="fas fa-edit"></i> تعديل</button>
+            <button class="tbl-btn del" onclick="deleteCategory(${c.id})"><i class="fas fa-trash"></i></button>
+          </div></td>
+        </tr>`).join('') || '<tr><td colspan="4" style="text-align:center;color:var(--gray);padding:24px">لا توجد فئات</td></tr>'}
+        </tbody>
+      </table></div></div>
+    </div>
+  `;
+}
+async function openCategoryForm(id) {
+  let c = {};
+  if (id) { const cats = await dbFetch('categories', { eq: { id } }); c = cats[0] || {}; }
+  openModal(id ? 'تعديل فئة' : 'فئة جديدة', `
+    <div class="form-row">
+      <div class="form-group"><label>اسم الفئة *</label><input id="cf-name" value="${escapeHTML(c.name || '')}" /></div>
+      <div class="form-group"><label>أيقونة (emoji)</label><input id="cf-icon" value="${escapeHTML(c.icon || '')}" placeholder="مثل: 💄" /></div>
+    </div>
+    <div class="form-row full"><div class="form-group"><label>الوصف</label><textarea id="cf-desc">${escapeHTML(c.description || '')}</textarea></div></div>
+  `, async () => {
+    const name = document.getElementById('cf-name').value.trim();
+    if (!name) { toast('يرجى إدخال اسم الفئة', 'err'); return; }
+    const row = { name, icon: document.getElementById('cf-icon').value.trim(), description: document.getElementById('cf-desc').value.trim() };
+    const result = id ? await dbUpdate('categories', id, row) : await dbInsert('categories', row);
+    if (result) { toast(id ? 'تم التحديث' : 'تمت الإضافة', 'ok'); closeModal(); renderCategories(); }
+  });
+}
+async function deleteCategory(id) {
+  confirmAction('حذف الفئة', 'هل تريد حذف هذه الفئة؟', async () => {
+    if (await dbDelete('categories', id)) { toast('تم الحذف', 'ok'); renderCategories(); }
+  });
+}
+
+// ===== BRANDS PAGE =====
+async function renderBrands() {
+  const brands = await dbFetch('brands', { order: 'name', asc: true });
+  document.getElementById('page-content').innerHTML = `
+    <div class="admin-card">
+      <div class="admin-card-header">
+        <div class="admin-card-title"><i class="fas fa-star" style="color:var(--gold)"></i> الماركات (${brands.length})</div>
+        <button class="btn-add" onclick="openBrandForm()"><i class="fas fa-plus"></i> ماركة جديدة</button>
+      </div>
+      <div class="admin-card-body"><div class="admin-table-wrap"><table>
+        <thead><tr><th>الشعار</th><th>الاسم</th><th>الموقع</th><th>الإجراءات</th></tr></thead>
+        <tbody>${brands.map(b => `<tr>
+          <td>${b.logo_url ? `<img class="table-img" src="${sanitizeURL(b.logo_url)}" onerror="this.src='https://placehold.co/44x44/1C2333/D4AF37?text=B'" />` : '-'}</td>
+          <td style="font-weight:600">${escapeHTML(b.name || '')}</td>
+          <td><a href="${sanitizeURL(b.website || '')}" target="_blank" rel="noopener" style="color:var(--gold);font-size:0.85rem">${escapeHTML(b.website || '-')}</a></td>
+          <td><div class="tbl-actions">
+            <button class="tbl-btn edit" onclick="openBrandForm(${b.id})"><i class="fas fa-edit"></i> تعديل</button>
+            <button class="tbl-btn del" onclick="deleteBrand(${b.id})"><i class="fas fa-trash"></i></button>
+          </div></td>
+        </tr>`).join('') || '<tr><td colspan="4" style="text-align:center;color:var(--gray);padding:24px">لا توجد ماركات</td></tr>'}
+        </tbody>
+      </table></div></div>
+    </div>
+  `;
+}
+async function openBrandForm(id) {
+  let b = {};
+  if (id) { const brs = await dbFetch('brands', { eq: { id } }); b = brs[0] || {}; }
+  _uploadedImages = b.logo_url ? [b.logo_url] : [];
+  openModal(id ? 'تعديل ماركة' : 'ماركة جديدة', `
+    <div class="form-row">
+      <div class="form-group"><label>اسم الماركة *</label><input id="bf-name" value="${escapeHTML(b.name || '')}" /></div>
+      <div class="form-group"><label>الموقع الإلكتروني</label><input id="bf-web" type="url" value="${escapeHTML(b.website || '')}" placeholder="https://" /></div>
+    </div>
+    <div class="form-group"><label>شعار الماركة</label>
+      <div class="img-upload-area" id="img-upload-area">
+        <input type="file" id="img-file-input" accept="image/*" />
+        <div class="img-upload-icon"><i class="fas fa-cloud-upload-alt"></i></div>
+        <div class="img-upload-text">ارفعي شعار الماركة</div>
+      </div>
+      <div class="img-url-input"><input type="text" id="img-url-field" placeholder="أو رابط الصورة..." /><button onclick="addImageURL()"><i class="fas fa-link"></i> إضافة</button></div>
+      <div class="img-preview-wrap" id="img-preview-wrap"></div>
+    </div>
+  `, async () => {
+    const name = document.getElementById('bf-name').value.trim();
+    if (!name) { toast('يرجى إدخال اسم الماركة', 'err'); return; }
+    const row = { name, website: document.getElementById('bf-web').value.trim(), logo_url: _uploadedImages[0] || null };
+    const result = id ? await dbUpdate('brands', id, row) : await dbInsert('brands', row);
+    if (result) { toast(id ? 'تم التحديث' : 'تمت الإضافة', 'ok'); closeModal(); renderBrands(); }
+  });
+  renderImagePreviews();
+}
+async function deleteBrand(id) {
+  confirmAction('حذف الماركة', 'هل تريد حذف هذه الماركة؟', async () => {
+    if (await dbDelete('brands', id)) { toast('تم الحذف', 'ok'); renderBrands(); }
+  });
+}
+
+// ===== FLAGGED PRODUCTS (Featured / BestSellers / New Arrivals) =====
+async function renderFlaggedProducts(page, field, label) {
+  if (!_allProducts.length) _allProducts = await dbFetch('products', { select: '*, categories(name)', order: 'created_at' });
+  const flagged = _allProducts.filter(p => p[field]);
+  const notFlagged = _allProducts.filter(p => !p[field]);
+  document.getElementById('page-content').innerHTML = `
+    <div class="admin-card" style="margin-bottom:24px">
+      <div class="admin-card-header"><div class="admin-card-title" style="color:var(--gold)">${label} (${flagged.length})</div></div>
+      <div class="admin-card-body"><div class="admin-table-wrap"><table>
+        <thead><tr><th>الصورة</th><th>الاسم</th><th>الفئة</th><th>السعر</th><th>الإجراءات</th></tr></thead>
+        <tbody>${flagged.map(p => `<tr>
+          <td><img class="table-img" src="${sanitizeURL(p.image_url)}" onerror="this.src='https://placehold.co/44x44/1C2333/D4AF37?text=L'" /></td>
+          <td style="font-weight:600">${escapeHTML(p.name || '')}</td>
+          <td>${escapeHTML(p.categories?.name || '-')}</td>
+          <td>${fmtPrice(p.price)}</td>
+          <td><button class="tbl-btn del" onclick="setProductFlag(${p.id},'${field}',false,'${page}')"><i class="fas fa-minus-circle"></i> إزالة</button></td>
+        </tr>`).join('') || '<tr><td colspan="5" style="text-align:center;color:var(--gray);padding:24px">لا يوجد</td></tr>'}
+        </tbody>
+      </table></div></div>
+    </div>
+    <div class="admin-card">
+      <div class="admin-card-header"><div class="admin-card-title">إضافة منتج لـ ${label}</div></div>
+      <div class="admin-card-body"><div class="admin-table-wrap"><table>
+        <thead><tr><th>الاسم</th><th>الفئة</th><th>السعر</th><th>إضافة</th></tr></thead>
+        <tbody>${notFlagged.slice(0,20).map(p => `<tr>
+          <td style="font-weight:600">${escapeHTML(p.name || '')}</td>
+          <td>${escapeHTML(p.categories?.name || '-')}</td>
+          <td>${fmtPrice(p.price)}</td>
+          <td><button class="tbl-btn edit" onclick="setProductFlag(${p.id},'${field}',true,'${page}')"><i class="fas fa-plus-circle"></i> إضافة</button></td>
+        </tr>`).join('') || '<tr><td colspan="4" style="text-align:center;color:var(--gray);padding:24px">لا يوجد منتجات</td></tr>'}
+        </tbody>
+      </table></div></div>
+    </div>
+  `;
+}
+async function setProductFlag(id, field, val, page) {
+  const result = await dbUpdate('products', id, { [field]: val });
+  if (result) {
+    toast(val ? 'تمت الإضافة' : 'تمت الإزالة', 'ok');
+    const idx = _allProducts.findIndex(p => p.id === id);
+    if (idx >= 0) _allProducts[idx][field] = val;
+    renderFlaggedProducts(page, field, { featured:'المنتجات المميزة', bestsellers:'الأكثر مبيعاً', newarrivals:'أحدث الوصول' }[page]);
+  }
+}
+
+// ===== OFFERS PAGE =====
+async function renderOffers() {
+  const offers = await dbFetch('offers', { order: 'created_at' });
+  document.getElementById('page-content').innerHTML = `
+    <div class="admin-card">
+      <div class="admin-card-header">
+        <div class="admin-card-title"><i class="fas fa-percent" style="color:var(--gold)"></i> العروض (${offers.length})</div>
+        <button class="btn-add" onclick="openOfferForm()"><i class="fas fa-plus"></i> عرض جديد</button>
+      </div>
+      <div class="admin-card-body"><div class="admin-table-wrap"><table>
+        <thead><tr><th>العنوان</th><th>كود الخصم</th><th>الخصم %</th><th>انتهاء</th><th>الحالة</th><th>الإجراءات</th></tr></thead>
+        <tbody>${offers.map(o => `<tr>
+          <td style="font-weight:600">${escapeHTML(o.title || '')}</td>
+          <td><span class="badge-flag">${escapeHTML(o.code || '')}</span></td>
+          <td>${o.discount_percent || 0}%</td>
+          <td>${formatDate(o.expires_at)}</td>
+          <td><span class="${o.is_active ? 'badge-active' : 'badge-inactive'}">${o.is_active ? 'نشط' : 'منتهي'}</span></td>
+          <td><div class="tbl-actions">
+            <button class="tbl-btn edit" onclick="openOfferForm(${o.id})"><i class="fas fa-edit"></i></button>
+            <button class="tbl-btn del" onclick="deleteOffer(${o.id})"><i class="fas fa-trash"></i></button>
+          </div></td>
+        </tr>`).join('') || '<tr><td colspan="6" style="text-align:center;color:var(--gray);padding:24px">لا توجد عروض</td></tr>'}
+        </tbody>
+      </table></div></div>
+    </div>
+  `;
+}
+async function openOfferForm(id) {
+  let o = {};
+  if (id) { const res = await dbFetch('offers', { eq: { id } }); o = res[0] || {}; }
+  openModal(id ? 'تعديل عرض' : 'عرض جديد', `
+    <div class="form-row">
+      <div class="form-group"><label>عنوان العرض *</label><input id="of-title" value="${escapeHTML(o.title || '')}" /></div>
+      <div class="form-group"><label>كود الخصم</label><input id="of-code" value="${escapeHTML(o.code || '')}" placeholder="مثل: SAVE30" /></div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label>نسبة الخصم %</label><input type="number" id="of-pct" value="${o.discount_percent || ''}" min="1" max="100" /></div>
+      <div class="form-group"><label>تاريخ الانتهاء</label><input type="datetime-local" id="of-exp" value="${o.expires_at ? o.expires_at.slice(0,16) : ''}" /></div>
+    </div>
+    <div class="form-row full"><div class="form-group"><label>الوصف</label><textarea id="of-desc">${escapeHTML(o.description || '')}</textarea></div></div>
+    <label class="form-check"><input type="checkbox" id="of-active" ${o.is_active !== false ? 'checked' : ''} /> <span>عرض نشط</span></label>
+  `, async () => {
+    const title = document.getElementById('of-title').value.trim();
+    if (!title) { toast('يرجى إدخال عنوان العرض', 'err'); return; }
+    const row = { title, code: document.getElementById('of-code').value.trim().toUpperCase(), discount_percent: parseInt(document.getElementById('of-pct').value) || 0, expires_at: document.getElementById('of-exp').value || null, description: document.getElementById('of-desc').value.trim(), is_active: document.getElementById('of-active').checked };
+    const result = id ? await dbUpdate('offers', id, row) : await dbInsert('offers', row);
+    if (result) { toast(id ? 'تم التحديث' : 'تمت الإضافة', 'ok'); closeModal(); renderOffers(); }
+  });
+}
+async function deleteOffer(id) {
+  confirmAction('حذف العرض', 'هل تريد حذف هذا العرض؟', async () => {
+    if (await dbDelete('offers', id)) { toast('تم الحذف', 'ok'); renderOffers(); }
+  });
+}
+
+// ===== TESTIMONIALS PAGE =====
+async function renderTestimonials() {
+  const items = await dbFetch('testimonials', { order: 'created_at' });
+  document.getElementById('page-content').innerHTML = `
+    <div class="admin-card">
+      <div class="admin-card-header">
+        <div class="admin-card-title"><i class="fas fa-comment-dots" style="color:var(--gold)"></i> التقييمات (${items.length})</div>
+        <button class="btn-add" onclick="openTestimonialForm()"><i class="fas fa-plus"></i> تقييم جديد</button>
+      </div>
+      <div class="admin-card-body"><div class="admin-table-wrap"><table>
+        <thead><tr><th>الصورة</th><th>الاسم</th><th>التقييم</th><th>الرسالة</th><th>الحالة</th><th>الإجراءات</th></tr></thead>
+        <tbody>${items.map(t => `<tr>
+          <td>${t.avatar_url ? `<img class="table-img" src="${sanitizeURL(t.avatar_url)}" style="border-radius:50%" onerror="this.src='https://placehold.co/44x44/1C2333/gold?text=U'" />` : '-'}</td>
+          <td style="font-weight:600">${escapeHTML(t.name || '')}</td>
+          <td>${'★'.repeat(t.rating || 5)}</td>
+          <td style="color:var(--gray);font-size:0.85rem;max-width:220px">${escapeHTML((t.text || '').slice(0, 80))}...</td>
+          <td><span class="${t.is_active ? 'badge-active' : 'badge-inactive'}">${t.is_active ? 'نشط' : 'مخفي'}</span></td>
+          <td><div class="tbl-actions">
+            <button class="tbl-btn edit" onclick="openTestimonialForm(${t.id})"><i class="fas fa-edit"></i></button>
+            <button class="tbl-btn del" onclick="deleteTestimonial(${t.id})"><i class="fas fa-trash"></i></button>
+          </div></td>
+        </tr>`).join('') || '<tr><td colspan="6" style="text-align:center;color:var(--gray);padding:24px">لا توجد تقييمات</td></tr>'}
+        </tbody>
+      </table></div></div>
+    </div>
+  `;
+}
+async function openTestimonialForm(id) {
+  let t = {};
+  if (id) { const res = await dbFetch('testimonials', { eq: { id } }); t = res[0] || {}; }
+  _uploadedImages = t.avatar_url ? [t.avatar_url] : [];
+  openModal(id ? 'تعديل تقييم' : 'تقييم جديد', `
+    <div class="form-row">
+      <div class="form-group"><label>اسم العميلة *</label><input id="tf-name" value="${escapeHTML(t.name || '')}" /></div>
+      <div class="form-group"><label>التقييم (1-5)</label><input type="number" id="tf-rating" value="${t.rating || 5}" min="1" max="5" /></div>
+    </div>
+    <div class="form-row full"><div class="form-group"><label>التعليق *</label><textarea id="tf-text" rows="4">${escapeHTML(t.text || '')}</textarea></div></div>
+    <div class="form-group"><label>صورة العميلة</label>
+      <div class="img-upload-area" id="img-upload-area"><input type="file" id="img-file-input" accept="image/*" />
+        <div class="img-upload-icon"><i class="fas fa-user-circle"></i></div><div class="img-upload-text">ارفعي صورة العميلة</div></div>
+      <div class="img-url-input"><input type="text" id="img-url-field" placeholder="رابط الصورة..." /><button onclick="addImageURL()"><i class="fas fa-link"></i> إضافة</button></div>
+      <div class="img-preview-wrap" id="img-preview-wrap"></div>
+    </div>
+    <label class="form-check"><input type="checkbox" id="tf-active" ${t.is_active !== false ? 'checked' : ''} /> <span>ظاهر</span></label>
+  `, async () => {
+    const name = document.getElementById('tf-name').value.trim();
+    const text = document.getElementById('tf-text').value.trim();
+    if (!name || !text) { toast('يرجى ملء الاسم والتعليق', 'err'); return; }
+    const row = { name, text, rating: parseInt(document.getElementById('tf-rating').value) || 5, avatar_url: _uploadedImages[0] || null, is_active: document.getElementById('tf-active').checked };
+    const result = id ? await dbUpdate('testimonials', id, row) : await dbInsert('testimonials', row);
+    if (result) { toast(id ? 'تم التحديث' : 'تمت الإضافة', 'ok'); closeModal(); renderTestimonials(); }
+  });
+  renderImagePreviews();
+}
+async function deleteTestimonial(id) {
+  confirmAction('حذف التقييم', 'هل تريد حذف هذا التقييم؟', async () => {
+    if (await dbDelete('testimonials', id)) { toast('تم الحذف', 'ok'); renderTestimonials(); }
+  });
+}
+
+// ===== CONTENT EDITOR =====
+async function renderContent() {
+  const res = await dbFetch('site_data', { eq: { key: 'settings' } });
+  const settings = res[0]?.value || {};
+  document.getElementById('page-content').innerHTML = `
+    <div class="admin-card">
+      <div class="admin-card-header"><div class="admin-card-title"><i class="fas fa-edit" style="color:var(--gold)"></i> محرر محتوى الموقع</div></div>
+      <div class="admin-card-body">
+        <div class="settings-grid">
+          <div>
+            <h3 style="font-size:1rem;margin-bottom:16px;color:var(--gold)">معلومات المتجر</h3>
+            <div class="form-group"><label>اسم المتجر</label><input id="ct-name" value="${escapeHTML(settings.store_name || 'Leelush')}" /></div>
+            <div class="form-group"><label>واتساب (مع كود الدولة)</label><input id="ct-wa" value="${escapeHTML(settings.whatsapp || '')}" placeholder="+961XXXXXXXX" /></div>
+            <div class="form-group"><label>إنستغرام</label><input id="ct-ig" value="${escapeHTML(settings.instagram || '')}" placeholder="@handle" /></div>
+            <div class="form-group"><label>تيك توك</label><input id="ct-tt" value="${escapeHTML(settings.tiktok || '')}" placeholder="@handle" /></div>
+            <div class="form-group"><label>فيسبوك</label><input id="ct-fb" value="${escapeHTML(settings.facebook || '')}" placeholder="رابط الصفحة" /></div>
+            <div class="form-group"><label>الهاتف</label><input id="ct-phone" value="${escapeHTML(settings.phone || '')}" /></div>
+            <div class="form-group"><label>البريد الإلكتروني</label><input id="ct-email" value="${escapeHTML(settings.email || '')}" type="email" /></div>
+          </div>
+          <div>
+            <h3 style="font-size:1rem;margin-bottom:16px;color:var(--gold)">محتوى الصفحة</h3>
+            <div class="form-group"><label>عنوان الهيرو</label><input id="ct-hero-title" value="${escapeHTML(settings.hero_title || 'اكتشفي جمالك الحقيقي معنا')}" /></div>
+            <div class="form-group"><label>وصف الهيرو</label><textarea id="ct-hero-desc">${escapeHTML(settings.hero_desc || '')}</textarea></div>
+            <div class="form-group"><label>صورة الهيرو (رابط)</label><input id="ct-hero-img" value="${escapeHTML(settings.hero_image || '')}" /></div>
+            <div class="form-group"><label>قصة المتجر (من نحن)</label><textarea id="ct-about" rows="4">${escapeHTML(settings.about_text || '')}</textarea></div>
+            <div class="form-group"><label>العنوان</label><input id="ct-addr" value="${escapeHTML(settings.address || '')}" /></div>
+            <div class="form-group"><label>ساعات العمل</label><input id="ct-hours" value="${escapeHTML(settings.working_hours || '9 ص - 9 م')}" /></div>
+            <div class="form-group"><label>العملة</label>
+              <select id="ct-currency">
+                <option value="USD" ${settings.currency==='USD'?'selected':''}>USD - دولار</option>
+                <option value="LBP" ${settings.currency==='LBP'?'selected':''}>LBP - ليرة لبنانية</option>
+                <option value="SAR" ${settings.currency==='SAR'?'selected':''}>SAR - ريال سعودي</option>
+                <option value="AED" ${settings.currency==='AED'?'selected':''}>AED - درهم إماراتي</option>
+              </select>
+            </div>
+          </div>
+        </div>
+        <div style="margin-top:20px">
+          <h3 style="font-size:1rem;margin-bottom:16px;color:var(--gold)">الإحصائيات (Hero)</h3>
+          <div class="form-row">
+            <div class="form-group"><label>عدد المنتجات</label><input id="ct-stat-products" value="${escapeHTML(settings.stat_products || '500+')}" /></div>
+            <div class="form-group"><label>عدد الماركات</label><input id="ct-stat-brands" value="${escapeHTML(settings.stat_brands || '50+')}" /></div>
+            <div class="form-group"><label>عدد العملاء</label><input id="ct-stat-customers" value="${escapeHTML(settings.stat_customers || '10K+')}" /></div>
+          </div>
+        </div>
+        <button class="btn-save" onclick="saveContent()" style="margin-top:20px"><i class="fas fa-save"></i> حفظ التغييرات</button>
+      </div>
+    </div>
+  `;
+}
+async function saveContent() {
+  if (!rateLimit('save-content', 1000)) return;
+  const settings = {
+    store_name: document.getElementById('ct-name').value.trim(),
+    whatsapp: document.getElementById('ct-wa').value.trim(),
+    instagram: document.getElementById('ct-ig').value.trim(),
+    tiktok: document.getElementById('ct-tt').value.trim(),
+    facebook: document.getElementById('ct-fb').value.trim(),
+    phone: document.getElementById('ct-phone').value.trim(),
+    email: document.getElementById('ct-email').value.trim(),
+    hero_title: document.getElementById('ct-hero-title').value.trim(),
+    hero_desc: document.getElementById('ct-hero-desc').value.trim(),
+    hero_image: document.getElementById('ct-hero-img').value.trim(),
+    about_text: document.getElementById('ct-about').value.trim(),
+    address: document.getElementById('ct-addr').value.trim(),
+    working_hours: document.getElementById('ct-hours').value.trim(),
+    currency: document.getElementById('ct-currency').value,
+    stat_products: document.getElementById('ct-stat-products').value.trim(),
+    stat_brands: document.getElementById('ct-stat-brands').value.trim(),
+    stat_customers: document.getElementById('ct-stat-customers').value.trim(),
+  };
+  const { error } = await _supa.from('site_data').upsert({ key: 'settings', value: settings });
+  if (error) { toast('خطأ في الحفظ: ' + error.message, 'err'); return; }
+  toast('تم حفظ المحتوى بنجاح', 'ok');
+}
+
+// ===== MEDIA LIBRARY =====
+async function renderMedia() {
+  document.getElementById('page-content').innerHTML = `
+    <div class="admin-card">
+      <div class="admin-card-header"><div class="admin-card-title"><i class="fas fa-images" style="color:var(--gold)"></i> مكتبة الصور</div>
+        <button class="btn-add" onclick="document.getElementById('media-upload-input').click()"><i class="fas fa-upload"></i> رفع صور</button>
+      </div>
+      <div class="admin-card-body">
+        <input type="file" id="media-upload-input" accept="image/*" multiple style="display:none" onchange="uploadMediaFiles(this.files)" />
+        <div id="media-grid-wrap"><div style="text-align:center;padding:40px;color:var(--gray)">جاري التحميل...</div></div>
+      </div>
+    </div>
+  `;
+  loadMediaFiles();
+}
+async function loadMediaFiles() {
+  const { data, error } = await _supa.storage.from('beauty-images').list('', { limit: 100, sortBy: { column: 'created_at', order: 'desc' } });
+  const wrap = document.getElementById('media-grid-wrap');
+  if (error || !data?.length) { wrap.innerHTML = '<p style="text-align:center;color:var(--gray);padding:40px">لا توجد صور</p>'; return; }
+  const urls = data.map(f => ({ name: f.name, url: _supa.storage.from('beauty-images').getPublicUrl(f.name).data.publicUrl }));
+  wrap.innerHTML = `<div class="media-grid">${urls.map(f => `
+    <div class="media-item">
+      <img src="${sanitizeURL(f.url)}" alt="${escapeHTML(f.name)}" loading="lazy" onerror="this.src='https://placehold.co/140x140/1C2333/D4AF37?text=?'" />
+      <div class="media-item-overlay">
+        <button class="media-action" onclick="copyToClipboard('${sanitizeURL(f.url)}')" title="نسخ الرابط"><i class="fas fa-copy"></i></button>
+        <button class="media-action del" onclick="deleteMediaFile('${escapeHTML(f.name)}')" title="حذف"><i class="fas fa-trash"></i></button>
+      </div>
+    </div>
+  `).join('')}</div>`;
+}
+async function uploadMediaFiles(files) {
+  if (!files?.length) return;
+  for (const file of files) {
+    if (!file.type.startsWith('image/')) continue;
+    const name = Date.now() + '_' + file.name.replace(/[^a-zA-Z0-9._-]/g, '_');
+    const { error } = await _supa.storage.from('beauty-images').upload(name, file, { upsert: true });
+    if (error) { toast('خطأ في الرفع: ' + error.message, 'err'); } else toast('تم رفع ' + file.name, 'ok');
+  }
+  loadMediaFiles();
+}
+async function deleteMediaFile(name) {
+  confirmAction('حذف الصورة', 'هل تريد حذف هذه الصورة نهائياً؟', async () => {
+    const { error } = await _supa.storage.from('beauty-images').remove([name]);
+    if (error) { toast('خطأ في الحذف', 'err'); } else { toast('تم الحذف', 'ok'); loadMediaFiles(); }
+  });
+}
+function copyToClipboard(text) {
+  navigator.clipboard.writeText(text).then(() => toast('تم نسخ الرابط', 'ok')).catch(() => toast('تعذر النسخ', 'err'));
+}
+
+// ===== ORDERS PAGE =====
+async function renderOrders() {
+  const orders = await dbFetch('orders', { order: 'created_at' });
+  document.getElementById('page-content').innerHTML = `
+    <div class="admin-card">
+      <div class="admin-card-header"><div class="admin-card-title"><i class="fas fa-shopping-cart" style="color:var(--gold)"></i> الطلبات (${orders.length})</div></div>
+      <div class="admin-card-body"><div class="admin-table-wrap"><table>
+        <thead><tr><th>رقم الطلب</th><th>العميل</th><th>الهاتف</th><th>المجموع</th><th>الحالة</th><th>التاريخ</th><th>الإجراءات</th></tr></thead>
+        <tbody>${orders.map(o => `<tr>
+          <td style="font-weight:700">#${o.id}</td>
+          <td>${escapeHTML(o.customer_name || 'زائر')}</td>
+          <td>${escapeHTML(o.phone || '-')}</td>
+          <td>${fmtPrice(o.total)}</td>
+          <td><span class="order-status ${o.status || 'pending'}">${{pending:'قيد الانتظار',completed:'مكتمل',cancelled:'ملغي'}[o.status] || 'قيد الانتظار'}</span></td>
+          <td>${formatDate(o.created_at)}</td>
+          <td><div class="tbl-actions">
+            <button class="tbl-btn edit" onclick="updateOrderStatus(${o.id},'completed')"><i class="fas fa-check"></i> مكتمل</button>
+            <button class="tbl-btn del" onclick="updateOrderStatus(${o.id},'cancelled')"><i class="fas fa-ban"></i> إلغاء</button>
+          </div></td>
+        </tr>`).join('') || '<tr><td colspan="7" style="text-align:center;color:var(--gray);padding:32px">لا توجد طلبات</td></tr>'}
+        </tbody>
+      </table></div></div>
+    </div>
+  `;
+}
+async function updateOrderStatus(id, status) {
+  const result = await dbUpdate('orders', id, { status });
+  if (result) { toast('تم تحديث حالة الطلب', 'ok'); renderOrders(); }
+}
+
+// ===== DESIGN SETTINGS =====
+async function renderDesign() {
+  const res = await dbFetch('site_data', { eq: { key: 'design' } });
+  const design = res[0]?.value || {};
+  document.getElementById('page-content').innerHTML = `
+    <div class="admin-card">
+      <div class="admin-card-header"><div class="admin-card-title"><i class="fas fa-palette" style="color:var(--gold)"></i> إعدادات التصميم</div></div>
+      <div class="admin-card-body">
+        <div class="settings-grid">
+          <div>
+            <h3 style="font-size:1rem;margin-bottom:16px;color:var(--gold)">الألوان</h3>
+            <div class="color-row"><label>اللون الرئيسي</label><input type="color" id="ds-primary" value="${design.primary || '#C8102E'}" /><input type="text" id="ds-primary-txt" value="${design.primary || '#C8102E'}" /></div>
+            <div class="color-row"><label>لون التمييز</label><input type="color" id="ds-accent" value="${design.accent || '#E8A020'}" /><input type="text" id="ds-accent-txt" value="${design.accent || '#E8A020'}" /></div>
+            <div class="color-row"><label>الخلفية</label><input type="color" id="ds-bg" value="${design.dark || '#0E1117'}" /><input type="text" id="ds-bg-txt" value="${design.dark || '#0E1117'}" /></div>
+            <div class="color-row"><label>لون الذهب</label><input type="color" id="ds-gold" value="${design.gold || '#D4AF37'}" /><input type="text" id="ds-gold-txt" value="${design.gold || '#D4AF37'}" /></div>
+          </div>
+          <div>
+            <h3 style="font-size:1rem;margin-bottom:16px;color:var(--gold)">الشعار والأيقونة</h3>
+            <div class="form-group"><label>رابط شعار المتجر</label><input id="ds-logo" value="${escapeHTML(design.logo_url || '')}" placeholder="https://..." /></div>
+            <div class="form-group"><label>معاينة الشعار</label><div style="margin-top:8px">${design.logo_url ? `<img src="${sanitizeURL(design.logo_url)}" style="max-height:60px;border-radius:8px" />` : '<span style="color:var(--gray)">لا يوجد شعار</span>'}</div></div>
+            <div class="form-group"><label>شعار الأيقونة (Favicon)</label><input id="ds-favicon" value="${escapeHTML(design.favicon_url || '')}" /></div>
+            <h3 style="font-size:1rem;margin:20px 0 12px;color:var(--gold)">الخطوط</h3>
+            <div class="form-group"><label>الخط الرئيسي</label>
+              <select id="ds-font">
+                <option value="Cairo" ${design.font==='Cairo'?'selected':''}>Cairo (عربي)</option>
+                <option value="Tajawal" ${design.font==='Tajawal'?'selected':''}>Tajawal</option>
+                <option value="Noto Sans Arabic" ${design.font==='Noto Sans Arabic'?'selected':''}>Noto Sans Arabic</option>
+              </select>
+            </div>
+          </div>
+        </div>
+        <button class="btn-save" onclick="saveDesign()" style="margin-top:20px"><i class="fas fa-save"></i> حفظ التصميم</button>
+      </div>
+    </div>
+  `;
+  document.querySelectorAll('[id^="ds-"][id$="-txt"]').forEach(txt => {
+    const colorId = txt.id.replace('-txt', '');
+    const colorInput = document.getElementById(colorId);
+    if (colorInput) {
+      colorInput.addEventListener('input', () => { txt.value = colorInput.value; });
+      txt.addEventListener('input', () => { if (/^#[0-9A-Fa-f]{6}$/.test(txt.value)) colorInput.value = txt.value; });
+    }
+  });
+}
+async function saveDesign() {
+  if (!rateLimit('save-design', 1000)) return;
+  const design = {
+    primary: document.getElementById('ds-primary').value,
+    accent: document.getElementById('ds-accent').value,
+    dark: document.getElementById('ds-bg').value,
+    gold: document.getElementById('ds-gold').value,
+    logo_url: document.getElementById('ds-logo').value.trim(),
+    favicon_url: document.getElementById('ds-favicon').value.trim(),
+    font: document.getElementById('ds-font').value,
+  };
+  const { error } = await _supa.from('site_data').upsert({ key: 'design', value: design });
+  if (error) { toast('خطأ في الحفظ', 'err'); return; }
+  toast('تم حفظ التصميم', 'ok');
+}
+
+// ===== SETTINGS PAGE =====
+async function renderSettings() {
+  document.getElementById('page-content').innerHTML = `
+    <div class="admin-card">
+      <div class="admin-card-header"><div class="admin-card-title"><i class="fas fa-cog" style="color:var(--gold)"></i> الإعدادات العامة</div></div>
+      <div class="admin-card-body">
+        <div class="settings-grid">
+          <div>
+            <h3 style="font-size:1rem;margin-bottom:16px;color:var(--gold)">إعدادات Supabase</h3>
+            <div class="form-group"><label>Supabase URL</label><input id="set-url" value="${SUPABASE_URL}" placeholder="https://xxx.supabase.co" style="direction:ltr" /></div>
+            <div class="form-group"><label>Supabase Anon Key</label><input id="set-key" value="${SUPABASE_ANON_KEY}" placeholder="eyJhbGciOiJIUzI1NiIs..." style="direction:ltr;font-size:0.75rem" /></div>
+            <p style="color:var(--gray);font-size:0.8rem;margin-top:8px">بعد تغيير الإعدادات يرجى تحديث قيم SUPABASE_URL و SUPABASE_ANON_KEY في ملفات admin.html و site-loader.js</p>
+          </div>
+          <div>
+            <h3 style="font-size:1rem;margin-bottom:16px;color:var(--gold)">الأمان</h3>
+            <p style="color:var(--gray);font-size:0.88rem;line-height:1.8">
+              ✅ CSP مفعل<br/>
+              ✅ RLS مفعل على Supabase<br/>
+              ✅ فلترة المدخلات<br/>
+              ✅ تسجيل الخروج التلقائي بعد 30 دقيقة<br/>
+              ✅ Rate limiting مفعل<br/>
+              ✅ XSS protection عبر escapeHTML
+            </p>
+            <div style="margin-top:20px">
+              <h3 style="font-size:1rem;margin-bottom:12px;color:var(--gold)">SQL لإنشاء الجداول</h3>
+              <button class="tbl-btn edit" onclick="showSQLModal()"><i class="fas fa-database"></i> عرض SQL Setup</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
+}
+function showSQLModal() {
+  openModal('SQL - إنشاء جداول Supabase', `
+    <p style="color:var(--gray);margin-bottom:16px;font-size:0.88rem">نفذي هذا الـ SQL في Supabase SQL Editor لإنشاء الجداول المطلوبة:</p>
+    <textarea style="width:100%;height:400px;background:var(--dark3);border:1px solid var(--border);color:var(--text);padding:12px;border-radius:8px;font-family:monospace;font-size:0.78rem;direction:ltr" readonly>
+-- Enable UUID extension
+create extension if not exists "uuid-ossp";
+
+-- CATEGORIES
+create table if not exists categories (
+  id bigserial primary key,
+  name text not null,
+  description text,
+  icon text,
+  created_at timestamptz default now()
+);
+
+-- BRANDS
+create table if not exists brands (
+  id bigserial primary key,
+  name text not null,
+  logo_url text,
+  website text,
+  created_at timestamptz default now()
+);
+
+-- PRODUCTS
+create table if not exists products (
+  id bigserial primary key,
+  name text not null,
+  description text,
+  price numeric(10,2) not null default 0,
+  discount_price numeric(10,2),
+  stock_quantity integer default 0,
+  image_url text,
+  images jsonb,
+  category_id bigint references categories(id) on delete set null,
+  brand_id bigint references brands(id) on delete set null,
+  is_active boolean default true,
+  is_featured boolean default false,
+  is_bestseller boolean default false,
+  is_new_arrival boolean default false,
+  created_at timestamptz default now()
+);
+
+-- OFFERS
+create table if not exists offers (
+  id bigserial primary key,
+  title text not null,
+  description text,
+  code text,
+  discount_percent integer default 0,
+  expires_at timestamptz,
+  is_active boolean default true,
+  created_at timestamptz default now()
+);
+
+-- TESTIMONIALS
+create table if not exists testimonials (
+  id bigserial primary key,
+  name text not null,
+  text text not null,
+  rating integer default 5,
+  avatar_url text,
+  is_active boolean default true,
+  created_at timestamptz default now()
+);
+
+-- ORDERS
+create table if not exists orders (
+  id bigserial primary key,
+  customer_name text,
+  phone text,
+  items jsonb,
+  total numeric(10,2),
+  status text default 'pending',
+  created_at timestamptz default now()
+);
+
+-- SITE DATA (settings/design)
+create table if not exists site_data (
+  key text primary key,
+  value jsonb,
+  updated_at timestamptz default now()
+);
+
+-- RLS POLICIES
+alter table categories enable row level security;
+alter table brands enable row level security;
+alter table products enable row level security;
+alter table offers enable row level security;
+alter table testimonials enable row level security;
+alter table orders enable row level security;
+alter table site_data enable row level security;
+
+-- Public SELECT
+create policy "public_read_categories" on categories for select using (true);
+create policy "public_read_brands" on brands for select using (true);
+create policy "public_read_products" on products for select using (is_active = true);
+create policy "public_read_offers" on offers for select using (is_active = true);
+create policy "public_read_testimonials" on testimonials for select using (is_active = true);
+create policy "public_read_site_data" on site_data for select using (true);
+
+-- Authenticated (admin) ALL
+create policy "admin_all_categories" on categories for all using (auth.role() = 'authenticated');
+create policy "admin_all_brands" on brands for all using (auth.role() = 'authenticated');
+create policy "admin_all_products" on products for all using (auth.role() = 'authenticated');
+create policy "admin_all_offers" on offers for all using (auth.role() = 'authenticated');
+create policy "admin_all_testimonials" on testimonials for all using (auth.role() = 'authenticated');
+create policy "admin_all_orders" on orders for all using (auth.role() = 'authenticated');
+create policy "admin_all_site_data" on site_data for all using (auth.role() = 'authenticated');
+
+-- Storage: beauty-images bucket
+-- Run in Storage settings: create bucket "beauty-images" as public
+    </textarea>
+    <button class="btn-save" style="margin-top:12px" onclick="copyToClipboard(document.querySelector('#modal-body textarea').value)"><i class="fas fa-copy"></i> نسخ SQL</button>
+  `, null, 'إغلاق');
+  document.getElementById('modal-save-btn').style.display = 'none';
+}
+
+// ===== STARTUP =====
+checkSession();
+</script>
+</body>
+</html>

@@ -1,0 +1,1051 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<meta http-equiv="Content-Security-Policy" content="default-src 'self' https://*.supabase.co https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; img-src 'self' data: blob: https://*.supabase.co https://placehold.co https://picsum.photos https://images.unsplash.com; style-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://fonts.googleapis.com; font-src 'self' https://cdnjs.cloudflare.com https://fonts.gstatic.com; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net;"/>
+<meta name="referrer" content="strict-origin-when-cross-origin"/>
+<title>Leelush – Luxury Beauty Store</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700;900&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+<style>
+:root{
+  --pink:#E8547A;--pink2:#FF8FAB;--pink-pale:#FFF0F4;--pink-light:#FFE4EC;
+  --rose:#C9556A;--gold:#C9956C;--gold-light:#F0C27F;
+  --white:#FFFFFF;--off-white:#FFF8FA;--light:#F9F1F3;
+  --text:#2D2D2D;--text2:#666;--text3:#999;
+  --border:#F5DDE4;--border2:#EDD5DC;
+  --shadow:0 4px 24px rgba(232,84,122,.10);
+  --shadow2:0 8px 40px rgba(232,84,122,.15);
+  --radius:14px;--radius2:24px;
+  --transition:all .28s cubic-bezier(.4,0,.2,1);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth;font-size:15px}
+body{font-family:'Poppins',sans-serif;background:var(--white);color:var(--text);overflow-x:hidden;line-height:1.6}
+a{text-decoration:none;color:inherit}ul{list-style:none}
+button{cursor:pointer;font-family:'Poppins',sans-serif;border:none;outline:none}
+img{max-width:100%;display:block}
+::-webkit-scrollbar{width:5px}::-webkit-scrollbar-track{background:#f9f1f3}::-webkit-scrollbar-thumb{background:var(--pink2);border-radius:3px}
+
+@keyframes fadeUp{from{opacity:0;transform:translateY(30px)}to{opacity:1;transform:translateY(0)}}
+@keyframes shimmer{0%{background-position:-200% 0}100%{background-position:200% 0}}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(232,84,122,.35)}50%{box-shadow:0 0 0 12px rgba(232,84,122,0)}}
+@keyframes bounceIn{0%{transform:scale(0.7);opacity:0}70%{transform:scale(1.08)}100%{transform:scale(1);opacity:1}}
+.reveal{opacity:0;transform:translateY(24px);transition:opacity .6s ease,transform .6s ease}
+.reveal.visible{opacity:1;transform:translateY(0)}
+
+/* PROMO BAR */
+#promo-bar{background:linear-gradient(90deg,var(--pink),var(--rose),var(--pink));color:#fff;text-align:center;padding:9px 16px;font-size:.82rem;font-weight:600;letter-spacing:.3px}
+#promo-bar span{opacity:.8;margin:0 12px}
+
+/* NAVBAR */
+#navbar{position:sticky;top:0;width:100%;z-index:1000;background:rgba(255,255,255,.97);border-bottom:1px solid var(--border);backdrop-filter:blur(16px);transition:var(--transition)}
+#navbar.scrolled{box-shadow:var(--shadow)}
+.nav-inner{max-width:1380px;margin:0 auto;padding:0 24px;display:flex;align-items:center;justify-content:space-between;height:68px;gap:16px}
+.nav-logo{display:flex;align-items:center;gap:10px;flex-shrink:0}
+.nav-logo img{width:40px;height:40px;border-radius:50%;object-fit:cover;border:2px solid var(--pink-light)}
+.nav-logo span{font-size:1.55rem;font-weight:900;background:linear-gradient(135deg,var(--pink),var(--rose));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.nav-links{display:flex;align-items:center;gap:2px;flex:1;justify-content:center}
+.nav-links a{padding:7px 13px;border-radius:8px;font-size:.85rem;font-weight:600;color:var(--text2);transition:var(--transition)}
+.nav-links a:hover,.nav-links a.active{color:var(--pink);background:var(--pink-pale)}
+.nav-actions{display:flex;align-items:center;gap:8px;flex-shrink:0}
+.nav-icon-btn{width:38px;height:38px;border-radius:50%;background:var(--pink-pale);border:1px solid var(--border);color:var(--text2);display:flex;align-items:center;justify-content:center;font-size:.95rem;transition:var(--transition);position:relative}
+.nav-icon-btn:hover{background:var(--pink);color:#fff;border-color:var(--pink)}
+.nav-badge{position:absolute;top:-3px;right:-3px;background:var(--pink);color:#fff;font-size:.6rem;width:17px;height:17px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700}
+.nav-wa{background:linear-gradient(135deg,#25D366,#128C7E);color:#fff;padding:9px 18px;border-radius:25px;font-size:.83rem;font-weight:700;display:flex;align-items:center;gap:7px;transition:var(--transition);white-space:nowrap}
+.nav-wa:hover{transform:translateY(-2px);box-shadow:0 6px 18px rgba(37,211,102,.35)}
+.nav-ham{display:none;background:var(--pink-pale);border:1px solid var(--border);color:var(--text);width:38px;height:38px;border-radius:8px;align-items:center;justify-content:center;font-size:1.1rem}
+.mobile-menu{display:none;position:fixed;top:68px;left:0;right:0;background:#fff;border-bottom:1px solid var(--border);padding:16px;z-index:999;flex-direction:column;gap:4px;box-shadow:var(--shadow2)}
+.mobile-menu.open{display:flex}
+.mobile-menu a{padding:10px 14px;border-radius:8px;font-size:.95rem;font-weight:600;color:var(--text);transition:var(--transition)}
+.mobile-menu a:hover{background:var(--pink-pale);color:var(--pink)}
+
+/* SEARCH */
+#search-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.4);backdrop-filter:blur(6px);z-index:2000;align-items:flex-start;justify-content:center;padding-top:90px}
+#search-overlay.open{display:flex;animation:fadeUp .2s ease}
+.search-box{background:#fff;border-radius:var(--radius2);padding:24px;width:90%;max-width:560px;box-shadow:var(--shadow2)}
+.search-box input{width:100%;border:2px solid var(--border2);border-radius:12px;padding:12px 18px;font-size:1rem;font-family:'Poppins',sans-serif;color:var(--text);outline:none;transition:var(--transition)}
+.search-box input:focus{border-color:var(--pink)}
+.search-result-item{display:flex;align-items:center;gap:12px;padding:10px 12px;border-radius:10px;cursor:pointer;transition:var(--transition)}
+.search-result-item:hover{background:var(--pink-pale)}
+.search-result-item img{width:46px;height:46px;border-radius:8px;object-fit:cover}
+
+/* HERO */
+#hero{background:linear-gradient(135deg,#FFF0F4 0%,#FDE8EF 40%,#FFE4EC 100%);min-height:520px;display:flex;align-items:center;overflow:hidden;position:relative;padding:60px 24px}
+.hero-shapes{position:absolute;inset:0;overflow:hidden;pointer-events:none}
+.hero-shape{position:absolute;border-radius:50%;opacity:.15}
+.hero-shape.s1{width:400px;height:400px;background:var(--pink);top:-100px;left:-80px}
+.hero-shape.s2{width:300px;height:300px;background:var(--gold);bottom:-60px;right:200px}
+.hero-shape.s3{width:200px;height:200px;background:var(--pink2);top:40px;right:100px}
+.hero-inner{max-width:1380px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr;gap:48px;align-items:center;width:100%;position:relative;z-index:1}
+.hero-text{animation:fadeUp .7s ease both}
+.hero-tag{display:inline-flex;align-items:center;gap:7px;background:rgba(232,84,122,.1);border:1px solid rgba(232,84,122,.25);color:var(--pink);padding:6px 14px;border-radius:20px;font-size:.8rem;font-weight:700;margin-bottom:18px}
+.hero-h1{font-size:clamp(1.8rem,4.5vw,3rem);font-weight:900;line-height:1.25;color:var(--text);margin-bottom:16px}
+.hero-h1 em{font-style:normal;background:linear-gradient(135deg,var(--pink),var(--rose));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.hero-p{color:var(--text2);font-size:1rem;margin-bottom:28px;max-width:440px}
+.hero-btns{display:flex;gap:12px;flex-wrap:wrap}
+.btn-pink{background:linear-gradient(135deg,var(--pink),var(--rose));color:#fff;padding:13px 30px;border-radius:30px;font-size:.95rem;font-weight:700;display:inline-flex;align-items:center;gap:8px;transition:var(--transition);box-shadow:0 4px 16px rgba(232,84,122,.35)}
+.btn-pink:hover{transform:translateY(-3px);box-shadow:0 8px 24px rgba(232,84,122,.45)}
+.btn-outline-pink{background:transparent;color:var(--pink);padding:12px 28px;border-radius:30px;font-size:.95rem;font-weight:700;border:2px solid var(--pink);display:inline-flex;align-items:center;gap:8px;transition:var(--transition)}
+.btn-outline-pink:hover{background:var(--pink);color:#fff;transform:translateY(-3px)}
+.hero-stats{display:flex;gap:24px;margin-top:32px}
+.hero-stat .n{font-size:1.5rem;font-weight:900;color:var(--pink)}
+.hero-stat .l{font-size:.75rem;color:var(--text3)}
+.hero-imgs{position:relative;display:flex;justify-content:center;align-items:center;animation:fadeUp .7s .15s ease both}
+.hero-main-img{width:100%;max-width:460px;border-radius:var(--radius2);box-shadow:var(--shadow2);object-fit:cover;height:380px}
+.hero-card{position:absolute;background:#fff;border-radius:14px;padding:12px 16px;box-shadow:0 6px 28px rgba(0,0,0,.12);border:1px solid var(--border)}
+.hero-card.c1{bottom:24px;right:-20px;animation:float 4s ease-in-out infinite}
+.hero-card.c2{top:24px;left:-20px;animation:float 5s 1s ease-in-out infinite}
+.hero-card .ci{font-size:1.4rem}
+.hero-card .cl{font-size:.7rem;color:var(--text3)}
+.hero-card .cv{font-size:.9rem;font-weight:700;color:var(--pink)}
+
+/* QUICK CATS */
+.quick-cats{background:#fff;border-bottom:1px solid var(--border);padding:14px 24px}
+.quick-cats-inner{max-width:1380px;margin:0 auto;display:flex;gap:10px;overflow-x:auto;scrollbar-width:none;align-items:center}
+.quick-cats-inner::-webkit-scrollbar{display:none}
+.qcat{display:flex;align-items:center;gap:7px;padding:7px 16px;border-radius:25px;background:var(--pink-pale);border:1px solid var(--border);color:var(--text);font-size:.83rem;font-weight:600;white-space:nowrap;cursor:pointer;transition:var(--transition);flex-shrink:0}
+.qcat:hover,.qcat.active{background:var(--pink);color:#fff;border-color:var(--pink)}
+.qcat .emoji{font-size:1rem}
+
+/* SECTION */
+.sec{padding:64px 24px}
+.sec-inner{max-width:1380px;margin:0 auto}
+.sec-head{text-align:center;margin-bottom:40px}
+.sec-badge{display:inline-block;background:var(--pink-pale);border:1px solid rgba(232,84,122,.2);color:var(--pink);padding:5px 14px;border-radius:16px;font-size:.78rem;font-weight:700;margin-bottom:10px}
+.sec-title{font-size:clamp(1.4rem,3vw,2rem);font-weight:900;color:var(--text);margin-bottom:8px}
+.sec-title em{font-style:normal;color:var(--pink)}
+.sec-sub{color:var(--text3);font-size:.9rem}
+.sec-divider{width:50px;height:3px;background:linear-gradient(90deg,var(--pink),var(--gold-light));border-radius:2px;margin:12px auto 0}
+
+/* CATEGORY CARDS */
+.cats-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:16px}
+.cat-card{background:#fff;border:1px solid var(--border);border-radius:var(--radius);padding:22px 16px;text-align:center;cursor:pointer;transition:var(--transition);position:relative;overflow:hidden}
+.cat-card::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,var(--pink-pale),transparent);opacity:0;transition:var(--transition)}
+.cat-card:hover{transform:translateY(-6px);border-color:var(--pink);box-shadow:var(--shadow2)}
+.cat-card:hover::before,.cat-card.active-cat{border-color:var(--pink);box-shadow:var(--shadow2)}
+.cat-card.active-cat{background:var(--pink-pale);border-color:var(--pink)}
+.cat-card:hover::before{opacity:1}
+.cat-icon{width:60px;height:60px;background:var(--pink-pale);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.6rem;margin:0 auto 12px;transition:var(--transition)}
+.cat-card:hover .cat-icon,.cat-card.active-cat .cat-icon{background:var(--pink);transform:scale(1.1)}
+.cat-name{font-size:.9rem;font-weight:700;color:var(--text)}
+.cat-count{font-size:.75rem;color:var(--text3);margin-top:3px}
+
+/* CATEGORY FILTER GRID */
+#cat-filter-sec{padding:0 24px 48px}
+#cat-filter-inner{max-width:1380px;margin:0 auto}
+#cat-filter-title{font-size:1.3rem;font-weight:800;color:var(--text);margin-bottom:20px;display:flex;align-items:center;gap:10px}
+#cat-filter-title span{color:var(--pink)}
+
+/* PRODUCT GRID */
+.prods-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:20px}
+
+/* PRODUCT CARD */
+.prod-card{background:#fff;border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;transition:var(--transition);position:relative}
+.prod-card:hover{transform:translateY(-6px);box-shadow:var(--shadow2);border-color:var(--pink2)}
+.prod-img-wrap{position:relative;height:210px;overflow:hidden;background:var(--pink-pale)}
+.prod-img-wrap img{width:100%;height:100%;object-fit:cover;transition:transform .45s ease}
+.prod-card:hover .prod-img-wrap img{transform:scale(1.07)}
+.prod-badges{position:absolute;top:10px;right:10px;display:flex;flex-direction:column;gap:5px;z-index:1}
+.b-new{background:var(--pink);color:#fff;font-size:.68rem;font-weight:700;padding:3px 9px;border-radius:14px}
+.b-sale{background:#FF4757;color:#fff;font-size:.68rem;font-weight:700;padding:3px 9px;border-radius:14px}
+.b-hot{background:linear-gradient(135deg,var(--pink),var(--gold));color:#fff;font-size:.68rem;font-weight:700;padding:3px 9px;border-radius:14px}
+.prod-overlay{position:absolute;bottom:0;left:0;right:0;display:flex;gap:6px;padding:10px;opacity:0;transform:translateY(8px);transition:var(--transition)}
+.prod-card:hover .prod-overlay{opacity:1;transform:translateY(0)}
+.ov-btn{flex:1;background:rgba(255,255,255,.92);backdrop-filter:blur(8px);border:1px solid var(--border2);color:var(--text);padding:7px 8px;border-radius:8px;font-size:.75rem;font-weight:600;display:flex;align-items:center;justify-content:center;gap:5px;transition:var(--transition)}
+.ov-btn:hover{background:var(--pink);color:#fff;border-color:var(--pink)}
+.ov-wish{flex:0 0 36px;border-radius:8px}
+.ov-wish.active{background:var(--pink);color:#fff;border-color:var(--pink)}
+.prod-body{padding:14px}
+.prod-brand{font-size:.72rem;color:var(--gold);font-weight:700;text-transform:uppercase;letter-spacing:.5px;margin-bottom:3px}
+.prod-name{font-size:.88rem;font-weight:700;color:var(--text);margin-bottom:6px;line-height:1.4}
+.prod-stars{color:#FFA500;font-size:.75rem;margin-bottom:8px;display:flex;align-items:center;gap:4px}
+.prod-stars span{color:var(--text3);font-size:.72rem}
+.prod-price{display:flex;align-items:center;gap:8px;margin-bottom:10px}
+.price-now{font-size:1rem;font-weight:900;color:var(--pink)}
+.price-was{font-size:.82rem;color:var(--text3);text-decoration:line-through}
+.price-off{background:rgba(232,84,122,.1);color:var(--pink);font-size:.7rem;font-weight:700;padding:2px 7px;border-radius:10px}
+.qty-row{display:flex;align-items:center;gap:8px}
+.qty-ctrl{display:flex;align-items:center;gap:0;border:1.5px solid var(--border2);border-radius:25px;overflow:hidden;background:#fff}
+.qty-btn{width:30px;height:30px;background:#fff;border:none;color:var(--pink);font-size:1.1rem;font-weight:700;display:flex;align-items:center;justify-content:center;transition:var(--transition);cursor:pointer;flex-shrink:0}
+.qty-btn:hover{background:var(--pink);color:#fff}
+.qty-num{width:28px;text-align:center;font-size:.88rem;font-weight:700;color:var(--text)}
+.add-btn{flex:1;background:linear-gradient(135deg,var(--pink),var(--rose));color:#fff;padding:8px 10px;border-radius:25px;font-size:.8rem;font-weight:700;transition:var(--transition);display:flex;align-items:center;justify-content:center;gap:5px;white-space:nowrap}
+.add-btn:hover{transform:scale(1.04);box-shadow:0 4px 12px rgba(232,84,122,.35)}
+.stock-tag{font-size:.72rem;margin-top:6px}
+.in-stock{color:#2ecc71}.low-stock{color:#f39c12}.out-stock{color:#e74c3c}
+
+/* OFFER BANNER */
+.offer-banner{background:linear-gradient(135deg,var(--pink),var(--rose) 60%,#FF8FAB);border-radius:var(--radius2);padding:48px 40px;text-align:center;color:#fff;position:relative;overflow:hidden}
+.offer-banner::before{content:'';position:absolute;inset:0;background:url("data:image/svg+xml,%3Csvg width='80' height='80' viewBox='0 0 80 80' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='40' cy='40' r='40' fill='%23ffffff' fill-opacity='0.04'/%3E%3C/svg%3E")}
+.offer-title{font-size:1.8rem;font-weight:900;margin-bottom:6px}
+.offer-sub{opacity:.9;margin-bottom:20px;font-size:.95rem}
+.offer-code{background:rgba(255,255,255,.2);border:2px dashed rgba(255,255,255,.6);display:inline-block;padding:10px 28px;border-radius:10px;font-size:1.2rem;font-weight:700;letter-spacing:2px;margin-bottom:20px}
+.countdown{display:flex;gap:12px;justify-content:center;margin:16px 0}
+.cd-box{background:rgba(255,255,255,.15);border-radius:10px;padding:12px 16px;min-width:70px;text-align:center}
+.cd-n{font-size:1.6rem;font-weight:900}
+.cd-l{font-size:.7rem;opacity:.8;margin-top:2px}
+.btn-white{background:#fff;color:var(--pink);padding:12px 28px;border-radius:30px;font-size:.95rem;font-weight:700;display:inline-flex;align-items:center;gap:8px;transition:var(--transition);margin-top:8px}
+.btn-white:hover{transform:translateY(-2px);box-shadow:0 8px 20px rgba(0,0,0,.15)}
+
+/* BRANDS */
+.brands-row{display:flex;gap:16px;flex-wrap:wrap;justify-content:center}
+.brand-pill{background:#fff;border:1.5px solid var(--border);border-radius:12px;padding:16px 28px;font-size:.95rem;font-weight:700;color:var(--text2);cursor:pointer;transition:var(--transition);display:flex;align-items:center;gap:8px}
+.brand-pill:hover{border-color:var(--pink);color:var(--pink);transform:translateY(-3px);box-shadow:var(--shadow)}
+
+/* TESTIMONIALS */
+.testi-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:20px}
+.testi-card{background:#fff;border:1px solid var(--border);border-radius:var(--radius);padding:22px;transition:var(--transition)}
+.testi-card:hover{border-color:var(--pink2);transform:translateY(-3px);box-shadow:var(--shadow)}
+.testi-top{display:flex;align-items:center;gap:12px;margin-bottom:12px}
+.testi-av{width:46px;height:46px;border-radius:50%;object-fit:cover;border:2px solid var(--pink-light)}
+.testi-name{font-weight:700;font-size:.9rem}
+.testi-date{font-size:.74rem;color:var(--text3)}
+.testi-stars{color:#FFA500;font-size:.8rem;margin-bottom:8px}
+.testi-txt{font-size:.85rem;color:var(--text2);line-height:1.7}
+
+/* ABOUT */
+.about-grid{display:grid;grid-template-columns:1fr 1fr;gap:56px;align-items:center}
+.about-img{border-radius:var(--radius2);overflow:hidden;box-shadow:var(--shadow2)}
+.about-img img{width:100%;height:380px;object-fit:cover}
+.about-stats{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:24px}
+.about-stat{background:var(--pink-pale);border-radius:var(--radius);padding:16px;text-align:center;border:1px solid var(--border)}
+.about-stat .n{font-size:1.6rem;font-weight:900;color:var(--pink)}
+.about-stat .l{font-size:.78rem;color:var(--text3);margin-top:2px}
+
+/* CONTACT */
+.contact-grid{display:grid;grid-template-columns:1fr 1fr;gap:32px}
+.contact-form-card{background:#fff;border:1px solid var(--border);border-radius:var(--radius2);padding:32px;box-shadow:var(--shadow)}
+.form-field{margin-bottom:16px}
+.form-field label{display:block;font-size:.83rem;font-weight:600;color:var(--text2);margin-bottom:6px}
+.form-field input,.form-field textarea{width:100%;border:1.5px solid var(--border2);border-radius:10px;padding:10px 14px;font-size:.9rem;font-family:'Poppins',sans-serif;color:var(--text);background:#fff;transition:var(--transition)}
+.form-field input:focus,.form-field textarea:focus{outline:none;border-color:var(--pink)}
+.form-field textarea{min-height:90px;resize:vertical}
+.contact-info-list{display:flex;flex-direction:column;gap:14px}
+.ci-card{background:#fff;border:1px solid var(--border);border-radius:var(--radius);padding:16px 20px;display:flex;align-items:center;gap:14px;transition:var(--transition)}
+.ci-card:hover{border-color:var(--pink);transform:translateX(3px)}
+.ci-icon{width:44px;height:44px;border-radius:50%;background:var(--pink-pale);display:flex;align-items:center;justify-content:center;font-size:1.1rem;color:var(--pink);flex-shrink:0}
+.ci-label{font-size:.75rem;color:var(--text3);margin-bottom:2px}
+.ci-val{font-size:.9rem;font-weight:600;color:var(--text)}
+
+/* BLOG */
+.blog-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:20px}
+.blog-card{background:#fff;border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;transition:var(--transition)}
+.blog-card:hover{transform:translateY(-5px);box-shadow:var(--shadow2);border-color:var(--pink2)}
+.blog-img{height:185px;overflow:hidden}
+.blog-img img{width:100%;height:100%;object-fit:cover;transition:transform .45s}
+.blog-card:hover .blog-img img{transform:scale(1.06)}
+.blog-body{padding:18px}
+.blog-tag{background:var(--pink-pale);color:var(--pink);font-size:.72rem;font-weight:700;padding:3px 10px;border-radius:12px;display:inline-block;margin-bottom:8px}
+.blog-title{font-size:.9rem;font-weight:700;margin-bottom:6px;line-height:1.5;color:var(--text)}
+.blog-excerpt{font-size:.8rem;color:var(--text3);line-height:1.7}
+
+/* NEWSLETTER */
+.nl-wrap{background:linear-gradient(135deg,var(--pink-pale),#FDE8EF);border:1px solid var(--border2);border-radius:var(--radius2);padding:48px;text-align:center}
+.nl-title{font-size:1.6rem;font-weight:900;color:var(--text);margin-bottom:6px}
+.nl-sub{color:var(--text3);margin-bottom:24px}
+.nl-form{display:flex;gap:10px;max-width:480px;margin:0 auto}
+.nl-form input{flex:1;border:1.5px solid var(--border2);border-radius:var(--radius);padding:12px 18px;font-size:.9rem;font-family:'Poppins',sans-serif;outline:none;transition:var(--transition);background:#fff}
+.nl-form input:focus{border-color:var(--pink)}
+
+/* FOOTER */
+#footer{background:var(--text);color:rgba(255,255,255,.8);padding:56px 24px 24px}
+.footer-grid{max-width:1380px;margin:0 auto;display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:36px;margin-bottom:40px}
+.footer-logo-text{font-size:1.6rem;font-weight:900;color:#fff;margin-bottom:10px}
+.footer-p{font-size:.83rem;line-height:1.8;margin-bottom:20px}
+.footer-socials{display:flex;gap:10px}
+.soc-btn{width:36px;height:36px;border-radius:50%;border:1px solid rgba(255,255,255,.15);background:rgba(255,255,255,.07);display:flex;align-items:center;justify-content:center;font-size:.9rem;transition:var(--transition)}
+.soc-btn:hover{transform:translateY(-3px)}
+.soc-btn.wa:hover{background:#25D366;border-color:#25D366;color:#fff}
+.soc-btn.ig:hover{background:linear-gradient(135deg,#f09433,#e6683c,#dc2743,#cc2366,#bc1888);border-color:#e6683c;color:#fff}
+.soc-btn.tt:hover{background:#000;border-color:#69C9D0;color:#69C9D0}
+.soc-btn.fb:hover{background:#1877F2;border-color:#1877F2;color:#fff}
+.footer-col h4{font-size:.9rem;font-weight:700;color:#fff;margin-bottom:14px}
+.footer-col li{margin-bottom:8px}
+.footer-col a{font-size:.83rem;transition:var(--transition)}
+.footer-col a:hover{color:#fff}
+.footer-bottom{max-width:1380px;margin:0 auto;display:flex;justify-content:space-between;align-items:center;padding-top:20px;border-top:1px solid rgba(255,255,255,.1);flex-wrap:wrap;gap:10px;font-size:.8rem}
+.footer-bottom a{color:var(--pink2)}
+
+/* CART DRAWER */
+#cart-overlay,#wish-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:1500;backdrop-filter:blur(3px)}
+#cart-overlay.open,#wish-overlay.open{display:block}
+#cart-drawer{position:fixed;bottom:0;left:0;right:0;max-height:82vh;background:#fff;border-radius:24px 24px 0 0;z-index:1501;transform:translateY(100%);transition:transform .38s cubic-bezier(.4,0,.2,1);display:flex;flex-direction:column;border-top:1px solid var(--border)}
+#cart-drawer.open{transform:translateY(0)}
+#wish-drawer{position:fixed;top:0;right:0;width:360px;height:100vh;background:#fff;z-index:1501;transform:translateX(100%);transition:transform .38s cubic-bezier(.4,0,.2,1);display:flex;flex-direction:column;border-left:1px solid var(--border)}
+#wish-drawer.open{transform:translateX(0)}
+.drawer-head{padding:18px 22px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+.drawer-title{font-size:1rem;font-weight:700;display:flex;align-items:center;gap:8px}
+.drawer-close{width:32px;height:32px;border-radius:50%;background:var(--pink-pale);border:1px solid var(--border);color:var(--text);display:flex;align-items:center;justify-content:center;font-size:.9rem;transition:var(--transition)}
+.drawer-close:hover{background:var(--pink);color:#fff;border-color:var(--pink)}
+.drawer-body{flex:1;overflow-y:auto;padding:14px 22px}
+.cart-item{display:flex;align-items:center;gap:12px;padding:12px;background:var(--off-white);border-radius:12px;margin-bottom:10px;border:1px solid var(--border)}
+.cart-item-img{width:64px;height:64px;border-radius:10px;object-fit:cover;flex-shrink:0}
+.cart-item-name{font-size:.85rem;font-weight:700;margin-bottom:3px}
+.cart-item-price{font-size:.82rem;color:var(--pink);font-weight:600}
+.cart-item-rm{background:rgba(232,84,122,.1);border:1px solid rgba(232,84,122,.2);color:var(--pink);width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.75rem;transition:var(--transition)}
+.cart-item-rm:hover{background:var(--pink);color:#fff}
+.drawer-foot{padding:16px 22px;border-top:1px solid var(--border);background:#fff;flex-shrink:0}
+.cart-total-row{display:flex;justify-content:space-between;margin-bottom:14px;font-size:.95rem}
+.cart-total-row .val{font-size:1.15rem;font-weight:900;color:var(--pink)}
+.cart-wa-btn{width:100%;background:linear-gradient(135deg,#25D366,#128C7E);color:#fff;padding:14px;border-radius:14px;font-size:.95rem;font-weight:700;display:flex;align-items:center;justify-content:center;gap:8px;transition:var(--transition)}
+.cart-wa-btn:hover{transform:scale(1.02);box-shadow:0 6px 20px rgba(37,211,102,.35)}
+
+/* FABs */
+#cart-fab{position:fixed;bottom:84px;left:50%;transform:translateX(-50%);background:linear-gradient(135deg,var(--pink),var(--rose));color:#fff;border:none;border-radius:30px;padding:13px 26px;font-size:.92rem;font-weight:700;font-family:'Poppins',sans-serif;display:flex;align-items:center;gap:10px;box-shadow:0 6px 24px rgba(232,84,122,.45);z-index:800;transition:var(--transition);animation:pulse 2s infinite}
+#cart-fab.hidden{opacity:0;pointer-events:none;transform:translateX(-50%) scale(.85)}
+#cart-fab:hover{transform:translateX(-50%) scale(1.04)}
+#checkout-fab{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:linear-gradient(135deg,#25D366,#128C7E);color:#fff;border:none;border-radius:30px;padding:13px 30px;font-size:.92rem;font-weight:700;font-family:'Poppins',sans-serif;display:flex;align-items:center;gap:10px;box-shadow:0 6px 24px rgba(37,211,102,.4);z-index:800;transition:var(--transition)}
+#checkout-fab.hidden{opacity:0;pointer-events:none;transform:translateX(-50%) scale(.85)}
+#checkout-fab:hover{transform:translateX(-50%) scale(1.04)}
+#wa-float{position:fixed;bottom:160px;right:20px;z-index:900;animation:pulse 2.5s infinite}
+#wa-float a{width:52px;height:52px;border-radius:50%;background:linear-gradient(135deg,#25D366,#128C7E);display:flex;align-items:center;justify-content:center;font-size:1.4rem;color:#fff;box-shadow:0 4px 18px rgba(37,211,102,.4);transition:var(--transition)}
+#wa-float a:hover{transform:scale(1.12)}
+#scroll-top{position:fixed;bottom:160px;left:20px;z-index:900;width:42px;height:42px;border-radius:50%;background:#fff;border:1.5px solid var(--border2);color:var(--text2);display:flex;align-items:center;justify-content:center;font-size:.9rem;transition:var(--transition);opacity:0;pointer-events:none;box-shadow:var(--shadow)}
+#scroll-top.show{opacity:1;pointer-events:all}
+#scroll-top:hover{background:var(--pink);color:#fff;border-color:var(--pink)}
+
+/* QUICK VIEW */
+#qv-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:2000;align-items:center;justify-content:center;backdrop-filter:blur(6px)}
+#qv-overlay.open{display:flex;animation:fadeUp .2s ease}
+#qv-modal{background:#fff;border-radius:var(--radius2);width:90%;max-width:780px;max-height:88vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.2)}
+.qv-grid{display:grid;grid-template-columns:1fr 1fr}
+.qv-img{background:var(--pink-pale);position:relative;min-height:340px}
+.qv-img img{width:100%;height:100%;object-fit:cover;min-height:340px}
+.qv-close{position:absolute;top:14px;left:14px;background:rgba(255,255,255,.85);border:1px solid var(--border);color:var(--text);width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.9rem;z-index:1;transition:var(--transition);cursor:pointer}
+.qv-close:hover{background:var(--pink);color:#fff;border-color:var(--pink)}
+.qv-body{padding:28px}
+
+/* TOAST */
+#toast-c{position:fixed;bottom:200px;right:20px;z-index:3000;display:flex;flex-direction:column;gap:8px}
+.toast{background:#fff;border:1.5px solid var(--border2);border-radius:12px;padding:12px 18px;font-size:.85rem;font-weight:600;box-shadow:var(--shadow2);animation:bounceIn .3s ease;max-width:290px}
+.toast.ok{border-color:rgba(46,204,113,.4);color:#27ae60}
+.toast.err{border-color:rgba(232,84,122,.4);color:var(--pink)}
+.toast.info{border-color:rgba(201,149,108,.4);color:var(--gold)}
+
+/* RESPONSIVE */
+@media(max-width:1024px){.hero-inner,.about-grid,.contact-grid{grid-template-columns:1fr}.footer-grid{grid-template-columns:1fr 1fr}.qv-grid{grid-template-columns:1fr}}
+@media(max-width:768px){.nav-links{display:none}.nav-ham{display:flex}#wish-drawer{width:100%}.hero-imgs{display:none}.prods-grid{grid-template-columns:repeat(2,1fr)}.footer-grid{grid-template-columns:1fr}.nl-form{flex-direction:column}}
+@media(max-width:480px){.sec{padding:44px 14px}.prods-grid{grid-template-columns:repeat(2,1fr)}.prods-grid .prod-img-wrap{height:160px}.hero-h1{font-size:1.6rem}}
+</style>
+</head>
+<body>
+
+<!-- PROMO BAR -->
+<div id="promo-bar">🚚 Free shipping on orders over $50 <span>|</span> ✨ Exclusive daily deals <span>|</span> 💄 500+ authentic products</div>
+
+<!-- NAVBAR -->
+<nav id="navbar">
+  <div class="nav-inner">
+    <div class="nav-logo">
+      <img src="https://placehold.co/40x40/E8547A/fff?text=L" alt="Leelush" id="nav-logo-img"/>
+      <span>Leelush</span>
+    </div>
+    <ul class="nav-links">
+      <li><a href="#hero">Home</a></li>
+      <li><a href="#skincare-sec">Skin Care</a></li>
+      <li><a href="#makeup-sec">Makeup</a></li>
+      <li><a href="#hair-sec">Hair</a></li>
+      <li><a href="#bath-sec">Bath &amp; Body</a></li>
+      <li><a href="#offers-sec">Offers</a></li>
+      <li><a href="#about">About</a></li>
+    </ul>
+    <div class="nav-actions">
+      <button class="nav-icon-btn" onclick="toggleSearch()" title="Search"><i class="fas fa-search"></i></button>
+      <button class="nav-icon-btn" onclick="openWish()" title="Wishlist"><i class="fas fa-heart"></i><span class="nav-badge" id="wish-badge" style="display:none">0</span></button>
+      <button class="nav-icon-btn" onclick="openCart()" title="Cart"><i class="fas fa-shopping-bag"></i><span class="nav-badge" id="nav-cart-badge" style="display:none">0</span></button>
+      <a href="https://wa.me/96179317943" class="nav-wa" target="_blank" rel="noopener"><i class="fab fa-whatsapp"></i> Order Now</a>
+      <button class="nav-ham" onclick="toggleMobile()"><i class="fas fa-bars"></i></button>
+    </div>
+  </div>
+</nav>
+<div class="mobile-menu" id="mobile-menu">
+  <a href="#hero" onclick="closeMobile()">Home</a>
+  <a href="#skincare-sec" onclick="closeMobile()">Skin Care</a>
+  <a href="#makeup-sec" onclick="closeMobile()">Makeup</a>
+  <a href="#hair-sec" onclick="closeMobile()">Hair</a>
+  <a href="#bath-sec" onclick="closeMobile()">Bath &amp; Body</a>
+  <a href="#offers-sec" onclick="closeMobile()">Offers</a>
+  <a href="#about" onclick="closeMobile()">About</a>
+</div>
+
+<!-- SEARCH -->
+<div id="search-overlay" onclick="closeSearchOvl(event)">
+  <div class="search-box">
+    <input type="text" id="search-inp" placeholder="🔍  Search for a product..." oninput="doSearch(this.value)"/>
+    <div id="search-res" style="margin-top:12px"></div>
+  </div>
+</div>
+
+<!-- HERO -->
+<section id="hero">
+  <div class="hero-shapes"><div class="hero-shape s1"></div><div class="hero-shape s2"></div><div class="hero-shape s3"></div></div>
+  <div class="hero-inner">
+    <div class="hero-text">
+      <div class="hero-tag"><i class="fas fa-crown"></i> Exclusive 2025 Collection</div>
+      <h1 class="hero-h1">Elevate Your<br/><em>Beauty Routine</em><br/>to the Next Level</h1>
+      <p class="hero-p">Premium makeup, skincare, and hair care products from the world's top brands at exclusive prices.</p>
+      <div class="hero-btns">
+        <a href="#featured-sec" class="btn-pink"><i class="fas fa-shopping-bag"></i> Shop Now</a>
+        <a href="#about" class="btn-outline-pink"><i class="fas fa-play-circle"></i> Learn More</a>
+      </div>
+      <div class="hero-stats">
+        <div class="hero-stat"><div class="n">500+</div><div class="l">Products</div></div>
+        <div class="hero-stat"><div class="n">50+</div><div class="l">Brands</div></div>
+        <div class="hero-stat"><div class="n">10K+</div><div class="l">Customers</div></div>
+      </div>
+    </div>
+    <div class="hero-imgs">
+      <img class="hero-main-img" src="https://placehold.co/460x380/FFE4EC/E8547A?text=Leelush+Beauty" alt="Leelush Beauty" id="hero-img"/>
+      <div class="hero-card c1"><div class="ci">✨</div><div class="cl">New Arrivals</div><div class="cv">2025 Collection</div></div>
+      <div class="hero-card c2"><div class="ci">💄</div><div class="cl">Exclusive Sale</div><div class="cv">Up to 40% off</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- QUICK CATS -->
+<div class="quick-cats">
+  <div class="quick-cats-inner">
+    <div class="qcat active" onclick="goToSection('#featured-sec',this)"><span class="emoji">⭐</span> All</div>
+    <div class="qcat" onclick="goToSection('#skincare-sec',this)"><span class="emoji">🧴</span> Skin Care</div>
+    <div class="qcat" onclick="goToSection('#makeup-sec',this)"><span class="emoji">💄</span> Makeup</div>
+    <div class="qcat" onclick="goToSection('#hair-sec',this)"><span class="emoji">💇</span> Hair</div>
+    <div class="qcat" onclick="goToSection('#bath-sec',this)"><span class="emoji">🛁</span> Bath &amp; Body</div>
+    <div class="qcat" onclick="goToSection('#offers-sec',this)"><span class="emoji">🏷️</span> Offers</div>
+    <div class="qcat" onclick="goToSection('#bestsellers-sec',this)"><span class="emoji">🔥</span> Best Sellers</div>
+  </div>
+</div>
+
+<!-- CATEGORIES -->
+<section class="sec" style="background:var(--off-white)">
+  <div class="sec-inner">
+    <div class="sec-head reveal"><span class="sec-badge">Browse</span><h2 class="sec-title">Shop by <em>Category</em></h2><p class="sec-sub">Click a category to see all products</p><div class="sec-divider"></div></div>
+    <div class="cats-grid">
+      <div class="cat-card reveal active-cat" onclick="filterCat('skincare',this)"><div class="cat-icon">🧴</div><div class="cat-name">Skin Care</div><div class="cat-count">10 products</div></div>
+      <div class="cat-card reveal" onclick="filterCat('makeup',this)"><div class="cat-icon">💄</div><div class="cat-name">Makeup</div><div class="cat-count">10 products</div></div>
+      <div class="cat-card reveal" onclick="filterCat('hair',this)"><div class="cat-icon">💇</div><div class="cat-name">Hair Care</div><div class="cat-count">10 products</div></div>
+      <div class="cat-card reveal" onclick="filterCat('bath',this)"><div class="cat-icon">🛁</div><div class="cat-name">Bath &amp; Body</div><div class="cat-count">10 products</div></div>
+      <div class="cat-card reveal" onclick="goToSection('#offers-sec',null)"><div class="cat-icon">🏷️</div><div class="cat-name">Special Offers</div><div class="cat-count">Discounts</div></div>
+      <div class="cat-card reveal" onclick="goToSection('#bestsellers-sec',null)"><div class="cat-icon">🔥</div><div class="cat-name">Best Sellers</div><div class="cat-count">Top rated</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- CATEGORY FILTER RESULTS -->
+<section id="cat-filter-sec">
+  <div id="cat-filter-inner" style="max-width:1380px;margin:0 auto;padding:0 0 20px">
+    <div id="cat-filter-title" style="font-size:1.2rem;font-weight:800;color:var(--text);margin-bottom:20px;display:flex;align-items:center;gap:8px">
+      <span style="color:var(--pink)">🧴</span> <span id="cat-filter-label">Skin Care</span> <span style="color:var(--text3);font-weight:400;font-size:.9rem">— 10 products</span>
+    </div>
+    <div class="prods-grid" id="cat-filter-grid"></div>
+  </div>
+</section>
+
+<!-- FEATURED -->
+<section class="sec" id="featured-sec">
+  <div class="sec-inner">
+    <div class="sec-head reveal"><span class="sec-badge">Featured</span><h2 class="sec-title"><em>Featured</em> Products</h2><p class="sec-sub">Our hand-picked best selections</p><div class="sec-divider"></div></div>
+    <div class="prods-grid" id="featured-grid"></div>
+  </div>
+</section>
+
+<!-- SKINCARE -->
+<section class="sec" id="skincare-sec" style="background:var(--off-white)">
+  <div class="sec-inner">
+    <div class="sec-head reveal"><span class="sec-badge">Skin</span><h2 class="sec-title"><em>Skin Care</em></h2><p class="sec-sub">Premium skincare from the world's top brands</p><div class="sec-divider"></div></div>
+    <div class="prods-grid" id="skincare-grid"></div>
+  </div>
+</section>
+
+<!-- MAKEUP -->
+<section class="sec" id="makeup-sec">
+  <div class="sec-inner">
+    <div class="sec-head reveal"><span class="sec-badge">Makeup</span><h2 class="sec-title"><em>Makeup</em> Products</h2><p class="sec-sub">The best makeup for a flawless look</p><div class="sec-divider"></div></div>
+    <div class="prods-grid" id="makeup-grid"></div>
+  </div>
+</section>
+
+<!-- OFFER BANNER -->
+<section class="sec" id="offers-sec" style="background:var(--off-white)">
+  <div class="sec-inner">
+    <div class="offer-banner reveal">
+      <div class="offer-title">🎀 Special Makeup Sale</div>
+      <div class="offer-sub">30% off all makeup products — limited time only!</div>
+      <div class="offer-code">LEELUSH30</div>
+      <div class="countdown">
+        <div class="cd-box"><div class="cd-n" id="cd-d">00</div><div class="cd-l">Days</div></div>
+        <div class="cd-box"><div class="cd-n" id="cd-h">00</div><div class="cd-l">Hours</div></div>
+        <div class="cd-box"><div class="cd-n" id="cd-m">00</div><div class="cd-l">Mins</div></div>
+        <div class="cd-box"><div class="cd-n" id="cd-s">00</div><div class="cd-l">Secs</div></div>
+      </div>
+      <a href="#makeup-sec" class="btn-white"><i class="fas fa-tag"></i> Shop Now</a>
+    </div>
+  </div>
+</section>
+
+<!-- HAIR -->
+<section class="sec" id="hair-sec">
+  <div class="sec-inner">
+    <div class="sec-head reveal"><span class="sec-badge">Hair</span><h2 class="sec-title"><em>Hair Care</em></h2><p class="sec-sub">Hair care products for healthy, shiny hair</p><div class="sec-divider"></div></div>
+    <div class="prods-grid" id="hair-grid"></div>
+  </div>
+</section>
+
+<!-- BATH -->
+<section class="sec" id="bath-sec" style="background:var(--off-white)">
+  <div class="sec-inner">
+    <div class="sec-head reveal"><span class="sec-badge">Body</span><h2 class="sec-title">Bath <em>&amp; Body</em></h2><p class="sec-sub">Bath and body products for silky smooth skin</p><div class="sec-divider"></div></div>
+    <div class="prods-grid" id="bath-grid"></div>
+  </div>
+</section>
+
+<!-- BEST SELLERS -->
+<section class="sec" id="bestsellers-sec">
+  <div class="sec-inner">
+    <div class="sec-head reveal"><span class="sec-badge">🔥 Top Picks</span><h2 class="sec-title"><em>Best</em> Sellers</h2><p class="sec-sub">The products our customers love most</p><div class="sec-divider"></div></div>
+    <div class="prods-grid" id="bestsellers-grid"></div>
+  </div>
+</section>
+
+<!-- NEW ARRIVALS -->
+<section class="sec" style="background:var(--off-white)" id="newarrivals-sec">
+  <div class="sec-inner">
+    <div class="sec-head reveal"><span class="sec-badge">✨ New</span><h2 class="sec-title">New <em>Arrivals</em></h2><p class="sec-sub">The latest products added to our store</p><div class="sec-divider"></div></div>
+    <div class="prods-grid" id="newarrivals-grid"></div>
+  </div>
+</section>
+
+<!-- BRANDS -->
+<section class="sec" id="brands-sec">
+  <div class="sec-inner">
+    <div class="sec-head reveal"><span class="sec-badge">Brands</span><h2 class="sec-title">Available <em>Brands</em></h2><div class="sec-divider"></div></div>
+    <div class="brands-row" id="brands-row">
+      <div class="brand-pill">💄 MAC</div><div class="brand-pill">✨ NYX</div>
+      <div class="brand-pill">🌿 The Ordinary</div><div class="brand-pill">💋 Huda Beauty</div>
+      <div class="brand-pill">🌸 Fenty Beauty</div><div class="brand-pill">⭐ Charlotte Tilbury</div>
+      <div class="brand-pill">🌼 Maybelline</div><div class="brand-pill">🌹 Moroccanoil</div>
+    </div>
+  </div>
+</section>
+
+<!-- TESTIMONIALS -->
+<section class="sec" style="background:var(--off-white)" id="testi-sec">
+  <div class="sec-inner">
+    <div class="sec-head reveal"><span class="sec-badge">Reviews</span><h2 class="sec-title">What Our <em>Customers</em> Say</h2><div class="sec-divider"></div></div>
+    <div class="testi-grid" id="testi-grid"></div>
+  </div>
+</section>
+
+<!-- BLOG -->
+<section class="sec" id="blog-sec">
+  <div class="sec-inner">
+    <div class="sec-head reveal"><span class="sec-badge">Blog</span><h2 class="sec-title">Beauty <em>Tips</em></h2><div class="sec-divider"></div></div>
+    <div class="blog-grid">
+      <div class="blog-card reveal"><div class="blog-img"><img src="https://placehold.co/300x185/FFE4EC/E8547A?text=Skincare+Tips" alt="Skincare Tips" loading="lazy"/></div><div class="blog-body"><span class="blog-tag">Skin</span><div class="blog-title">The Perfect 5-Step Skincare Routine</div><div class="blog-excerpt">Discover the secrets to glowing, smooth skin with the best daily care routine...</div></div></div>
+      <div class="blog-card reveal"><div class="blog-img"><img src="https://placehold.co/300x185/FCE4EC/C2185B?text=Makeup+Trends" alt="Makeup Trends" loading="lazy"/></div><div class="blog-body"><span class="blog-tag">Makeup</span><div class="blog-title">Top Makeup Trends for Summer 2025</div><div class="blog-excerpt">Bold and beautiful looks with the hottest lip colors and eyeshadow palettes...</div></div></div>
+      <div class="blog-card reveal"><div class="blog-img"><img src="https://placehold.co/300x185/F3E5F5/7B1FA2?text=Hair+Care" alt="Hair Care" loading="lazy"/></div><div class="blog-body"><span class="blog-tag">Hair</span><div class="blog-title">How to Keep Your Hair Healthy &amp; Shiny</div><div class="blog-excerpt">Golden tips for hair health and protecting it from damage and breakage...</div></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- NEWSLETTER -->
+<section class="sec" style="background:var(--off-white)">
+  <div class="sec-inner">
+    <div class="nl-wrap reveal">
+      <h2 class="nl-title">Subscribe to Our <span style="color:var(--pink)">Newsletter</span> 💌</h2>
+      <p class="nl-sub">Get the latest deals and beauty tips delivered to your inbox</p>
+      <form class="nl-form" onsubmit="subNewsletter(event)">
+        <input type="email" id="nl-email" placeholder="Your email address..." required/>
+        <button type="submit" class="btn-pink"><i class="fas fa-paper-plane"></i> Subscribe</button>
+      </form>
+    </div>
+  </div>
+</section>
+
+<!-- ABOUT -->
+<section class="sec" id="about">
+  <div class="sec-inner">
+    <div class="about-grid">
+      <div class="reveal"><div class="about-img"><img src="https://placehold.co/600x380/FFE4EC/E8547A?text=About+Leelush" alt="About Leelush" id="about-img"/></div></div>
+      <div class="reveal">
+        <span class="sec-badge">About Us</span>
+        <h2 class="sec-title" style="margin-top:10px">Our <em>Beauty</em> Story</h2>
+        <p id="about-text" style="color:var(--text2);margin:16px 0;line-height:1.9">Leelush is your premier destination for luxury beauty products. We specialize in providing the best makeup, skincare, and hair care products from the world's top brands at competitive prices with exceptional customer service.</p>
+        <div class="about-stats">
+          <div class="about-stat"><div class="n">500+</div><div class="l">Products</div></div>
+          <div class="about-stat"><div class="n">50+</div><div class="l">Brands</div></div>
+          <div class="about-stat"><div class="n">10K+</div><div class="l">Happy Customers</div></div>
+          <div class="about-stat"><div class="n">5+</div><div class="l">Years Experience</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CONTACT -->
+<section class="sec" style="background:var(--off-white)" id="contact">
+  <div class="sec-inner">
+    <div class="sec-head reveal"><span class="sec-badge">Contact</span><h2 class="sec-title">Get in <em>Touch</em></h2><div class="sec-divider"></div></div>
+    <div class="contact-grid">
+      <div class="contact-form-card reveal">
+        <h3 style="margin-bottom:18px;font-size:1rem;color:var(--text)">Send a Message 💬</h3>
+        <form onsubmit="sendContact(event)">
+          <div class="form-field"><label>Name</label><input id="c-name" placeholder="Your name" required/></div>
+          <div class="form-field"><label>Email</label><input type="email" id="c-email" placeholder="Your email" required/></div>
+          <div class="form-field"><label>Phone</label><input type="tel" id="c-phone" placeholder="+961..."/></div>
+          <div class="form-field"><label>Message</label><textarea id="c-msg" placeholder="How can we help you?" required></textarea></div>
+          <button type="submit" class="btn-pink" style="width:100%;justify-content:center"><i class="fas fa-paper-plane"></i> Send</button>
+        </form>
+      </div>
+      <div class="contact-info-list reveal">
+        <div class="ci-card"><div class="ci-icon"><i class="fab fa-whatsapp"></i></div><div><div class="ci-label">WhatsApp</div><div class="ci-val">+961 79 317 943</div></div></div>
+        <div class="ci-card"><div class="ci-icon"><i class="fab fa-instagram"></i></div><div><div class="ci-label">Instagram</div><div class="ci-val" id="ci-ig">@leelush</div></div></div>
+        <div class="ci-card"><div class="ci-icon"><i class="fab fa-tiktok"></i></div><div><div class="ci-label">TikTok</div><div class="ci-val" id="ci-tt">@leelush</div></div></div>
+        <div class="ci-card"><div class="ci-icon"><i class="fas fa-envelope"></i></div><div><div class="ci-label">Email</div><div class="ci-val" id="ci-em">info@leelush.com</div></div></div>
+        <div class="ci-card"><div class="ci-icon"><i class="fas fa-clock"></i></div><div><div class="ci-label">Working Hours</div><div class="ci-val" id="ci-hrs">9 AM – 9 PM</div></div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer id="footer">
+  <div class="footer-grid">
+    <div><div class="footer-logo-text">Leelush 💄</div><p class="footer-p">Your premier destination for luxury beauty products. The best products at great prices with exceptional customer service.</p>
+      <div class="footer-socials">
+        <a href="https://wa.me/96179317943" class="soc-btn wa" target="_blank" rel="noopener"><i class="fab fa-whatsapp"></i></a>
+        <a href="#" class="soc-btn ig" id="f-ig" target="_blank" rel="noopener"><i class="fab fa-instagram"></i></a>
+        <a href="#" class="soc-btn tt" id="f-tt" target="_blank" rel="noopener"><i class="fab fa-tiktok"></i></a>
+        <a href="#" class="soc-btn fb" id="f-fb" target="_blank" rel="noopener"><i class="fab fa-facebook"></i></a>
+      </div>
+    </div>
+    <div class="footer-col"><h4>Shop</h4><ul><li><a href="#skincare-sec">Skin Care</a></li><li><a href="#makeup-sec">Makeup</a></li><li><a href="#hair-sec">Hair Care</a></li><li><a href="#bath-sec">Bath &amp; Body</a></li><li><a href="#offers-sec">Offers</a></li></ul></div>
+    <div class="footer-col"><h4>Customer Service</h4><ul><li><a href="#contact">Contact Us</a></li><li><a href="#about">About Us</a></li><li><a href="#testi-sec">Reviews</a></li><li><a href="#blog-sec">Beauty Tips</a></li></ul></div>
+    <div class="footer-col"><h4>Info</h4><ul><li><a href="#">Privacy Policy</a></li><li><a href="#">Terms &amp; Conditions</a></li><li><a href="#">Return Policy</a></li><li><a href="admin.html">Admin Panel</a></li></ul></div>
+  </div>
+  <div class="footer-bottom"><p>© 2025 Leelush. All rights reserved.</p><p>Made with ❤️ for beauty lovers</p></div>
+</footer>
+
+<!-- FABs -->
+<div id="wa-float"><a href="https://wa.me/96179317943" target="_blank" rel="noopener"><i class="fab fa-whatsapp"></i></a></div>
+<button id="cart-fab" class="hidden" onclick="openCart()"><i class="fas fa-shopping-bag"></i> <span id="fab-count">0</span> items | <span id="fab-total">$0</span></button>
+<button id="checkout-fab" class="hidden" onclick="waCheckout()"><i class="fab fa-whatsapp"></i> Order via WhatsApp</button>
+<button id="scroll-top" onclick="window.scrollTo({top:0,behavior:'smooth'})"><i class="fas fa-chevron-up"></i></button>
+
+<!-- CART DRAWER -->
+<div id="cart-overlay" onclick="closeCart()"></div>
+<div id="cart-drawer">
+  <div class="drawer-head"><div class="drawer-title"><i class="fas fa-shopping-bag" style="color:var(--pink)"></i> Shopping Cart <span id="cart-count-lbl">(0)</span></div><button class="drawer-close" onclick="closeCart()"><i class="fas fa-times"></i></button></div>
+  <div class="drawer-body" id="cart-items-list"></div>
+  <div class="drawer-foot"><div class="cart-total-row"><span>Total</span><span class="val" id="cart-grand-total">$0.00</span></div><button class="cart-wa-btn" onclick="waCheckout()"><i class="fab fa-whatsapp"></i> Checkout via WhatsApp</button></div>
+</div>
+
+<!-- WISHLIST DRAWER -->
+<div id="wish-overlay" onclick="closeWish()"></div>
+<div id="wish-drawer">
+  <div class="drawer-head"><div class="drawer-title"><i class="fas fa-heart" style="color:var(--pink)"></i> Wishlist</div><button class="drawer-close" onclick="closeWish()"><i class="fas fa-times"></i></button></div>
+  <div class="drawer-body" id="wish-items-list"><p style="text-align:center;color:var(--text3);padding:40px 20px">No products in wishlist</p></div>
+</div>
+
+<!-- QUICK VIEW -->
+<div id="qv-overlay" onclick="closeQV(event)">
+  <div id="qv-modal"><div class="qv-grid" id="qv-inner"></div></div>
+</div>
+
+<!-- TOAST -->
+<div id="toast-c"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+'use strict';
+
+function escapeHTML(s){if(typeof s!=='string')return String(s||'');const d=document.createElement('div');d.appendChild(document.createTextNode(s));return d.innerHTML}
+function sanitizeURL(u){if(!u)return'https://placehold.co/380x380/FFE4EC/E8547A?text=Leelush';try{const x=new URL(u,location.origin);if(['http:','https:','data:','blob:'].includes(x.protocol))return u}catch(e){}return'https://placehold.co/380x380/FFE4EC/E8547A?text=Leelush'}
+
+const SAMPLE_PRODUCTS = [
+  // SKINCARE
+  {id:101,name:'Vitamin C Serum',brand:'The Ordinary',category:'skincare',price:25,discount_price:19,image:'https://placehold.co/380x380/FFE4EC/E8547A?text=Vit+C+Serum',is_featured:true,is_bestseller:true,is_new_arrival:false,stock:50},
+  {id:102,name:'Ultra Moisturizing Cream',brand:'Neutrogena',category:'skincare',price:35,discount_price:null,image:'https://placehold.co/380x380/FFD6E0/C9556A?text=Moisturizer',is_featured:false,is_bestseller:true,is_new_arrival:false,stock:30},
+  {id:103,name:'Gentle Face Cleanser',brand:'CeraVe',category:'skincare',price:18,discount_price:null,image:'https://placehold.co/380x380/FFDDE8/E8547A?text=Cleanser',is_featured:false,is_bestseller:false,is_new_arrival:true,stock:45},
+  {id:104,name:'SPF 50+ Sunscreen',brand:'La Roche-Posay',category:'skincare',price:28,discount_price:22,image:'https://placehold.co/380x380/FFE8F0/C9556A?text=SPF+50',is_featured:true,is_bestseller:false,is_new_arrival:false,stock:60},
+  {id:105,name:'Retinol Eye Cream',brand:'The Ordinary',category:'skincare',price:42,discount_price:null,image:'https://placehold.co/380x380/FFD0E4/E8547A?text=Eye+Cream',is_featured:false,is_bestseller:false,is_new_arrival:true,stock:20},
+  {id:106,name:'Deep Clay Mask',brand:'Freeman',category:'skincare',price:22,discount_price:17,image:'https://placehold.co/380x380/FFEAF2/C9556A?text=Clay+Mask',is_featured:false,is_bestseller:false,is_new_arrival:false,stock:35},
+  {id:107,name:'Rose Water Toner',brand:'Mario Badescu',category:'skincare',price:15,discount_price:null,image:'https://placehold.co/380x380/FFC8DC/E8547A?text=Rose+Toner',is_featured:false,is_bestseller:true,is_new_arrival:false,stock:80},
+  {id:108,name:'Niacinamide 10% Serum',brand:'The Ordinary',category:'skincare',price:20,discount_price:null,image:'https://placehold.co/380x380/FFE0EB/C9556A?text=Niacinamide',is_featured:false,is_bestseller:false,is_new_arrival:false,stock:55},
+  {id:109,name:'Collagen Night Cream',brand:'Olay',category:'skincare',price:38,discount_price:29,image:'https://placehold.co/380x380/FFDAE6/E8547A?text=Collagen',is_featured:true,is_bestseller:false,is_new_arrival:false,stock:25},
+  {id:110,name:'Micellar Cleansing Water',brand:'Bioderma',category:'skincare',price:14,discount_price:null,image:'https://placehold.co/380x380/FFEDF5/C9556A?text=Micellar',is_featured:false,is_bestseller:true,is_new_arrival:true,stock:90},
+  // MAKEUP
+  {id:201,name:'Full Coverage Foundation',brand:'MAC',category:'makeup',price:45,discount_price:35,image:'https://placehold.co/380x380/FCE4EC/C2185B?text=Foundation',is_featured:true,is_bestseller:true,is_new_arrival:false,stock:40},
+  {id:202,name:'Pro Concealer',brand:'NYX',category:'makeup',price:32,discount_price:null,image:'https://placehold.co/380x380/F8BBD9/E91E63?text=Concealer',is_featured:false,is_bestseller:true,is_new_arrival:false,stock:50},
+  {id:203,name:'Contour Kit',brand:'Morphe',category:'makeup',price:38,discount_price:28,image:'https://placehold.co/380x380/FCE4EC/880E4F?text=Contour',is_featured:false,is_bestseller:false,is_new_arrival:true,stock:30},
+  {id:204,name:'Pink Blush',brand:'Charlotte Tilbury',category:'makeup',price:28,discount_price:null,image:'https://placehold.co/380x380/F8BBD0/C2185B?text=Blush',is_featured:true,is_bestseller:false,is_new_arrival:false,stock:45},
+  {id:205,name:'Shimmer Highlighter',brand:'Fenty Beauty',category:'makeup',price:35,discount_price:27,image:'https://placehold.co/380x380/FDE8E8/B71C1C?text=Highlighter',is_featured:true,is_bestseller:true,is_new_arrival:false,stock:35},
+  {id:206,name:'Classic Red Lipstick',brand:'MAC',category:'makeup',price:22,discount_price:null,image:'https://placehold.co/380x380/FFCDD2/C62828?text=Lipstick',is_featured:false,is_bestseller:true,is_new_arrival:false,stock:70},
+  {id:207,name:'Glossy Lip Gloss',brand:'NYX',category:'makeup',price:18,discount_price:14,image:'https://placehold.co/380x380/FCE4EC/AD1457?text=Lip+Gloss',is_featured:false,is_bestseller:false,is_new_arrival:true,stock:60},
+  {id:208,name:'Precision Eyeliner',brand:'Urban Decay',category:'makeup',price:15,discount_price:null,image:'https://placehold.co/380x380/F8BBD0/880E4F?text=Eyeliner',is_featured:false,is_bestseller:false,is_new_arrival:false,stock:80},
+  {id:209,name:'Lengthening Mascara',brand:'Maybelline',category:'makeup',price:25,discount_price:19,image:'https://placehold.co/380x380/FCE4EC/C2185B?text=Mascara',is_featured:false,is_bestseller:true,is_new_arrival:false,stock:55},
+  {id:210,name:'Eyeshadow Palette',brand:'Huda Beauty',category:'makeup',price:48,discount_price:38,image:'https://placehold.co/380x380/F48FB1/880E4F?text=Eyeshadow',is_featured:true,is_bestseller:true,is_new_arrival:false,stock:25},
+  // HAIR
+  {id:301,name:'Argan Oil Shampoo',brand:'Moroccanoil',category:'hair',price:22,discount_price:null,image:'https://placehold.co/380x380/EDE7F6/512DA8?text=Argan+Shampoo',is_featured:false,is_bestseller:true,is_new_arrival:false,stock:40},
+  {id:302,name:'Nourishing Hair Mask',brand:'Schwarzkopf',category:'hair',price:28,discount_price:21,image:'https://placehold.co/380x380/E8EAF6/303F9F?text=Hair+Mask',is_featured:false,is_bestseller:false,is_new_arrival:true,stock:35},
+  {id:303,name:'Keratin Treatment',brand:'Brazilian',category:'hair',price:45,discount_price:35,image:'https://placehold.co/380x380/F3E5F5/7B1FA2?text=Keratin',is_featured:true,is_bestseller:false,is_new_arrival:false,stock:20},
+  {id:304,name:'Hair Growth Serum',brand:'Nioxin',category:'hair',price:35,discount_price:null,image:'https://placehold.co/380x380/EDE7F6/4A148C?text=Hair+Serum',is_featured:false,is_bestseller:false,is_new_arrival:true,stock:30},
+  {id:305,name:'Coconut Hair Oil',brand:'Cantu',category:'hair',price:18,discount_price:14,image:'https://placehold.co/380x380/E8EAF6/1A237E?text=Coconut+Oil',is_featured:false,is_bestseller:true,is_new_arrival:false,stock:65},
+  {id:306,name:'Color Protect Conditioner',brand:'Matrix',category:'hair',price:24,discount_price:null,image:'https://placehold.co/380x380/F3E5F5/6A1B9A?text=Conditioner',is_featured:false,is_bestseller:false,is_new_arrival:false,stock:50},
+  {id:307,name:'Styling Cream',brand:'Tresemme',category:'hair',price:20,discount_price:15,image:'https://placehold.co/380x380/EDE7F6/4527A0?text=Styling',is_featured:false,is_bestseller:false,is_new_arrival:false,stock:45},
+  {id:308,name:'Moroccan Argan Oil',brand:'Moroccanoil',category:'hair',price:38,discount_price:null,image:'https://placehold.co/380x380/F3E5F5/7B1FA2?text=Moroccan+Oil',is_featured:true,is_bestseller:true,is_new_arrival:false,stock:30},
+  {id:309,name:'Volume Boost Spray',brand:'Redken',category:'hair',price:22,discount_price:null,image:'https://placehold.co/380x380/E8EAF6/283593?text=Volume+Spray',is_featured:false,is_bestseller:false,is_new_arrival:true,stock:40},
+  {id:310,name:'Leave-in Conditioner',brand:'Dove',category:'hair',price:25,discount_price:19,image:'https://placehold.co/380x380/EDE7F6/512DA8?text=Leave-in',is_featured:false,is_bestseller:false,is_new_arrival:false,stock:55},
+  // BATH
+  {id:401,name:'Rose Body Scrub',brand:'Bath & Body Works',category:'bath',price:25,discount_price:19,image:'https://placehold.co/380x380/E0F7FA/006064?text=Rose+Scrub',is_featured:false,is_bestseller:true,is_new_arrival:false,stock:45},
+  {id:402,name:'Shea Butter Lotion',brand:'Jergens',category:'bath',price:22,discount_price:null,image:'https://placehold.co/380x380/E8F5E9/1B5E20?text=Body+Lotion',is_featured:false,is_bestseller:true,is_new_arrival:false,stock:60},
+  {id:403,name:'Lavender Bath Salts',brand:'Lush',category:'bath',price:18,discount_price:14,image:'https://placehold.co/380x380/EDE7F6/4A148C?text=Bath+Salts',is_featured:false,is_bestseller:false,is_new_arrival:true,stock:50},
+  {id:404,name:'Coconut Body Oil',brand:"Palmer's",category:'bath',price:28,discount_price:null,image:'https://placehold.co/380x380/E0F7FA/004D40?text=Body+Oil',is_featured:true,is_bestseller:false,is_new_arrival:false,stock:40},
+  {id:405,name:'Rose Shower Gel',brand:'Dove',category:'bath',price:15,discount_price:12,image:'https://placehold.co/380x380/FCE4EC/880E4F?text=Shower+Gel',is_featured:false,is_bestseller:true,is_new_arrival:false,stock:80},
+  {id:406,name:'Rich Body Butter',brand:'The Body Shop',category:'bath',price:32,discount_price:25,image:'https://placehold.co/380x380/E8F5E9/2E7D32?text=Body+Butter',is_featured:true,is_bestseller:false,is_new_arrival:false,stock:30},
+  {id:407,name:'Foot Care Kit',brand:'Scholl',category:'bath',price:28,discount_price:null,image:'https://placehold.co/380x380/E0F7FA/00695C?text=Foot+Kit',is_featured:false,is_bestseller:false,is_new_arrival:true,stock:25},
+  {id:408,name:'Colorful Bath Bombs',brand:'Lush',category:'bath',price:22,discount_price:17,image:'https://placehold.co/380x380/F3E5F5/6A1B9A?text=Bath+Bomb',is_featured:false,is_bestseller:true,is_new_arrival:false,stock:55},
+  {id:409,name:'Hand Moisturizer',brand:'Neutrogena',category:'bath',price:15,discount_price:null,image:'https://placehold.co/380x380/E8F5E9/388E3C?text=Hand+Cream',is_featured:false,is_bestseller:false,is_new_arrival:false,stock:70},
+  {id:410,name:'Body Fragrance Spray',brand:'Bath & Body Works',category:'bath',price:20,discount_price:15,image:'https://placehold.co/380x380/E0F7FA/00796B?text=Body+Spray',is_featured:false,is_bestseller:false,is_new_arrival:true,stock:65},
+];
+
+window._allProducts = SAMPLE_PRODUCTS;
+
+function fmt(v){return'$'+parseFloat(v||0).toFixed(2)}
+
+function prodCard(p){
+  const price=p.discount_price&&p.discount_price<p.price?p.discount_price:p.price;
+  const hasDisc=p.discount_price&&p.discount_price<p.price;
+  const pct=hasDisc?Math.round((1-p.discount_price/p.price)*100):0;
+  const inWish=(JSON.parse(localStorage.getItem('ll_wish')||'[]')).some(w=>w.id===p.id);
+  const nm=escapeHTML(p.name);
+  const img=sanitizeURL(p.image);
+  const br=escapeHTML(p.brand||'');
+  return`<div class="prod-card" data-pid="${p.id}">
+    <div class="prod-img-wrap">
+      <img src="${img}" alt="${nm}" loading="lazy" onerror="this.src='https://placehold.co/380x380/FFE4EC/E8547A?text=Leelush'"/>
+      <div class="prod-badges">
+        ${p.is_new_arrival?'<span class="b-new">New</span>':''}
+        ${hasDisc?`<span class="b-sale">-${pct}%</span>`:''}
+        ${p.is_bestseller?'<span class="b-hot">🔥 Hot</span>':''}
+      </div>
+      <div class="prod-overlay">
+        <button class="ov-btn" onclick="openQV(${p.id})"><i class="fas fa-eye"></i> Quick View</button>
+        <button class="ov-btn ov-wish${inWish?' active':''}" data-wish="${p.id}" onclick="toggleWish(${p.id})"><i class="fas fa-heart"></i></button>
+      </div>
+    </div>
+    <div class="prod-body">
+      <div class="prod-brand">${br}</div>
+      <div class="prod-name">${nm}</div>
+      <div class="prod-stars">★★★★★ <span>(${Math.floor(Math.random()*150)+20})</span></div>
+      <div class="prod-price">
+        <span class="price-now">${fmt(price)}</span>
+        ${hasDisc?`<span class="price-was">${fmt(p.price)}</span><span class="price-off">-${pct}%</span>`:''}
+      </div>
+      <div class="stock-tag ${p.stock>10?'in-stock':p.stock>0?'low-stock':'out-stock'}">
+        <i class="fas fa-circle" style="font-size:.4rem"></i> ${p.stock>10?'In Stock':p.stock>0?`Only ${p.stock} left`:'Out of Stock'}
+      </div>
+      <div class="qty-row" style="margin-top:10px">
+        <div class="qty-ctrl">
+          <button class="qty-btn" onclick="changeQty(${p.id},-1)">−</button>
+          <span class="qty-num" id="qty-${p.id}">0</span>
+          <button class="qty-btn" onclick="changeQty(${p.id},1)">+</button>
+        </div>
+        <button class="add-btn" onclick="addToCart(${p.id})">
+          <i class="fas fa-cart-plus"></i> Add
+        </button>
+      </div>
+    </div>
+  </div>`;
+}
+
+function renderGrid(id,products){
+  const el=document.getElementById(id);if(!el)return;
+  if(!products||!products.length){el.innerHTML='<p style="text-align:center;color:var(--text3);padding:40px;grid-column:1/-1">No products available</p>';return}
+  el.innerHTML=products.map(p=>prodCard(p)).join('');
+  syncQtys();reattachReveal(el);
+}
+
+function renderAll(){
+  const S=SAMPLE_PRODUCTS;
+  renderGrid('featured-grid',S.filter(p=>p.is_featured));
+  renderGrid('skincare-grid',S.filter(p=>p.category==='skincare'));
+  renderGrid('makeup-grid',S.filter(p=>p.category==='makeup'));
+  renderGrid('hair-grid',S.filter(p=>p.category==='hair'));
+  renderGrid('bath-grid',S.filter(p=>p.category==='bath'));
+  renderGrid('bestsellers-grid',S.filter(p=>p.is_bestseller));
+  renderGrid('newarrivals-grid',S.filter(p=>p.is_new_arrival));
+  renderTestimonials();
+  filterCat('skincare',document.querySelector('.cat-card'));
+}
+
+/* Category filter */
+const CAT_LABELS={skincare:'Skin Care',makeup:'Makeup',hair:'Hair Care',bath:'Bath & Body'};
+function filterCat(cat,cardEl){
+  document.querySelectorAll('.cat-card').forEach(c=>c.classList.remove('active-cat'));
+  if(cardEl)cardEl.classList.add('active-cat');
+  const products=SAMPLE_PRODUCTS.filter(p=>p.category===cat);
+  renderGrid('cat-filter-grid',products);
+  document.getElementById('cat-filter-label').textContent=CAT_LABELS[cat]||cat;
+  document.getElementById('cat-filter-sec').scrollIntoView({behavior:'smooth',block:'start'});
+}
+
+const TESTI=[
+  {name:'Sarah A.',text:'Amazing products and great quality! My order arrived quickly and was beautifully packaged. Will definitely order again!',rating:5},
+  {name:'Nour M.',text:'Best beauty store! Great prices and 100% authentic products. Service is excellent and fast.',rating:5},
+  {name:'Reem K.',text:'A wonderful shopping experience from start to finish. Products matched the description perfectly. So happy!',rating:5},
+  {name:'Dana Y.',text:'I tried the moisturizer and wow, incredible results! My skin became so smooth and glowing.',rating:4},
+  {name:'Hana A.',text:'The MAC lipstick arrived in perfect condition and the colors are gorgeous. Thank you Leelush!',rating:5},
+  {name:'Lara H.',text:'The Vitamin C serum completely transformed my skin! It became much brighter and clearer. Excellent!',rating:5},
+];
+function renderTestimonials(){
+  const g=document.getElementById('testi-grid');if(!g)return;
+  g.innerHTML=TESTI.map(t=>`<div class="testi-card reveal">
+    <div class="testi-top">
+      <img class="testi-av" src="https://placehold.co/46x46/FFE4EC/E8547A?text=${encodeURIComponent(t.name[0])}" alt="${escapeHTML(t.name)}"/>
+      <div><div class="testi-name">${escapeHTML(t.name)}</div><div class="testi-date">Verified Customer</div></div>
+    </div>
+    <div class="testi-stars">${'★'.repeat(t.rating)}${'☆'.repeat(5-t.rating)}</div>
+    <div class="testi-txt">${escapeHTML(t.text)}</div>
+  </div>`).join('');
+  reattachReveal(g);
+}
+
+/* CART */
+let cart=JSON.parse(localStorage.getItem('ll_cart')||'[]');
+function saveCart(){localStorage.setItem('ll_cart',JSON.stringify(cart))}
+function cartTotal(){return cart.reduce((s,i)=>s+(i.price*i.qty),0)}
+function cartCount(){return cart.reduce((s,i)=>s+i.qty,0)}
+function updateCartUI(){
+  const count=cartCount(),total=cartTotal();
+  const nb=document.getElementById('nav-cart-badge');
+  if(nb){nb.textContent=count;nb.style.display=count>0?'flex':'none'}
+  document.getElementById('cart-count-lbl').textContent=`(${count})`;
+  document.getElementById('cart-grand-total').textContent=fmt(total);
+  const fab=document.getElementById('cart-fab'),cfab=document.getElementById('checkout-fab');
+  if(fab){fab.classList.toggle('hidden',count===0);document.getElementById('fab-count').textContent=count;document.getElementById('fab-total').textContent=fmt(total)}
+  if(cfab)cfab.classList.toggle('hidden',count===0);
+  renderCartItems();
+}
+function renderCartItems(){
+  const l=document.getElementById('cart-items-list');
+  if(!cart.length){l.innerHTML='<p style="text-align:center;color:var(--text3);padding:40px">Cart is empty</p>';return}
+  l.innerHTML=cart.map((it,i)=>`<div class="cart-item">
+    <img class="cart-item-img" src="${sanitizeURL(it.image)}" onerror="this.src='https://placehold.co/64x64/FFE4EC/E8547A?text=L'" alt="${escapeHTML(it.name)}"/>
+    <div style="flex:1"><div class="cart-item-name">${escapeHTML(it.name)}</div><div class="cart-item-price">${fmt(it.price)} × ${it.qty}</div></div>
+    <div style="display:flex;flex-direction:column;align-items:center;gap:6px">
+      <div class="qty-ctrl" style="border-color:var(--border2)">
+        <button class="qty-btn" style="width:26px;height:26px;font-size:.9rem" onclick="cartQty(${i},-1)">−</button>
+        <span class="qty-num" style="width:22px;font-size:.82rem">${it.qty}</span>
+        <button class="qty-btn" style="width:26px;height:26px;font-size:.9rem" onclick="cartQty(${i},1)">+</button>
+      </div>
+      <button class="cart-item-rm" onclick="removeFromCart(${i})"><i class="fas fa-trash"></i></button>
+    </div>
+  </div>`).join('');
+}
+function addToCart(id,qty){
+  qty=qty||1;
+  const p=SAMPLE_PRODUCTS.find(x=>x.id===id);if(!p)return;
+  const price=p.discount_price&&p.discount_price<p.price?p.discount_price:p.price;
+  const ex=cart.findIndex(i=>i.id===id);
+  if(ex>=0)cart[ex].qty+=qty;else cart.push({id,name:p.name,price,image:p.image,qty});
+  saveCart();updateCartUI();syncQtys();
+  showToast('Added to cart 🛍️','ok');
+}
+function cartQty(i,d){cart[i].qty=Math.max(0,cart[i].qty+d);if(cart[i].qty===0)cart.splice(i,1);saveCart();updateCartUI();syncQtys()}
+function removeFromCart(i){cart.splice(i,1);saveCart();updateCartUI();syncQtys()}
+function openCart(){document.getElementById('cart-overlay').classList.add('open');document.getElementById('cart-drawer').classList.add('open')}
+function closeCart(){document.getElementById('cart-overlay').classList.remove('open');document.getElementById('cart-drawer').classList.remove('open')}
+
+/* QTY CONTROLS */
+window._qtys={};
+function changeQty(id,d){
+  const cur=window._qtys[id]||0;
+  const nw=Math.max(0,cur+d);
+  window._qtys[id]=nw;
+  document.querySelectorAll('#qty-'+id).forEach(function(el){el.textContent=nw});
+  const p=SAMPLE_PRODUCTS.find(x=>x.id===id);if(!p)return;
+  const price=p.discount_price&&p.discount_price<p.price?p.discount_price:p.price;
+  if(d>0){
+    const ex=cart.findIndex(i=>i.id===id);
+    if(ex>=0)cart[ex].qty++;else cart.push({id,name:p.name,price,image:p.image,qty:1});
+    saveCart();updateCartUI();
+  } else if(d<0&&cur>0){
+    const ci=cart.findIndex(i=>i.id===id);
+    if(ci>=0){cart[ci].qty=Math.max(0,cart[ci].qty-1);if(cart[ci].qty===0)cart.splice(ci,1);saveCart();updateCartUI();}
+  }
+}
+function syncQtys(){
+  cart.forEach(function(it){
+    window._qtys[it.id]=it.qty;
+    document.querySelectorAll('#qty-'+it.id).forEach(function(el){el.textContent=it.qty});
+  });
+}
+
+/* WISHLIST */
+let wish=JSON.parse(localStorage.getItem('ll_wish')||'[]');
+function saveWish(){localStorage.setItem('ll_wish',JSON.stringify(wish))}
+function toggleWish(id){
+  const p=SAMPLE_PRODUCTS.find(x=>x.id===id);if(!p)return;
+  const idx=wish.findIndex(w=>w.id===id);
+  if(idx>=0){wish.splice(idx,1);showToast('Removed from wishlist','info')}
+  else{wish.push({id,name:p.name,price:p.discount_price||p.price,image:p.image});showToast('Added to wishlist ❤️','ok')}
+  saveWish();updateWishUI();
+  document.querySelectorAll('[data-wish="'+id+'"]').forEach(function(b){b.classList.toggle('active',wish.some(w=>w.id===id))});
+}
+function updateWishUI(){
+  const c=wish.length;const b=document.getElementById('wish-badge');
+  if(b){b.textContent=c;b.style.display=c>0?'flex':'none'}
+  const l=document.getElementById('wish-items-list');
+  if(!wish.length){l.innerHTML='<p style="text-align:center;color:var(--text3);padding:40px">No products in wishlist</p>';return}
+  l.innerHTML=wish.map(function(it,i){return`<div class="cart-item">
+    <img class="cart-item-img" src="${sanitizeURL(it.image)}" onerror="this.src='https://placehold.co/64x64/FFE4EC/E8547A?text=L'" alt="${escapeHTML(it.name)}"/>
+    <div style="flex:1"><div class="cart-item-name">${escapeHTML(it.name)}</div><div class="cart-item-price">${fmt(it.price)}</div></div>
+    <div style="display:flex;flex-direction:column;gap:6px">
+      <button class="qty-btn" style="border:1px solid var(--border2);border-radius:8px;width:32px;height:32px" onclick="addToCart(${it.id});closeWish()"><i class="fas fa-cart-plus"></i></button>
+      <button class="cart-item-rm" onclick="wish.splice(${i},1);saveWish();updateWishUI()"><i class="fas fa-trash"></i></button>
+    </div>
+  </div>`}).join('');
+}
+function openWish(){document.getElementById('wish-overlay').classList.add('open');document.getElementById('wish-drawer').classList.add('open')}
+function closeWish(){document.getElementById('wish-overlay').classList.remove('open');document.getElementById('wish-drawer').classList.remove('open')}
+
+/* QUICK VIEW */
+function openQV(id){
+  const p=SAMPLE_PRODUCTS.find(x=>x.id===id);if(!p)return;
+  const price=p.discount_price&&p.discount_price<p.price?p.discount_price:p.price;
+  const hasDisc=p.discount_price&&p.discount_price<p.price;
+  const pct=hasDisc?Math.round((1-p.discount_price/p.price)*100):0;
+  document.getElementById('qv-inner').innerHTML=`
+    <div class="qv-img"><button class="qv-close" onclick="closeQV()"><i class="fas fa-times"></i></button><img src="${sanitizeURL(p.image)}" alt="${escapeHTML(p.name)}" onerror="this.src='https://placehold.co/380x380/FFE4EC/E8547A?text=Leelush'"/></div>
+    <div class="qv-body">
+      <div class="prod-brand" style="margin-bottom:6px">${escapeHTML(p.brand||'')}</div>
+      <h2 style="font-size:1.3rem;font-weight:900;color:var(--text);margin-bottom:10px">${escapeHTML(p.name)}</h2>
+      <div class="prod-stars" style="font-size:.9rem">★★★★★ <span>(${Math.floor(Math.random()*150)+20} reviews)</span></div>
+      <div class="prod-price" style="margin:14px 0">
+        <span class="price-now" style="font-size:1.2rem">${fmt(price)}</span>
+        ${hasDisc?`<span class="price-was">${fmt(p.price)}</span><span class="price-off">-${pct}%</span>`:''}
+      </div>
+      <div class="stock-tag ${p.stock>10?'in-stock':p.stock>0?'low-stock':'out-stock'}" style="margin-bottom:18px">
+        <i class="fas fa-circle" style="font-size:.4rem"></i> ${p.stock>10?'In Stock':p.stock>0?`Only ${p.stock} left`:'Out of Stock'}
+      </div>
+      <div style="display:flex;gap:10px">
+        <button class="btn-pink" style="flex:1;justify-content:center" onclick="addToCart(${p.id});closeQV()"><i class="fas fa-cart-plus"></i> Add to Cart</button>
+        <button class="nav-icon-btn" onclick="toggleWish(${p.id})"><i class="fas fa-heart"></i></button>
+      </div>
+    </div>`;
+  document.getElementById('qv-overlay').classList.add('open');
+}
+function closeQV(e){if(!e||e.target===document.getElementById('qv-overlay'))document.getElementById('qv-overlay').classList.remove('open')}
+
+/* WHATSAPP CHECKOUT */
+function waCheckout(){
+  if(!cart.length){showToast('Your cart is empty','err');return}
+  const lines=cart.map(i=>'• '+i.name+' × '+i.qty+' = '+fmt(i.price*i.qty)).join('\n');
+  const msg='🛍️ *New Order from Leelush:*\n\n'+lines+'\n\n💰 *Total: '+fmt(cartTotal())+'*';
+  window.open('https://wa.me/96179317943?text='+encodeURIComponent(msg),'_blank');
+}
+
+/* SEARCH */
+function toggleSearch(){var o=document.getElementById('search-overlay');o.classList.toggle('open');if(o.classList.contains('open'))setTimeout(function(){document.getElementById('search-inp').focus()},100)}
+function closeSearchOvl(e){if(e.target===document.getElementById('search-overlay'))document.getElementById('search-overlay').classList.remove('open')}
+function doSearch(q){
+  var r=document.getElementById('search-res');if(!q.trim()){r.innerHTML='';return}
+  var filtered=SAMPLE_PRODUCTS.filter(function(p){return p.name.toLowerCase().includes(q.toLowerCase())}).slice(0,7);
+  if(!filtered.length){r.innerHTML='<p style="color:var(--text3);text-align:center;padding:16px">No results found</p>';return}
+  r.innerHTML=filtered.map(function(p){return`<div class="search-result-item" onclick="openQV(${p.id});toggleSearch()">
+    <img src="${sanitizeURL(p.image)}" onerror="this.src='https://placehold.co/46x46/FFE4EC/E8547A?text=L'" alt="${escapeHTML(p.name)}"/>
+    <div><div style="font-weight:600;font-size:.88rem">${escapeHTML(p.name)}</div><div style="color:var(--pink);font-size:.82rem">${fmt(p.discount_price&&p.discount_price<p.price?p.discount_price:p.price)}</div></div>
+  </div>`}).join('');
+}
+
+/* NAVBAR / MOBILE */
+window.addEventListener('scroll',function(){
+  document.getElementById('navbar').classList.toggle('scrolled',window.pageYOffset>40);
+  document.getElementById('scroll-top').classList.toggle('show',window.pageYOffset>400);
+});
+function toggleMobile(){document.getElementById('mobile-menu').classList.toggle('open')}
+function closeMobile(){document.getElementById('mobile-menu').classList.remove('open')}
+
+/* goToSection — safe name, no conflict with window.scrollTo */
+function goToSection(sel,triggerEl){
+  var target=document.querySelector(sel);
+  if(target)target.scrollIntoView({behavior:'smooth'});
+  if(triggerEl){
+    document.querySelectorAll('.qcat').forEach(function(c){c.classList.remove('active')});
+    triggerEl.classList.add('active');
+  }
+}
+
+/* CONTACT */
+function sendContact(e){
+  e.preventDefault();
+  var name=document.getElementById('c-name').value;
+  var phone=document.getElementById('c-phone').value;
+  var msg=document.getElementById('c-msg').value;
+  var txt='Message from: '+name+'\nPhone: '+phone+'\nMessage: '+msg;
+  window.open('https://wa.me/96179317943?text='+encodeURIComponent(txt),'_blank');
+  showToast('We will contact you soon 💌','ok');
+}
+
+/* NEWSLETTER */
+function subNewsletter(e){e.preventDefault();showToast('Thank you! Subscribed successfully 🎉','ok');document.getElementById('nl-email').value=''}
+
+/* COUNTDOWN — persistent end date stored in localStorage */
+(function startCountdown(){
+  var KEY='ll_offer_end';
+  var stored=localStorage.getItem(KEY);
+  var end;
+  if(stored){
+    end=new Date(stored);
+    if(isNaN(end.getTime())||end<=new Date())end=null;
+  }
+  if(!end){
+    end=new Date(Date.now()+3*24*60*60*1000);
+    localStorage.setItem(KEY,end.toISOString());
+  }
+  function tick(){
+    var diff=end-new Date();
+    if(diff<=0){
+      ['cd-d','cd-h','cd-m','cd-s'].forEach(function(id){document.getElementById(id).textContent='00'});
+      return;
+    }
+    document.getElementById('cd-d').textContent=String(Math.floor(diff/86400000)).padStart(2,'0');
+    document.getElementById('cd-h').textContent=String(Math.floor(diff%86400000/3600000)).padStart(2,'0');
+    document.getElementById('cd-m').textContent=String(Math.floor(diff%3600000/60000)).padStart(2,'0');
+    document.getElementById('cd-s').textContent=String(Math.floor(diff%60000/1000)).padStart(2,'0');
+  }
+  tick();setInterval(tick,1000);
+})();
+
+/* TOAST */
+function showToast(msg,type,dur){
+  type=type||'info';dur=dur||2800;
+  var c=document.getElementById('toast-c'),t=document.createElement('div');
+  t.className='toast '+type;t.textContent=msg;c.appendChild(t);
+  setTimeout(function(){t.style.opacity='0';t.style.transition='opacity .3s';setTimeout(function(){t.remove()},300)},dur);
+}
+
+/* SCROLL REVEAL */
+function reattachReveal(container){
+  if(!window.IntersectionObserver)return;
+  container.querySelectorAll('.prod-card,.reveal').forEach(function(el){
+    el.style.opacity='0';el.style.transform='translateY(20px)';
+    var obs=new IntersectionObserver(function(entries){entries.forEach(function(e){if(e.isIntersecting){e.target.style.transition='opacity .5s ease,transform .5s ease';e.target.style.opacity='1';e.target.style.transform='translateY(0)';obs.unobserve(e.target)}})},{threshold:.1});
+    obs.observe(el);
+  });
+}
+var revObs=new IntersectionObserver(function(entries){entries.forEach(function(e){if(e.isIntersecting){e.target.classList.add('visible');revObs.unobserve(e.target)}})},{threshold:.1});
+document.querySelectorAll('.reveal').forEach(function(el){revObs.observe(el)});
+
+document.addEventListener('keydown',function(e){if(e.key==='Escape'){document.getElementById('search-overlay').classList.remove('open');document.getElementById('qv-overlay').classList.remove('open')}});
+
+renderAll();
+updateCartUI();
+updateWishUI();
+</script>
+<script src="site-loader.js"></script>
+</body>
+</html>
