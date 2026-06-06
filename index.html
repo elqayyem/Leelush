@@ -517,27 +517,6 @@ img{max-width:100%;display:block}
   </div>
 </section>
 
-<!-- BRANDS -->
-<section class="sec" id="brands-sec">
-  <div class="sec-inner">
-    <div class="sec-head reveal"><span class="sec-badge">Brands</span><h2 class="sec-title">Available <em>Brands</em></h2><div class="sec-divider"></div></div>
-    <div class="brands-row" id="brands-row">
-      <div class="brand-pill">💄 MAC</div><div class="brand-pill">✨ NYX</div>
-      <div class="brand-pill">🌿 The Ordinary</div><div class="brand-pill">💋 Huda Beauty</div>
-      <div class="brand-pill">🌸 Fenty Beauty</div><div class="brand-pill">⭐ Charlotte Tilbury</div>
-      <div class="brand-pill">🌼 Maybelline</div><div class="brand-pill">🌹 Moroccanoil</div>
-    </div>
-  </div>
-</section>
-
-<!-- TESTIMONIALS -->
-<section class="sec" style="background:var(--off-white)" id="testi-sec">
-  <div class="sec-inner">
-    <div class="sec-head reveal"><span class="sec-badge">Reviews</span><h2 class="sec-title">What Our <em>Customers</em> Say</h2><div class="sec-divider"></div></div>
-    <div class="testi-grid" id="testi-grid"></div>
-  </div>
-</section>
-
 <!-- BLOG -->
 <section class="sec" id="blog-sec">
   <div class="sec-inner">
@@ -546,20 +525,6 @@ img{max-width:100%;display:block}
       <div class="blog-card reveal"><div class="blog-img"><img src="https://placehold.co/300x185/FFE4EC/E8547A?text=Skincare+Tips" alt="Skincare Tips" loading="lazy"/></div><div class="blog-body"><span class="blog-tag">Skin</span><div class="blog-title">The Perfect 5-Step Skincare Routine</div><div class="blog-excerpt">Discover the secrets to glowing, smooth skin with the best daily care routine...</div></div></div>
       <div class="blog-card reveal"><div class="blog-img"><img src="https://placehold.co/300x185/FCE4EC/C2185B?text=Makeup+Trends" alt="Makeup Trends" loading="lazy"/></div><div class="blog-body"><span class="blog-tag">Makeup</span><div class="blog-title">Top Makeup Trends for Summer 2025</div><div class="blog-excerpt">Bold and beautiful looks with the hottest lip colors and eyeshadow palettes...</div></div></div>
       <div class="blog-card reveal"><div class="blog-img"><img src="https://placehold.co/300x185/F3E5F5/7B1FA2?text=Hair+Care" alt="Hair Care" loading="lazy"/></div><div class="blog-body"><span class="blog-tag">Hair</span><div class="blog-title">How to Keep Your Hair Healthy &amp; Shiny</div><div class="blog-excerpt">Golden tips for hair health and protecting it from damage and breakage...</div></div></div>
-    </div>
-  </div>
-</section>
-
-<!-- NEWSLETTER -->
-<section class="sec" style="background:var(--off-white)">
-  <div class="sec-inner">
-    <div class="nl-wrap reveal">
-      <h2 class="nl-title">Subscribe to Our <span style="color:var(--pink)">Newsletter</span> 💌</h2>
-      <p class="nl-sub">Get the latest deals and beauty tips delivered to your inbox</p>
-      <form class="nl-form" onsubmit="subNewsletter(event)">
-        <input type="email" id="nl-email" placeholder="Your email address..." required/>
-        <button type="submit" class="btn-pink"><i class="fas fa-paper-plane"></i> Subscribe</button>
-      </form>
     </div>
   </div>
 </section>
@@ -588,23 +553,18 @@ img{max-width:100%;display:block}
 <section class="sec" style="background:var(--off-white)" id="contact">
   <div class="sec-inner">
     <div class="sec-head reveal"><span class="sec-badge">Contact</span><h2 class="sec-title">Get in <em>Touch</em></h2><div class="sec-divider"></div></div>
-    <div class="contact-grid">
-      <div class="contact-form-card reveal">
-        <h3 style="margin-bottom:18px;font-size:1rem;color:var(--text)">Send a Message 💬</h3>
-        <form onsubmit="sendContact(event)">
-          <div class="form-field"><label>Name</label><input id="c-name" placeholder="Your name" required/></div>
-          <div class="form-field"><label>Email</label><input type="email" id="c-email" placeholder="Your email" required/></div>
-          <div class="form-field"><label>Phone</label><input type="tel" id="c-phone" placeholder="+961..."/></div>
-          <div class="form-field"><label>Message</label><textarea id="c-msg" placeholder="How can we help you?" required></textarea></div>
-          <button type="submit" class="btn-pink" style="width:100%;justify-content:center"><i class="fas fa-paper-plane"></i> Send</button>
-        </form>
+    <div style="display:flex;gap:16px;justify-content:center;flex-wrap:wrap">
+      <div class="ci-card reveal" style="flex:1;max-width:280px">
+        <div class="ci-icon"><i class="fab fa-whatsapp"></i></div>
+        <div><div class="ci-label">WhatsApp</div><div class="ci-val">+961 79 317 943</div></div>
       </div>
-      <div class="contact-info-list reveal">
-        <div class="ci-card"><div class="ci-icon"><i class="fab fa-whatsapp"></i></div><div><div class="ci-label">WhatsApp</div><div class="ci-val">+961 79 317 943</div></div></div>
-        <div class="ci-card"><div class="ci-icon"><i class="fab fa-instagram"></i></div><div><div class="ci-label">Instagram</div><div class="ci-val" id="ci-ig">@leelush</div></div></div>
-        <div class="ci-card"><div class="ci-icon"><i class="fab fa-tiktok"></i></div><div><div class="ci-label">TikTok</div><div class="ci-val" id="ci-tt">@leelush</div></div></div>
-        <div class="ci-card"><div class="ci-icon"><i class="fas fa-envelope"></i></div><div><div class="ci-label">Email</div><div class="ci-val" id="ci-em">info@leelush.com</div></div></div>
-        <div class="ci-card"><div class="ci-icon"><i class="fas fa-clock"></i></div><div><div class="ci-label">Working Hours</div><div class="ci-val" id="ci-hrs">9 AM – 9 PM</div></div></div>
+      <div class="ci-card reveal" style="flex:1;max-width:280px">
+        <div class="ci-icon"><i class="fab fa-instagram"></i></div>
+        <div><div class="ci-label">Instagram</div><div class="ci-val" id="ci-ig">@leelush</div></div>
+      </div>
+      <div class="ci-card reveal" style="flex:1;max-width:280px">
+        <div class="ci-icon"><i class="fas fa-clock"></i></div>
+        <div><div class="ci-label">Working Hours</div><div class="ci-val" id="ci-hrs">9 AM – 9 PM</div></div>
       </div>
     </div>
   </div>
@@ -622,7 +582,7 @@ img{max-width:100%;display:block}
       </div>
     </div>
     <div class="footer-col"><h4>Shop</h4><ul><li><a href="#skincare-sec">Skin Care</a></li><li><a href="#makeup-sec">Makeup</a></li><li><a href="#hair-sec">Hair Care</a></li><li><a href="#bath-sec">Bath &amp; Body</a></li><li><a href="#offers-sec">Offers</a></li></ul></div>
-    <div class="footer-col"><h4>Customer Service</h4><ul><li><a href="#contact">Contact Us</a></li><li><a href="#about">About Us</a></li><li><a href="#testi-sec">Reviews</a></li><li><a href="#blog-sec">Beauty Tips</a></li></ul></div>
+    <div class="footer-col"><h4>Customer Service</h4><ul><li><a href="#contact">Contact Us</a></li><li><a href="#about">About Us</a></li><li><a href="#blog-sec">Beauty Tips</a></li></ul></div>
     <div class="footer-col"><h4>Info</h4><ul><li><a href="#">Privacy Policy</a></li><li><a href="#">Terms &amp; Conditions</a></li><li><a href="#">Return Policy</a></li><li><a href="admin.html">Admin Panel</a></li></ul></div>
   </div>
   <div class="footer-bottom"><p>© 2025 Leelush. All rights reserved.</p><p>Made with ❤️ for beauty lovers</p></div>

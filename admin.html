@@ -261,7 +261,11 @@
         <div class="nav-section-label">Main</div>
         <div class="nav-item active" onclick="showPage('overview')"><i class="fas fa-chart-pie"></i> Overview</div>
         <div class="nav-section-label">Products</div>
-        <div class="nav-item" onclick="showPage('products')"><i class="fas fa-box"></i> Products</div>
+        <div class="nav-item" onclick="showPage('products')"><i class="fas fa-box"></i> All Products</div>
+        <div class="nav-item" onclick="showPage('cat-skincare')"><i class="fas fa-spa"></i> Skin Care</div>
+        <div class="nav-item" onclick="showPage('cat-makeup')"><i class="fas fa-magic"></i> Makeup</div>
+        <div class="nav-item" onclick="showPage('cat-hair')"><i class="fas fa-cut"></i> Hair</div>
+        <div class="nav-item" onclick="showPage('cat-bath')"><i class="fas fa-bath"></i> Bath &amp; Body</div>
         <div class="nav-item" onclick="showPage('categories')"><i class="fas fa-tags"></i> Categories</div>
         <div class="nav-item" onclick="showPage('brands')"><i class="fas fa-star"></i> Brands</div>
         <div class="nav-item" onclick="showPage('featured')"><i class="fas fa-crown"></i> Featured</div>
@@ -433,9 +437,9 @@ function showPage(page) {
   document.querySelectorAll('.nav-item').forEach(function(el) { el.classList.remove('active'); });
   const active = document.querySelector('.nav-item[onclick*="\'' + page + '\'"]');
   if (active) active.classList.add('active');
-  const titles = { overview:'Overview', products:'Products', categories:'Categories', brands:'Brands', featured:'Featured Products', bestsellers:'Best Sellers', newarrivals:'New Arrivals', offers:'Offers', testimonials:'Reviews', content:'Content Editor', media:'Media Library', orders:'Orders', design:'Design Settings', settings:'Settings' };
+  const titles = { overview:'Overview', products:'All Products', 'cat-skincare':'Skin Care Products', 'cat-makeup':'Makeup Products', 'cat-hair':'Hair Products', 'cat-bath':'Bath & Body Products', categories:'Categories', brands:'Brands', featured:'Featured Products', bestsellers:'Best Sellers', newarrivals:'New Arrivals', offers:'Offers', testimonials:'Reviews', content:'Content Editor', media:'Media Library', orders:'Orders', design:'Design Settings', settings:'Settings' };
   document.getElementById('topbar-title').textContent = titles[page] || page;
-  const pages = { overview: renderOverview, products: renderProducts, categories: renderCategories, brands: renderBrands, featured: function() { renderFlaggedProducts('featured','is_featured','Featured Products'); }, bestsellers: function() { renderFlaggedProducts('bestsellers','is_bestseller','Best Sellers'); }, newarrivals: function() { renderFlaggedProducts('newarrivals','is_new_arrival','New Arrivals'); }, offers: renderOffers, testimonials: renderTestimonials, content: renderContent, media: renderMedia, orders: renderOrders, design: renderDesign, settings: renderSettings };
+  const pages = { overview: renderOverview, products: renderProducts, 'cat-skincare': function(){ renderCategoryProducts('skincare','Skin Care'); }, 'cat-makeup': function(){ renderCategoryProducts('makeup','Makeup'); }, 'cat-hair': function(){ renderCategoryProducts('hair','Hair'); }, 'cat-bath': function(){ renderCategoryProducts('bath','Bath & Body'); }, categories: renderCategories, brands: renderBrands, featured: function() { renderFlaggedProducts('featured','is_featured','Featured Products'); }, bestsellers: function() { renderFlaggedProducts('bestsellers','is_bestseller','Best Sellers'); }, newarrivals: function() { renderFlaggedProducts('newarrivals','is_new_arrival','New Arrivals'); }, offers: renderOffers, testimonials: renderTestimonials, content: renderContent, media: renderMedia, orders: renderOrders, design: renderDesign, settings: renderSettings };
   const fn = pages[page];
   if (fn) fn();
   closeSidebar();
@@ -687,6 +691,119 @@ async function toggleProductActive(id, current) {
 async function deleteProduct(id) {
   confirmAction('Delete Product', 'Are you sure you want to permanently delete this product?', async function() {
     if (await dbDelete('products', id)) { toast('Deleted', 'ok'); renderProducts(); }
+  });
+}
+
+// PRODUCTS BY CATEGORY
+async function renderCategoryProducts(slug, label) {
+  document.getElementById('page-content').innerHTML = '<div style="display:flex;align-items:center;justify-content:center;padding:60px"><div style="width:40px;height:40px;border:3px solid var(--border);border-top-color:var(--gold);border-radius:50%;animation:spin 0.8s linear infinite"></div></div>';
+  if (!_categories.length) _categories = await dbFetch('categories', { order: 'name', asc: true });
+  if (!_brands.length) _brands = await dbFetch('brands', { order: 'name', asc: true });
+  // find category id by slug/name match
+  const cat = _categories.find(function(c) { return c.name && c.name.toLowerCase().replace(/[^a-z]/g,'').includes(slug.replace(/[^a-z]/g,'')); });
+  let products = [];
+  if (cat) {
+    products = await dbFetch('products', { select: '*, categories(name), brands(name)', order: 'created_at', eq: { category_id: cat.id } });
+  } else {
+    products = await dbFetch('products', { select: '*, categories(name), brands(name)', order: 'created_at' });
+    products = products.filter(function(p) { return p.categories && p.categories.name && p.categories.name.toLowerCase().replace(/[^a-z]/g,'').includes(slug.replace(/[^a-z]/g,'')); });
+  }
+  _allProducts = _allProducts.length ? _allProducts : products;
+  document.getElementById('page-content').innerHTML = `
+    <div class="admin-card">
+      <div class="admin-card-header">
+        <div class="admin-card-title"><i class="fas fa-box" style="color:var(--gold)"></i> ${label} (${products.length} products)</div>
+        <button class="btn-add" onclick="openProductFormForCat('${slug}')"><i class="fas fa-plus"></i> Add Product</button>
+      </div>
+      <div class="admin-card-body">
+        <div class="admin-table-wrap">
+          <table><thead><tr><th>Image</th><th>Name</th><th>Brand</th><th>Price</th><th>Discount Price</th><th>Stock</th><th>Status</th><th>Actions</th></tr></thead>
+          <tbody id="cat-prod-tbody">
+            ${buildCatProductsTable(products)}
+          </tbody></table>
+        </div>
+      </div>
+    </div>
+  `;
+  window._currentCatSlug = slug;
+  window._currentCatLabel = label;
+  window._currentCatProducts = products;
+}
+
+function buildCatProductsTable(products) {
+  if (!products.length) return '<tr><td colspan="8" style="text-align:center;color:var(--gray);padding:40px">No products in this category yet. Click "Add Product" to add one.</td></tr>';
+  return products.map(function(p) {
+    return '<tr>' +
+      '<td><img class="table-img" src="' + sanitizeURL(p.image_url) + '" onerror="this.src=\'https://placehold.co/44x44/1C2333/D4AF37?text=L\'" /></td>' +
+      '<td style="font-weight:600;max-width:160px">' + escapeHTML(p.name || '') + '</td>' +
+      '<td>' + escapeHTML((p.brands && p.brands.name) || '-') + '</td>' +
+      '<td><span style="color:var(--gold);font-weight:700">' + fmtPrice(p.price) + '</span></td>' +
+      '<td>' + (p.discount_price ? '<span style="color:var(--primary)">' + fmtPrice(p.discount_price) + '</span>' : '<span style="color:var(--gray)">-</span>') + '</td>' +
+      '<td>' + (p.stock_quantity !== null && p.stock_quantity !== undefined ? p.stock_quantity : '-') + '</td>' +
+      '<td><span class="' + (p.is_active ? 'badge-active' : 'badge-inactive') + '">' + (p.is_active ? 'Active' : 'Hidden') + '</span></td>' +
+      '<td><div class="tbl-actions">' +
+        '<button class="tbl-btn edit" onclick="openProductForm(' + p.id + ')"><i class="fas fa-edit"></i> Edit</button>' +
+        '<button class="tbl-btn toggle" onclick="toggleProductActive(' + p.id + ',' + p.is_active + ');setTimeout(function(){renderCategoryProducts(window._currentCatSlug,window._currentCatLabel)},400)">' + (p.is_active ? 'Hide' : 'Show') + '</button>' +
+        '<button class="tbl-btn del" onclick="deleteCatProduct(' + p.id + ')"><i class="fas fa-trash"></i></button>' +
+      '</div></td>' +
+    '</tr>';
+  }).join('');
+}
+
+async function openProductFormForCat(slug) {
+  if (!_categories.length) _categories = await dbFetch('categories', { order: 'name', asc: true });
+  const cat = _categories.find(function(c) { return c.name && c.name.toLowerCase().replace(/[^a-z]/g,'').includes(slug.replace(/[^a-z]/g,'')); });
+  _uploadedImages = [];
+  const catOpts = _categories.map(function(c) { return '<option value="' + c.id + '"' + (cat && cat.id === c.id ? ' selected' : '') + '>' + escapeHTML(c.name) + '</option>'; }).join('');
+  if (!_brands.length) _brands = await dbFetch('brands', { order: 'name', asc: true });
+  const brandOpts = _brands.map(function(b) { return '<option value="' + b.id + '">' + escapeHTML(b.name) + '</option>'; }).join('');
+  openModal('Add Product to ' + (window._currentCatLabel || slug), `
+    <div class="form-row">
+      <div class="form-group"><label>Product Name *</label><input id="pf-name" value="" placeholder="Product name" /></div>
+      <div class="form-group"><label>Brand</label><select id="pf-brand"><option value="">-- Select --</option>${brandOpts}</select></div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label>Category</label><select id="pf-cat"><option value="">-- Select --</option>${catOpts}</select></div>
+      <div class="form-group"><label>Stock</label><input type="number" id="pf-stock" value="" placeholder="0" min="0" /></div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label>Price *</label><input type="number" id="pf-price" value="" placeholder="0.00" step="0.01" min="0" /></div>
+      <div class="form-group"><label>Discount Price</label><input type="number" id="pf-discount" value="" placeholder="Optional" step="0.01" min="0" /></div>
+    </div>
+    <div class="form-row full"><div class="form-group"><label>Description</label><textarea id="pf-desc" rows="3" placeholder="Product description..."></textarea></div></div>
+    <div style="display:flex;flex-wrap:wrap;gap:16px;margin-bottom:16px">
+      <label class="form-check"><input type="checkbox" id="pf-active" checked /> <span>Active / Visible</span></label>
+      <label class="form-check"><input type="checkbox" id="pf-featured" /> <span>Featured</span></label>
+      <label class="form-check"><input type="checkbox" id="pf-bestseller" /> <span>Best Seller</span></label>
+      <label class="form-check"><input type="checkbox" id="pf-newarrival" /> <span>New Arrival</span></label>
+    </div>
+    <div class="form-group"><label>Product Image</label>
+      <div class="img-upload-area" id="img-upload-area">
+        <input type="file" id="img-file-input" accept="image/*" multiple />
+        <div class="img-upload-icon"><i class="fas fa-cloud-upload-alt"></i></div>
+        <div class="img-upload-text">📱 Drag here or click to upload from phone/computer</div>
+      </div>
+      <div class="img-url-input">
+        <input type="text" id="img-url-field" placeholder="Or paste image link (URL)..." />
+        <button onclick="addImageURL()"><i class="fas fa-link"></i> Add</button>
+      </div>
+      <div class="img-preview-wrap" id="img-preview-wrap"></div>
+    </div>
+  `, async function() {
+    if (!rateLimit('save-product', 500)) return;
+    const name = document.getElementById('pf-name').value.trim();
+    const price = parseFloat(document.getElementById('pf-price').value);
+    if (!name || isNaN(price)) { toast('Please fill in name and price', 'err'); return; }
+    const row = { name, price, category_id: document.getElementById('pf-cat').value || (cat ? cat.id : null), brand_id: document.getElementById('pf-brand').value || null, description: document.getElementById('pf-desc').value.trim(), stock_quantity: parseInt(document.getElementById('pf-stock').value) || 0, discount_price: parseFloat(document.getElementById('pf-discount').value) || null, is_active: document.getElementById('pf-active').checked, is_featured: document.getElementById('pf-featured').checked, is_bestseller: document.getElementById('pf-bestseller').checked, is_new_arrival: document.getElementById('pf-newarrival').checked, image_url: _uploadedImages[0] || null, images: _uploadedImages };
+    const result = await dbInsert('products', row);
+    if (result) { toast('Product added successfully!', 'ok'); closeModal(); renderCategoryProducts(window._currentCatSlug, window._currentCatLabel); }
+  });
+  renderImagePreviews();
+}
+
+async function deleteCatProduct(id) {
+  confirmAction('Delete Product', 'Are you sure you want to permanently delete this product?', async function() {
+    if (await dbDelete('products', id)) { toast('Deleted', 'ok'); renderCategoryProducts(window._currentCatSlug, window._currentCatLabel); }
   });
 }
 
