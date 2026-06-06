@@ -721,14 +721,14 @@ function prodCard(p){
   </div>`;
 }
 
-function renderGrid(id,products){
+window.renderGrid=function renderGrid(id,products){
   const el=document.getElementById(id);if(!el)return;
   if(!products||!products.length){el.innerHTML='<p style="text-align:center;color:var(--text3);padding:40px;grid-column:1/-1">No products available</p>';return}
   el.innerHTML=products.map(p=>prodCard(p)).join('');
   syncQtys();reattachReveal(el);
 }
 
-function renderAll(){
+window.renderAll=function renderAll(){
   const S=SAMPLE_PRODUCTS;
   renderGrid('featured-grid',S.filter(p=>p.is_featured));
   renderGrid('skincare-grid',S.filter(p=>p.category==='skincare'));

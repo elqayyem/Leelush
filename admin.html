@@ -649,6 +649,8 @@ async function importSampleProducts() {
     const result = await dbInsert('products', row);
     if (result) count++;
   }
+  // clear storefront cache so changes show immediately
+  ['ll_products_v2','ll_products','ll_settings','ll_design'].forEach(function(k){ localStorage.removeItem(k); });
   toast(count + ' products imported successfully! ✅', 'ok');
   setTimeout(function() { renderOverview(); }, 1000);
 }
