@@ -133,11 +133,6 @@ img{max-width:100%;display:block}
 .cat-name{font-size:.9rem;font-weight:700;color:var(--text)}
 .cat-count{font-size:.75rem;color:var(--text3);margin-top:3px}
 
-/* CATEGORY FILTER GRID */
-#cat-filter-sec{padding:0 24px 48px}
-#cat-filter-inner{max-width:1380px;margin:0 auto}
-#cat-filter-title{font-size:1.3rem;font-weight:800;color:var(--text);margin-bottom:20px;display:flex;align-items:center;gap:10px}
-#cat-filter-title span{color:var(--pink)}
 
 /* PRODUCT GRID */
 .prods-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:20px}
@@ -416,30 +411,6 @@ img{max-width:100%;display:block}
   </div>
 </div>
 
-<!-- CATEGORIES -->
-<section class="sec" style="background:var(--off-white)">
-  <div class="sec-inner">
-    <div class="sec-head reveal"><span class="sec-badge">Browse</span><h2 class="sec-title">Shop by <em>Category</em></h2><p class="sec-sub">Click a category to see all products</p><div class="sec-divider"></div></div>
-    <div class="cats-grid">
-      <div class="cat-card reveal active-cat" onclick="filterCat('skincare',this)"><div class="cat-icon">🧴</div><div class="cat-name">Skin Care</div><div class="cat-count">10 products</div></div>
-      <div class="cat-card reveal" onclick="filterCat('makeup',this)"><div class="cat-icon">💄</div><div class="cat-name">Makeup</div><div class="cat-count">10 products</div></div>
-      <div class="cat-card reveal" onclick="filterCat('hair',this)"><div class="cat-icon">💇</div><div class="cat-name">Hair Care</div><div class="cat-count">10 products</div></div>
-      <div class="cat-card reveal" onclick="filterCat('bath',this)"><div class="cat-icon">🛁</div><div class="cat-name">Bath &amp; Body</div><div class="cat-count">10 products</div></div>
-      <div class="cat-card reveal" onclick="goToSection('#offers-sec',null)"><div class="cat-icon">🏷️</div><div class="cat-name">Special Offers</div><div class="cat-count">Discounts</div></div>
-      <div class="cat-card reveal" onclick="goToSection('#bestsellers-sec',null)"><div class="cat-icon">🔥</div><div class="cat-name">Best Sellers</div><div class="cat-count">Top rated</div></div>
-    </div>
-  </div>
-</section>
-
-<!-- CATEGORY FILTER RESULTS -->
-<section id="cat-filter-sec">
-  <div id="cat-filter-inner" style="max-width:1380px;margin:0 auto;padding:0 0 20px">
-    <div id="cat-filter-title" style="font-size:1.2rem;font-weight:800;color:var(--text);margin-bottom:20px;display:flex;align-items:center;gap:8px">
-      <span style="color:var(--pink)">🧴</span> <span id="cat-filter-label">Skin Care</span> <span style="color:var(--text3);font-weight:400;font-size:.9rem">— 10 products</span>
-    </div>
-    <div class="prods-grid" id="cat-filter-grid"></div>
-  </div>
-</section>
 
 <!-- FEATURED -->
 <section class="sec" id="featured-sec">
@@ -741,9 +712,6 @@ window.renderAll=function renderAll(){
   window.renderGrid('bestsellers-grid',S.filter(function(p){return p.is_bestseller;}));
   window.renderGrid('newarrivals-grid',S.filter(function(p){return p.is_new_arrival;}));
   renderTestimonials();
-  /* refresh category filter grid with active category */
-  var firstCard=document.querySelector('.cat-card.active-cat')||document.querySelector('.cat-card');
-  if(firstCard){var cat=firstCard.getAttribute('onclick')||'';var m=cat.match(/filterCat\('([^']+)'/);if(m)filterCat(m[1],firstCard);}
 }
 
 /* Category filter */
