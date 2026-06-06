@@ -10,6 +10,7 @@
   const CACHE_TTL = 5 * 60 * 1000; // 5 minutes
 
   const _sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  window._sb = _sb; // expose for stock updates from index.html
 
   /* Map Supabase category name → index.html category slug */
   function mapCat(name) {

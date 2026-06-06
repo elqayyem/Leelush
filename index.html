@@ -681,14 +681,16 @@ function prodCard(p){
         <i class="fas fa-circle" style="font-size:.4rem"></i> ${p.stock>10?'In Stock':p.stock>0?`Only ${p.stock} left`:'Out of Stock'}
       </div>
       <div class="qty-row" style="margin-top:10px">
-        <div class="qty-ctrl">
+        ${p.stock===0?
+          '<button class="add-btn" disabled style="opacity:.55;cursor:not-allowed;background:#ccc;box-shadow:none"><i class="fas fa-ban"></i> Out of Stock</button>'
+        :`<div class="qty-ctrl">
           <button class="qty-btn" onclick="changeQty(${p.id},-1)">−</button>
           <span class="qty-num" id="qty-${p.id}">0</span>
           <button class="qty-btn" onclick="changeQty(${p.id},1)">+</button>
         </div>
         <button class="add-btn" onclick="addToCart(${p.id})">
           <i class="fas fa-cart-plus"></i> Add
-        </button>
+        </button>`}
       </div>
     </div>
   </div>`;
@@ -786,9 +788,17 @@ function getProduct(id){
 function addToCart(id,qty){
   qty=qty||1;
   const p=getProduct(id);if(!p)return;
+  const stock=p.stock;
+  if(stock!==undefined&&stock!==null&&stock<=0){
+    showToast('Sorry, this item is out of stock ❌','err');return;
+  }
+  const ex=cart.findIndex(function(i){return i.id==id;});
+  const alreadyInCart=ex>=0?cart[ex].qty:0;
+  if(stock!==undefined&&stock!==null&&alreadyInCart+qty>stock){
+    showToast('Only '+stock+' available in stock','err');return;
+  }
   const price=p.discount_price&&p.discount_price<p.price?p.discount_price:p.price;
-  const ex=cart.findIndex(i=>i.id===id);
-  if(ex>=0)cart[ex].qty+=qty;else cart.push({id,name:p.name,price,image:p.image,qty});
+  if(ex>=0)cart[ex].qty+=qty;else cart.push({id,name:p.name,price,image:p.image,qty,stock:stock});
   saveCart();updateCartUI();syncQtys();
   showToast('Added to cart 🛍️','ok');
 }
@@ -814,18 +824,23 @@ function closeCart(){document.getElementById('cart-overlay').classList.remove('o
 /* QTY CONTROLS */
 window._qtys={};
 function changeQty(id,d){
+  const p=getProduct(id);if(!p)return;
+  const stock=p.stock;
   const cur=window._qtys[id]||0;
+  if(d>0){
+    if(stock!==undefined&&stock!==null&&stock<=0){showToast('Sorry, this item is out of stock ❌','err');return;}
+    if(stock!==undefined&&stock!==null&&cur>=stock){showToast('Only '+stock+' available in stock','err');return;}
+  }
   const nw=Math.max(0,cur+d);
   window._qtys[id]=nw;
   document.querySelectorAll('#qty-'+id).forEach(function(el){el.textContent=nw});
-  const p=getProduct(id);if(!p)return;
   const price=p.discount_price&&p.discount_price<p.price?p.discount_price:p.price;
   if(d>0){
-    const ex=cart.findIndex(i=>i.id===id);
-    if(ex>=0)cart[ex].qty++;else cart.push({id,name:p.name,price,image:p.image,qty:1});
+    const ex=cart.findIndex(function(i){return i.id==id;});
+    if(ex>=0)cart[ex].qty++;else cart.push({id,name:p.name,price,image:p.image,qty:1,stock:stock});
     saveCart();updateCartUI();
   } else if(d<0&&cur>0){
-    const ci=cart.findIndex(i=>i.id===id);
+    const ci=cart.findIndex(function(i){return i.id==id;});
     if(ci>=0){cart[ci].qty=Math.max(0,cart[ci].qty-1);if(cart[ci].qty===0)cart.splice(ci,1);saveCart();updateCartUI();}
   }
 }
@@ -893,11 +908,53 @@ function openQV(id){
 function closeQV(e){if(!e||e.target===document.getElementById('qv-overlay'))document.getElementById('qv-overlay').classList.remove('open')}
 
 /* WHATSAPP CHECKOUT */
-function waCheckout(){
-  if(!cart.length){showToast('Your cart is empty','err');return}
-  const lines=cart.map(i=>'• '+i.name+' × '+i.qty+' = '+fmt(i.price*i.qty)).join('\n');
-  const msg='🛍️ *New Order from Leelush:*\n\n'+lines+'\n\n💰 *Total: '+fmt(cartTotal())+'*';
-  window.open('https://wa.me/96179317943?text='+encodeURIComponent(msg),'_blank');
+async function waCheckout(){
+  if(!cart.length){showToast('Your cart is empty','err');return;}
+
+  /* 1 — stock validation */
+  var problems=[];
+  cart.forEach(function(item){
+    var p=getProduct(item.id);
+    if(!p)return;
+    var stock=p.stock;
+    if(stock!==undefined&&stock!==null){
+      if(stock<=0){
+        problems.push('"'+item.name+'" is out of stock — please remove it from cart');
+      } else if(item.qty>stock){
+        problems.push('"'+item.name+'" — only '+stock+' left, you have '+item.qty+' in cart');
+      }
+    }
+  });
+  if(problems.length){
+    problems.forEach(function(msg){showToast('❌ '+msg,'err');});
+    return;
+  }
+
+  /* 2 — decrease stock in Supabase */
+  if(window._sb){
+    for(var k=0;k<cart.length;k++){
+      var item=cart[k];
+      var p=getProduct(item.id);
+      if(p&&p.stock!==undefined&&p.stock!==null){
+        var newStock=Math.max(0,p.stock-item.qty);
+        await window._sb.from('products').update({stock_quantity:newStock}).eq('id',item.id);
+        p.stock=newStock; // update local copy
+      }
+    }
+  }
+
+  /* 3 — build WhatsApp message */
+  var lines=cart.map(function(i){return '• '+i.name+' × '+i.qty+' = '+fmt(i.price*i.qty);}).join('\n');
+  var waNum=(window._whatsapp||'96179317943').replace(/\D/g,'');
+  var msg='🛒 *New Order from Leelush:*\n\n'+lines+'\n\n💰 *Total: '+fmt(cartTotal())+'*\n\n_Sent from leelush.onrender.com_';
+  window.open('https://wa.me/'+waNum+'?text='+encodeURIComponent(msg),'_blank');
+
+  /* 4 — clear cart */
+  cart=[];
+  saveCart();
+  updateCartUI();
+  closeCart();
+  showToast('Order sent! Thank you 🎉','ok');
 }
 
 /* SEARCH */
