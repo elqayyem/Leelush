@@ -824,8 +824,22 @@ function addToCart(id,qty){
   saveCart();updateCartUI();syncQtys();
   showToast('Added to cart 🛍️','ok');
 }
-function cartQty(i,d){cart[i].qty=Math.max(0,cart[i].qty+d);if(cart[i].qty===0)cart.splice(i,1);saveCart();updateCartUI();syncQtys()}
-function removeFromCart(i){cart.splice(i,1);saveCart();updateCartUI();syncQtys()}
+function resetQtyDisplay(id){
+  window._qtys[id]=0;
+  document.querySelectorAll('#qty-'+id).forEach(function(el){el.textContent='0'});
+}
+function cartQty(i,d){
+  var id=cart[i].id;
+  cart[i].qty=Math.max(0,cart[i].qty+d);
+  if(cart[i].qty===0){cart.splice(i,1);resetQtyDisplay(id);}
+  saveCart();updateCartUI();syncQtys();
+}
+function removeFromCart(i){
+  var id=cart[i].id;
+  cart.splice(i,1);
+  resetQtyDisplay(id);
+  saveCart();updateCartUI();syncQtys();
+}
 function openCart(){document.getElementById('cart-overlay').classList.add('open');document.getElementById('cart-drawer').classList.add('open')}
 function closeCart(){document.getElementById('cart-overlay').classList.remove('open');document.getElementById('cart-drawer').classList.remove('open')}
 
