@@ -103,34 +103,73 @@
     }
   }
 
+  function set(id, val) {
+    if (!val) return;
+    var el = document.getElementById(id);
+    if (el) el.textContent = val;
+  }
+  function setHref(id, val) {
+    if (!val) return;
+    var el = document.getElementById(id);
+    if (el) el.href = val;
+  }
+
   function applySettings(s) {
     if (!s) return;
-    /* WhatsApp */
-    const wa = (s.whatsapp || '').replace(/\D/g, '');
+
+    /* Store name */
+    set('nav-store-name', s.store_name);
+    set('footer-store-name', s.store_name ? s.store_name + ' 💄' : null);
+
+    /* Logo */
+    if (s.logo_url) {
+      var logoEl = document.getElementById('nav-logo-img');
+      if (logoEl) logoEl.src = s.logo_url;
+    }
+
+    /* Promo bar */
+    set('promo-text', s.promo_text);
+
+    /* Hero */
+    set('hero-tag-text', s.hero_tag);
+    set('hero-title', s.hero_title);
+    set('hero-desc', s.hero_desc);
+    set('hero-stat-products', s.stat_products);
+    set('hero-stat-brands', s.stat_brands);
+    set('hero-stat-customers', s.stat_customers);
+    if (s.hero_image) {
+      var hImg = document.getElementById('hero-img');
+      if (hImg) hImg.src = s.hero_image;
+    }
+
+    /* Offer banner */
+    set('offer-title', s.offer_title);
+    set('offer-sub', s.offer_sub);
+    set('offer-code', s.offer_code);
+
+    /* About */
+    set('about-text', s.about_text);
+
+    /* Contact */
+    var wa = (s.whatsapp || '').replace(/\D/g, '');
+    set('ci-wa', s.whatsapp);
+    set('ci-ig', s.instagram);
+    set('ci-hrs', s.working_hours);
+
+    /* Footer desc */
+    set('footer-desc', s.footer_desc || s.about_text);
+
+    /* WhatsApp links */
     if (wa) {
       document.querySelectorAll('a[href*="wa.me"]').forEach(function(el) {
         el.href = 'https://wa.me/' + wa;
       });
     }
-    /* Instagram */
+
+    /* Instagram link */
     if (s.instagram) {
-      var igEl = document.getElementById('ci-ig');
-      if (igEl) igEl.textContent = s.instagram;
-    }
-    /* Working hours */
-    if (s.working_hours) {
-      var hEl = document.getElementById('ci-hrs');
-      if (hEl) hEl.textContent = s.working_hours;
-    }
-    /* About text */
-    if (s.about_text) {
-      var aEl = document.getElementById('about-text');
-      if (aEl) aEl.textContent = s.about_text;
-    }
-    /* Logo */
-    if (s.logo_url) {
-      var logoEl = document.getElementById('nav-logo-img');
-      if (logoEl) logoEl.src = s.logo_url;
+      var igLink = document.getElementById('f-ig');
+      if (igLink) igLink.href = 'https://instagram.com/' + s.instagram.replace('@','');
     }
   }
 

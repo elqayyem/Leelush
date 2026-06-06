@@ -1131,59 +1131,96 @@ async function deleteTestimonial(id) {
 // CONTENT EDITOR
 async function renderContent() {
   const res = await dbFetch('site_data', { eq: { key: 'settings' } });
-  const settings = (res[0] && res[0].value) || {};
+  const s = (res[0] && res[0].value) || {};
+  function v(key, def) { return escapeHTML(s[key] || def || ''); }
   document.getElementById('page-content').innerHTML = `
     <div class="admin-card">
-      <div class="admin-card-header"><div class="admin-card-title"><i class="fas fa-edit" style="color:var(--gold)"></i> Content Editor</div></div>
+      <div class="admin-card-header">
+        <div class="admin-card-title"><i class="fas fa-edit" style="color:var(--gold)"></i> Content Editor — every change reflects live on the website</div>
+        <button class="btn-save" onclick="saveContent()"><i class="fas fa-save"></i> Save All</button>
+      </div>
       <div class="admin-card-body">
-        <div class="settings-grid">
-          <div>
-            <h3 style="font-size:1rem;margin-bottom:16px;color:var(--gold)">Store Info</h3>
-            <div class="form-group"><label>Store Name</label><input id="ct-name" value="${escapeHTML(settings.store_name || 'Leelush')}" /></div>
-            <div class="form-group"><label>WhatsApp (with country code)</label><input id="ct-wa" value="${escapeHTML(settings.whatsapp || '')}" placeholder="+961XXXXXXXX" /></div>
-            <div class="form-group"><label>Instagram</label><input id="ct-ig" value="${escapeHTML(settings.instagram || '')}" placeholder="@handle" /></div>
-            <div class="form-group"><label>TikTok</label><input id="ct-tt" value="${escapeHTML(settings.tiktok || '')}" placeholder="@handle" /></div>
-            <div class="form-group"><label>Facebook</label><input id="ct-fb" value="${escapeHTML(settings.facebook || '')}" placeholder="Page URL" /></div>
-            <div class="form-group"><label>Phone</label><input id="ct-phone" value="${escapeHTML(settings.phone || '')}" /></div>
-            <div class="form-group"><label>Email</label><input id="ct-email" value="${escapeHTML(settings.email || '')}" type="email" /></div>
-          </div>
-          <div>
-            <h3 style="font-size:1rem;margin-bottom:16px;color:var(--gold)">Page Content</h3>
-            <div class="form-group"><label>Hero Title</label><input id="ct-hero-title" value="${escapeHTML(settings.hero_title || 'Elevate Your Beauty Routine')}" /></div>
-            <div class="form-group"><label>Hero Description</label><textarea id="ct-hero-desc">${escapeHTML(settings.hero_desc || '')}</textarea></div>
-            <div class="form-group"><label>Hero Image URL</label><input id="ct-hero-img" value="${escapeHTML(settings.hero_image || '')}" /></div>
-            <div class="form-group"><label>About Us Story</label><textarea id="ct-about" rows="4">${escapeHTML(settings.about_text || '')}</textarea></div>
-            <div class="form-group"><label>Address</label><input id="ct-addr" value="${escapeHTML(settings.address || '')}" /></div>
-            <div class="form-group"><label>Working Hours</label><input id="ct-hours" value="${escapeHTML(settings.working_hours || '9 AM - 9 PM')}" /></div>
-            <div class="form-group"><label>Currency</label>
-              <select id="ct-currency">
-                <option value="USD" ${settings.currency==='USD'?'selected':''}>USD - Dollar</option>
-                <option value="LBP" ${settings.currency==='LBP'?'selected':''}>LBP - Lebanese Pound</option>
-                <option value="SAR" ${settings.currency==='SAR'?'selected':''}>SAR - Saudi Riyal</option>
-                <option value="AED" ${settings.currency==='AED'?'selected':''}>AED - UAE Dirham</option>
-              </select>
-            </div>
+
+        <h3 style="color:var(--gold);font-size:.95rem;margin-bottom:14px;border-bottom:1px solid var(--border);padding-bottom:8px">🏪 Store Info</h3>
+        <div class="form-row">
+          <div class="form-group"><label>Store Name</label><input id="ct-name" value="${v('store_name','Leelush')}" /></div>
+          <div class="form-group"><label>Logo URL (leave empty to keep current)</label><input id="ct-logo" value="${v('logo_url')}" placeholder="https://..." /></div>
+        </div>
+        <div class="form-row">
+          <div class="form-group"><label>WhatsApp Number (with country code)</label><input id="ct-wa" value="${v('whatsapp','+96179317943')}" placeholder="+961XXXXXXXX" /></div>
+          <div class="form-group"><label>Instagram Handle</label><input id="ct-ig" value="${v('instagram','@leelush')}" placeholder="@leelush" /></div>
+        </div>
+        <div class="form-row">
+          <div class="form-group"><label>Working Hours</label><input id="ct-hours" value="${v('working_hours','9 AM – 9 PM')}" /></div>
+          <div class="form-group"><label>Currency</label>
+            <select id="ct-currency">
+              <option value="USD" ${s.currency==='USD'||!s.currency?'selected':''}>USD ($)</option>
+              <option value="LBP" ${s.currency==='LBP'?'selected':''}>LBP</option>
+              <option value="SAR" ${s.currency==='SAR'?'selected':''}>SAR</option>
+              <option value="AED" ${s.currency==='AED'?'selected':''}>AED</option>
+            </select>
           </div>
         </div>
-        <div style="margin-top:20px">
-          <h3 style="font-size:1rem;margin-bottom:16px;color:var(--gold)">Hero Stats</h3>
-          <div class="form-row">
-            <div class="form-group"><label>Products Count</label><input id="ct-stat-products" value="${escapeHTML(settings.stat_products || '500+')}" /></div>
-            <div class="form-group"><label>Brands Count</label><input id="ct-stat-brands" value="${escapeHTML(settings.stat_brands || '50+')}" /></div>
-            <div class="form-group"><label>Customers Count</label><input id="ct-stat-customers" value="${escapeHTML(settings.stat_customers || '10K+')}" /></div>
-          </div>
+
+        <h3 style="color:var(--gold);font-size:.95rem;margin:20px 0 14px;border-bottom:1px solid var(--border);padding-bottom:8px">📢 Promo Bar (top strip)</h3>
+        <div class="form-group"><label>Promo Bar Text</label><input id="ct-promo" value="${v('promo_text','🚚 Free shipping on orders over $50 | ✨ Exclusive daily deals | 💄 500+ authentic products')}" /></div>
+
+        <h3 style="color:var(--gold);font-size:.95rem;margin:20px 0 14px;border-bottom:1px solid var(--border);padding-bottom:8px">🦸 Hero Section</h3>
+        <div class="form-row">
+          <div class="form-group"><label>Hero Tag (small text above title)</label><input id="ct-hero-tag" value="${v('hero_tag','Exclusive 2025 Collection')}" /></div>
+          <div class="form-group"><label>Hero Image URL</label><input id="ct-hero-img" value="${v('hero_image')}" placeholder="https://..." /></div>
         </div>
-        <button class="btn-save" onclick="saveContent()" style="margin-top:20px"><i class="fas fa-save"></i> Save Changes</button>
+        <div class="form-group"><label>Hero Title (main heading)</label><input id="ct-hero-title" value="${v('hero_title','Elevate Your Beauty Routine to the Next Level')}" /></div>
+        <div class="form-group"><label>Hero Description (subtitle)</label><textarea id="ct-hero-desc" rows="2">${v('hero_desc','Premium makeup, skincare, and hair care products from the world\'s top brands at exclusive prices.')}</textarea></div>
+        <div class="form-row">
+          <div class="form-group"><label>Stat — Products (e.g. 500+)</label><input id="ct-stat-products" value="${v('stat_products','500+')}" /></div>
+          <div class="form-group"><label>Stat — Brands (e.g. 50+)</label><input id="ct-stat-brands" value="${v('stat_brands','50+')}" /></div>
+          <div class="form-group"><label>Stat — Customers (e.g. 10K+)</label><input id="ct-stat-customers" value="${v('stat_customers','10K+')}" /></div>
+        </div>
+
+        <h3 style="color:var(--gold);font-size:.95rem;margin:20px 0 14px;border-bottom:1px solid var(--border);padding-bottom:8px">🏷️ Offer Banner</h3>
+        <div class="form-row">
+          <div class="form-group"><label>Offer Title</label><input id="ct-offer-title" value="${v('offer_title','🎀 Special Makeup Sale')}" /></div>
+          <div class="form-group"><label>Offer Subtitle</label><input id="ct-offer-sub" value="${v('offer_sub','30% off all makeup products — limited time only!')}" /></div>
+        </div>
+        <div class="form-group"><label>Discount Code</label><input id="ct-offer-code" value="${v('offer_code','LEELUSH30')}" /></div>
+
+        <h3 style="color:var(--gold);font-size:.95rem;margin:20px 0 14px;border-bottom:1px solid var(--border);padding-bottom:8px">ℹ️ About Section</h3>
+        <div class="form-group"><label>About Us Text</label><textarea id="ct-about" rows="4">${v('about_text','Leelush is your premier destination for luxury beauty products.')}</textarea></div>
+        <div class="form-group"><label>Footer Description</label><textarea id="ct-footer-desc" rows="2">${v('footer_desc','Your premier destination for luxury beauty products. The best products at great prices with exceptional customer service.')}</textarea></div>
+
+        <button class="btn-save" onclick="saveContent()" style="margin-top:24px;width:100%;justify-content:center;display:flex"><i class="fas fa-save"></i> &nbsp;Save All Changes</button>
       </div>
     </div>
   `;
 }
 async function saveContent() {
   if (!rateLimit('save-content', 1000)) return;
-  const settings = { store_name: document.getElementById('ct-name').value.trim(), whatsapp: document.getElementById('ct-wa').value.trim(), instagram: document.getElementById('ct-ig').value.trim(), tiktok: document.getElementById('ct-tt').value.trim(), facebook: document.getElementById('ct-fb').value.trim(), phone: document.getElementById('ct-phone').value.trim(), email: document.getElementById('ct-email').value.trim(), hero_title: document.getElementById('ct-hero-title').value.trim(), hero_desc: document.getElementById('ct-hero-desc').value.trim(), hero_image: document.getElementById('ct-hero-img').value.trim(), about_text: document.getElementById('ct-about').value.trim(), address: document.getElementById('ct-addr').value.trim(), working_hours: document.getElementById('ct-hours').value.trim(), currency: document.getElementById('ct-currency').value, stat_products: document.getElementById('ct-stat-products').value.trim(), stat_brands: document.getElementById('ct-stat-brands').value.trim(), stat_customers: document.getElementById('ct-stat-customers').value.trim() };
+  function g(id) { var el = document.getElementById(id); return el ? el.value.trim() : ''; }
+  const settings = {
+    store_name: g('ct-name'),
+    logo_url: g('ct-logo'),
+    whatsapp: g('ct-wa'),
+    instagram: g('ct-ig'),
+    working_hours: g('ct-hours'),
+    currency: g('ct-currency'),
+    promo_text: g('ct-promo'),
+    hero_tag: g('ct-hero-tag'),
+    hero_image: g('ct-hero-img'),
+    hero_title: g('ct-hero-title'),
+    hero_desc: g('ct-hero-desc'),
+    stat_products: g('ct-stat-products'),
+    stat_brands: g('ct-stat-brands'),
+    stat_customers: g('ct-stat-customers'),
+    offer_title: g('ct-offer-title'),
+    offer_sub: g('ct-offer-sub'),
+    offer_code: g('ct-offer-code'),
+    about_text: g('ct-about'),
+    footer_desc: g('ct-footer-desc'),
+  };
   const { error } = await _supa.from('site_data').upsert({ key: 'settings', value: settings });
   if (error) { toast('Save error: ' + error.message, 'err'); return; }
-  toast('Content saved successfully', 'ok');
+  toast('✅ All changes saved! Refresh the website to see them.', 'ok');
 }
 
 // MEDIA LIBRARY

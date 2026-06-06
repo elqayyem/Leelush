@@ -334,14 +334,14 @@ img{max-width:100%;display:block}
 <body>
 
 <!-- PROMO BAR -->
-<div id="promo-bar">🚚 Free shipping on orders over $50 <span>|</span> ✨ Exclusive daily deals <span>|</span> 💄 500+ authentic products</div>
+<div id="promo-bar"><span id="promo-text">🚚 Free shipping on orders over $50 &nbsp;|&nbsp; ✨ Exclusive daily deals &nbsp;|&nbsp; 💄 500+ authentic products</span></div>
 
 <!-- NAVBAR -->
 <nav id="navbar">
   <div class="nav-inner">
     <div class="nav-logo">
       <img src="https://placehold.co/40x40/E8547A/fff?text=L" alt="Leelush" id="nav-logo-img"/>
-      <span>Leelush</span>
+      <span id="nav-store-name">Leelush</span>
     </div>
     <ul class="nav-links">
       <li><a href="#hero">Home</a></li>
@@ -384,17 +384,17 @@ img{max-width:100%;display:block}
   <div class="hero-shapes"><div class="hero-shape s1"></div><div class="hero-shape s2"></div><div class="hero-shape s3"></div></div>
   <div class="hero-inner">
     <div class="hero-text">
-      <div class="hero-tag"><i class="fas fa-crown"></i> Exclusive 2025 Collection</div>
-      <h1 class="hero-h1">Elevate Your<br/><em>Beauty Routine</em><br/>to the Next Level</h1>
-      <p class="hero-p">Premium makeup, skincare, and hair care products from the world's top brands at exclusive prices.</p>
+      <div class="hero-tag"><i class="fas fa-crown"></i> <span id="hero-tag-text">Exclusive 2025 Collection</span></div>
+      <h1 class="hero-h1" id="hero-title">Elevate Your<br/><em>Beauty Routine</em><br/>to the Next Level</h1>
+      <p class="hero-p" id="hero-desc">Premium makeup, skincare, and hair care products from the world's top brands at exclusive prices.</p>
       <div class="hero-btns">
         <a href="#featured-sec" class="btn-pink"><i class="fas fa-shopping-bag"></i> Shop Now</a>
         <a href="#about" class="btn-outline-pink"><i class="fas fa-play-circle"></i> Learn More</a>
       </div>
       <div class="hero-stats">
-        <div class="hero-stat"><div class="n">500+</div><div class="l">Products</div></div>
-        <div class="hero-stat"><div class="n">50+</div><div class="l">Brands</div></div>
-        <div class="hero-stat"><div class="n">10K+</div><div class="l">Customers</div></div>
+        <div class="hero-stat"><div class="n" id="hero-stat-products">500+</div><div class="l">Products</div></div>
+        <div class="hero-stat"><div class="n" id="hero-stat-brands">50+</div><div class="l">Brands</div></div>
+        <div class="hero-stat"><div class="n" id="hero-stat-customers">10K+</div><div class="l">Customers</div></div>
       </div>
     </div>
     <div class="hero-imgs">
@@ -471,9 +471,9 @@ img{max-width:100%;display:block}
 <section class="sec" id="offers-sec" style="background:var(--off-white)">
   <div class="sec-inner">
     <div class="offer-banner reveal">
-      <div class="offer-title">🎀 Special Makeup Sale</div>
-      <div class="offer-sub">30% off all makeup products — limited time only!</div>
-      <div class="offer-code">LEELUSH30</div>
+      <div class="offer-title" id="offer-title">🎀 Special Makeup Sale</div>
+      <div class="offer-sub" id="offer-sub">30% off all makeup products — limited time only!</div>
+      <div class="offer-code" id="offer-code">LEELUSH30</div>
       <div class="countdown">
         <div class="cd-box"><div class="cd-n" id="cd-d">00</div><div class="cd-l">Days</div></div>
         <div class="cd-box"><div class="cd-n" id="cd-h">00</div><div class="cd-l">Hours</div></div>
@@ -556,7 +556,7 @@ img{max-width:100%;display:block}
     <div style="display:flex;gap:16px;justify-content:center;flex-wrap:wrap">
       <div class="ci-card reveal" style="flex:1;max-width:280px">
         <div class="ci-icon"><i class="fab fa-whatsapp"></i></div>
-        <div><div class="ci-label">WhatsApp</div><div class="ci-val">+961 79 317 943</div></div>
+        <div><div class="ci-label">WhatsApp</div><div class="ci-val" id="ci-wa">+961 79 317 943</div></div>
       </div>
       <div class="ci-card reveal" style="flex:1;max-width:280px">
         <div class="ci-icon"><i class="fab fa-instagram"></i></div>
@@ -573,7 +573,7 @@ img{max-width:100%;display:block}
 <!-- FOOTER -->
 <footer id="footer">
   <div class="footer-grid">
-    <div><div class="footer-logo-text">Leelush 💄</div><p class="footer-p">Your premier destination for luxury beauty products. The best products at great prices with exceptional customer service.</p>
+    <div><div class="footer-logo-text" id="footer-store-name">Leelush 💄</div><p class="footer-p" id="footer-desc">Your premier destination for luxury beauty products. The best products at great prices with exceptional customer service.</p>
       <div class="footer-socials">
         <a href="https://wa.me/96179317943" class="soc-btn wa" target="_blank" rel="noopener"><i class="fab fa-whatsapp"></i></a>
         <a href="#" class="soc-btn ig" id="f-ig" target="_blank" rel="noopener"><i class="fab fa-instagram"></i></a>
