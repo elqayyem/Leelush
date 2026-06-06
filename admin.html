@@ -502,7 +502,7 @@ async function dbDelete(table, id) {
 // IMAGE UPLOAD
 let _uploadedImages = [];
 function bindImageUpload() {
-  _uploadedImages = [];
+  // do NOT reset _uploadedImages here — it is set by the calling form function
   const area = document.getElementById('img-upload-area');
   if (!area) return;
   area.addEventListener('dragover', function(e) { e.preventDefault(); area.classList.add('drag-over'); });
@@ -763,7 +763,22 @@ async function openProductForm(id) {
     const name = document.getElementById('pf-name').value.trim();
     const price = parseFloat(document.getElementById('pf-price').value);
     if (!name || isNaN(price)) { toast('Please fill in name and price', 'err'); return; }
-    const row = { name, price, category_id: document.getElementById('pf-cat').value || null, brand_id: document.getElementById('pf-brand').value || null, description: document.getElementById('pf-desc').value.trim(), stock_quantity: parseInt(document.getElementById('pf-stock').value) || 0, discount_price: parseFloat(document.getElementById('pf-discount').value) || null, is_active: document.getElementById('pf-active').checked, is_featured: document.getElementById('pf-featured').checked, is_bestseller: document.getElementById('pf-bestseller').checked, is_new_arrival: document.getElementById('pf-newarrival').checked, image_url: _uploadedImages[0] || null, images: _uploadedImages };
+    const existingP = id ? _allProducts.find(function(x){return x.id===id;}) : null;
+    const row = {
+      name, price,
+      category_id: document.getElementById('pf-cat').value || null,
+      brand_id: document.getElementById('pf-brand').value || null,
+      description: document.getElementById('pf-desc').value.trim(),
+      stock_quantity: parseInt(document.getElementById('pf-stock').value) || 0,
+      discount_price: parseFloat(document.getElementById('pf-discount').value) || null,
+      is_active: document.getElementById('pf-active').checked,
+      is_featured: document.getElementById('pf-featured').checked,
+      is_bestseller: document.getElementById('pf-bestseller').checked,
+      is_new_arrival: document.getElementById('pf-newarrival').checked,
+      // keep existing image if user didn't upload/add a new one
+      image_url: _uploadedImages[0] || (existingP ? existingP.image_url : null),
+      images: _uploadedImages.length ? _uploadedImages : (existingP ? existingP.images : [])
+    };
     const result = id ? await dbUpdate('products', id, row) : await dbInsert('products', row);
     if (result) { toast(id ? 'Product updated' : 'Product added', 'ok'); closeModal(); renderProducts(); }
   });
