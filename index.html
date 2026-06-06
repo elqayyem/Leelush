@@ -294,10 +294,8 @@ img{max-width:100%;display:block}
 .cart-wa-btn:hover{transform:scale(1.02);box-shadow:0 6px 20px rgba(37,211,102,.35)}
 
 /* FABs */
-#cart-fab{position:fixed;bottom:90px;left:50%;transform:translateX(-50%);background:linear-gradient(135deg,var(--pink),var(--rose));color:#fff;border:none;border-radius:30px;padding:13px 26px;font-size:.92rem;font-weight:700;font-family:'Poppins',sans-serif;display:flex;align-items:center;gap:10px;box-shadow:0 6px 24px rgba(232,84,122,.45);z-index:800;transition:var(--transition);animation:pulse 2s infinite}
-#cart-fab.hidden{opacity:0;pointer-events:none;transform:translateX(-50%) scale(.85)}
-#cart-fab:hover{transform:translateX(-50%) scale(1.04)}
-#checkout-fab{position:fixed;bottom:86px;left:50%;transform:translateX(-50%);background:linear-gradient(135deg,#25D366,#128C7E);color:#fff;border:none;border-radius:30px;padding:13px 30px;font-size:.92rem;font-weight:700;font-family:'Poppins',sans-serif;display:flex;align-items:center;gap:10px;box-shadow:0 6px 24px rgba(37,211,102,.4);z-index:800;transition:var(--transition)}
+#cart-fab{display:none !important}
+#checkout-fab{position:fixed;bottom:86px;left:50%;transform:translateX(-50%);background:linear-gradient(135deg,var(--pink),var(--rose));color:#fff;border:none;border-radius:30px;padding:13px 30px;font-size:.92rem;font-weight:700;font-family:'Poppins',sans-serif;display:flex;align-items:center;gap:10px;box-shadow:0 6px 24px rgba(232,84,122,.45);z-index:800;transition:var(--transition);animation:pulse 2s infinite}
 #checkout-fab.hidden{opacity:0;pointer-events:none;transform:translateX(-50%) scale(.85)}
 #checkout-fab:hover{transform:translateX(-50%) scale(1.04)}
 #wa-float{position:fixed;bottom:24px;right:20px;z-index:900;animation:pulse 2.5s infinite}
@@ -591,7 +589,7 @@ img{max-width:100%;display:block}
 <!-- FABs -->
 <div id="wa-float"><a href="https://wa.me/96179317943" target="_blank" rel="noopener"><i class="fab fa-whatsapp"></i></a></div>
 <button id="cart-fab" class="hidden" onclick="openCart()"><i class="fas fa-shopping-bag"></i> <span id="fab-count">0</span> items | <span id="fab-total">$0</span></button>
-<button id="checkout-fab" class="hidden" onclick="waCheckout()"><i class="fab fa-whatsapp"></i> Order via WhatsApp</button>
+<button id="checkout-fab" class="hidden" onclick="openCart()"><i class="fas fa-shopping-bag"></i> View Cart & Order</button>
 <button id="scroll-top" onclick="window.scrollTo({top:0,behavior:'smooth'})"><i class="fas fa-chevron-up"></i></button>
 
 <!-- CART DRAWER -->
@@ -599,7 +597,11 @@ img{max-width:100%;display:block}
 <div id="cart-drawer">
   <div class="drawer-head"><div class="drawer-title"><i class="fas fa-shopping-bag" style="color:var(--pink)"></i> Shopping Cart <span id="cart-count-lbl">(0)</span></div><button class="drawer-close" onclick="closeCart()"><i class="fas fa-times"></i></button></div>
   <div class="drawer-body" id="cart-items-list"></div>
-  <div class="drawer-foot"><div class="cart-total-row"><span>Total</span><span class="val" id="cart-grand-total">$0.00</span></div><button class="cart-wa-btn" onclick="waCheckout()"><i class="fab fa-whatsapp"></i> Checkout via WhatsApp</button></div>
+  <div class="drawer-foot">
+    <div class="cart-total-row"><span style="font-weight:700">Total</span><span class="val" id="cart-grand-total">$0.00</span></div>
+    <button class="cart-wa-btn" onclick="waCheckout()"><i class="fab fa-whatsapp"></i> Send Order via WhatsApp</button>
+    <button onclick="closeCart()" style="width:100%;margin-top:8px;background:var(--pink-pale);border:1.5px solid var(--border2);color:var(--pink);padding:11px;border-radius:12px;font-size:.9rem;font-weight:700;font-family:'Poppins',sans-serif;cursor:pointer">← Continue Shopping</button>
+  </div>
 </div>
 
 <!-- WISHLIST DRAWER -->
