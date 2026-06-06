@@ -439,11 +439,18 @@ img{max-width:100%;display:block}
 <!-- OFFER BANNER -->
 <section class="sec" id="offers-sec" style="background:var(--off-white)">
   <div class="sec-inner">
-    <div class="offer-banner reveal">
+    <!-- NO OFFER STATE (shown when offer is off) -->
+    <div id="no-offer-wrap" style="display:none;text-align:center;padding:40px 20px">
+      <div style="font-size:2.5rem;margin-bottom:14px">🏷️</div>
+      <div style="font-size:1.3rem;font-weight:800;color:var(--text);margin-bottom:8px">No Offers at This Moment</div>
+      <div style="color:var(--text3);font-size:.95rem">Check back soon for exclusive deals!</div>
+    </div>
+    <!-- ACTIVE OFFER STATE -->
+    <div class="offer-banner reveal" id="offer-active-wrap">
       <div class="offer-title" id="offer-title">🎀 Special Makeup Sale</div>
       <div class="offer-sub" id="offer-sub">30% off all makeup products — limited time only!</div>
       <div class="offer-code" id="offer-code">LEELUSH30</div>
-      <div class="countdown">
+      <div class="countdown" id="offer-countdown">
         <div class="cd-box"><div class="cd-n" id="cd-d">00</div><div class="cd-l">Days</div></div>
         <div class="cd-box"><div class="cd-n" id="cd-h">00</div><div class="cd-l">Hours</div></div>
         <div class="cd-box"><div class="cd-n" id="cd-m">00</div><div class="cd-l">Mins</div></div>
@@ -1003,21 +1010,26 @@ function sendContact(e){
 /* NEWSLETTER */
 function subNewsletter(e){e.preventDefault();showToast('Thank you! Subscribed successfully 🎉','ok');document.getElementById('nl-email').value=''}
 
-/* COUNTDOWN */
-var _cdInterval=null;
-function startCountdown(endDate){
-  if(_cdInterval)clearInterval(_cdInterval);
+/* COUNTDOWN — controlled entirely by admin settings via site-loader */
+window._cdInterval=null;
+window.startCountdown=function(endDate){
+  if(window._cdInterval)clearInterval(window._cdInterval);
   var end=endDate instanceof Date?endDate:new Date(endDate);
   if(isNaN(end.getTime())||end<=new Date()){
-    // expired or invalid — auto-restart 7 days from now
-    end=new Date(Date.now()+7*24*60*60*1000);
+    // date is invalid or already passed — show zeros
+    ['cd-d','cd-h','cd-m','cd-s'].forEach(function(id){
+      var el=document.getElementById(id);if(el)el.textContent='00';
+    });
+    return;
   }
   function tick(){
     var diff=end-new Date();
     if(diff<=0){
-      // auto-restart with fresh 7 days
-      end=new Date(Date.now()+7*24*60*60*1000);
-      diff=end-new Date();
+      ['cd-d','cd-h','cd-m','cd-s'].forEach(function(id){
+        var el=document.getElementById(id);if(el)el.textContent='00';
+      });
+      clearInterval(window._cdInterval);
+      return;
     }
     var d=document.getElementById('cd-d');
     var h=document.getElementById('cd-h');
@@ -1029,10 +1041,8 @@ function startCountdown(endDate){
     if(s)s.textContent=String(Math.floor(diff%60000/1000)).padStart(2,'0');
   }
   tick();
-  _cdInterval=setInterval(tick,1000);
-}
-// start with 7 days by default; site-loader will override with admin setting
-startCountdown(new Date(Date.now()+7*24*60*60*1000));
+  window._cdInterval=setInterval(tick,1000);
+};
 
 /* TOAST */
 function showToast(msg,type,dur){

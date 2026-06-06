@@ -143,18 +143,25 @@
       if (hImg) hImg.src = s.hero_image;
     }
 
-    /* Offer banner — show or hide */
-    var offerSec = document.getElementById('offers-sec');
-    if(offerSec){
-      offerSec.style.display = (s.offer_active === false) ? 'none' : '';
-    }
-    set('offer-title', s.offer_title);
-    set('offer-sub', s.offer_sub);
-    set('offer-code', s.offer_code);
-
-    /* Countdown timer — use admin end date if set */
-    if(s.offer_end_date && typeof window.startCountdown === 'function'){
-      window.startCountdown(new Date(s.offer_end_date));
+    /* Offer banner */
+    var noOfferWrap = document.getElementById('no-offer-wrap');
+    var offerActiveWrap = document.getElementById('offer-active-wrap');
+    if(s.offer_active === false){
+      /* No active offer — show "no offers" message */
+      if(noOfferWrap) noOfferWrap.style.display = 'block';
+      if(offerActiveWrap) offerActiveWrap.style.display = 'none';
+      if(window._cdInterval) clearInterval(window._cdInterval);
+    } else {
+      /* Active offer */
+      if(noOfferWrap) noOfferWrap.style.display = 'none';
+      if(offerActiveWrap) offerActiveWrap.style.display = '';
+      set('offer-title', s.offer_title);
+      set('offer-sub', s.offer_sub);
+      set('offer-code', s.offer_code);
+      /* Start countdown with exact admin date */
+      if(s.offer_end_date && typeof window.startCountdown === 'function'){
+        window.startCountdown(new Date(s.offer_end_date));
+      }
     }
 
     /* About */
