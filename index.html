@@ -285,7 +285,7 @@ img{max-width:100%;display:block}
 .drawer-foot{padding:16px 22px;border-top:1px solid var(--border);background:#fff;flex-shrink:0}
 .cart-total-row{display:flex;justify-content:space-between;margin-bottom:14px;font-size:.95rem}
 .cart-total-row .val{font-size:1.15rem;font-weight:900;color:var(--pink)}
-.cart-wa-btn{width:100%;background:linear-gradient(135deg,#25D366,#128C7E);color:#fff;padding:14px;border-radius:14px;font-size:.95rem;font-weight:700;display:flex;align-items:center;justify-content:center;gap:8px;transition:var(--transition)}
+.cart-wa-btn{width:100%;background:linear-gradient(135deg,#25D366,#128C7E);color:#fff;padding:14px;border-radius:14px;font-size:.95rem;font-weight:700;display:flex;align-items:center;justify-content:center;gap:8px;transition:var(--transition);border:none;cursor:pointer;text-decoration:none;box-sizing:border-box}
 .cart-wa-btn:hover{transform:scale(1.02);box-shadow:0 6px 20px rgba(37,211,102,.35)}
 
 /* FABs */
@@ -577,7 +577,7 @@ img{max-width:100%;display:block}
   <div class="drawer-body" id="cart-items-list"></div>
   <div class="drawer-foot">
     <div class="cart-total-row"><span style="font-weight:700">Total</span><span class="val" id="cart-grand-total">$0.00</span></div>
-    <button class="cart-wa-btn" onclick="waCheckout()"><i class="fab fa-whatsapp"></i> Send Order via WhatsApp</button>
+    <a class="cart-wa-btn" id="wa-order-link" href="#" target="_blank" rel="noopener" onclick="return waCheckout(this)"><i class="fab fa-whatsapp"></i> Send Order via WhatsApp</a>
     <button onclick="closeCart()" style="width:100%;margin-top:8px;background:var(--pink-pale);border:1.5px solid var(--border2);color:var(--pink);padding:11px;border-radius:12px;font-size:.9rem;font-weight:700;font-family:'Poppins',sans-serif;cursor:pointer">← Continue Shopping</button>
   </div>
 </div>
@@ -684,8 +684,8 @@ function prodCard(p){
         <span class="price-now">${fmt(price)}</span>
         ${hasDisc?`<span class="price-was">${fmt(p.price)}</span><span class="price-off">-${pct}%</span>`:''}
       </div>
-      <div class="stock-tag ${p.stock>10?'in-stock':p.stock>0?'low-stock':'out-stock'}">
-        <i class="fas fa-circle" style="font-size:.4rem"></i> ${p.stock>10?'In Stock':p.stock>0?`Only ${p.stock} left`:'Out of Stock'}
+      <div class="stock-tag ${p.stock>0?'in-stock':'out-stock'}">
+        <i class="fas fa-circle" style="font-size:.4rem"></i> ${p.stock>0?'In Stock':'Out of Stock'}
       </div>
       <div class="qty-row" style="margin-top:10px">
         ${p.stock===0?
@@ -800,12 +800,8 @@ function addToCart(id,qty){
     showToast('Sorry, this item is out of stock ❌','err');return;
   }
   const ex=cart.findIndex(function(i){return i.id==id;});
-  const alreadyInCart=ex>=0?cart[ex].qty:0;
-  if(stock!==undefined&&stock!==null&&alreadyInCart+qty>stock){
-    showToast('Only '+stock+' available in stock','err');return;
-  }
   const price=p.discount_price&&p.discount_price<p.price?p.discount_price:p.price;
-  if(ex>=0)cart[ex].qty+=qty;else cart.push({id,name:p.name,price,image:p.image,qty,stock:stock});
+  if(ex>=0)cart[ex].qty+=qty;else cart.push({id,name:p.name,price,image:p.image,qty});
   saveCart();updateCartUI();syncQtys();
   showToast('Added to cart 🛍️','ok');
 }
@@ -834,17 +830,14 @@ function changeQty(id,d){
   const p=getProduct(id);if(!p)return;
   const stock=p.stock;
   const cur=window._qtys[id]||0;
-  if(d>0){
-    if(stock!==undefined&&stock!==null&&stock<=0){showToast('Sorry, this item is out of stock ❌','err');return;}
-    if(stock!==undefined&&stock!==null&&cur>=stock){showToast('Only '+stock+' available in stock','err');return;}
-  }
+  if(d>0&&stock!==undefined&&stock!==null&&stock<=0){showToast('Sorry, this item is out of stock ❌','err');return;}
   const nw=Math.max(0,cur+d);
   window._qtys[id]=nw;
   document.querySelectorAll('#qty-'+id).forEach(function(el){el.textContent=nw});
   const price=p.discount_price&&p.discount_price<p.price?p.discount_price:p.price;
   if(d>0){
     const ex=cart.findIndex(function(i){return i.id==id;});
-    if(ex>=0)cart[ex].qty++;else cart.push({id,name:p.name,price,image:p.image,qty:1,stock:stock});
+    if(ex>=0)cart[ex].qty++;else cart.push({id,name:p.name,price,image:p.image,qty:1});
     saveCart();updateCartUI();
   } else if(d<0&&cur>0){
     const ci=cart.findIndex(function(i){return i.id==id;});
@@ -902,8 +895,8 @@ function openQV(id){
         <span class="price-now" style="font-size:1.2rem">${fmt(price)}</span>
         ${hasDisc?`<span class="price-was">${fmt(p.price)}</span><span class="price-off">-${pct}%</span>`:''}
       </div>
-      <div class="stock-tag ${p.stock>10?'in-stock':p.stock>0?'low-stock':'out-stock'}" style="margin-bottom:18px">
-        <i class="fas fa-circle" style="font-size:.4rem"></i> ${p.stock>10?'In Stock':p.stock>0?`Only ${p.stock} left`:'Out of Stock'}
+      <div class="stock-tag ${p.stock>0?'in-stock':'out-stock'}" style="margin-bottom:18px">
+        <i class="fas fa-circle" style="font-size:.4rem"></i> ${p.stock>0?'In Stock':'Out of Stock'}
       </div>
       <div style="display:flex;gap:10px">
         <button class="btn-pink" style="flex:1;justify-content:center" onclick="addToCart(${p.id});closeQV()"><i class="fas fa-cart-plus"></i> Add to Cart</button>
@@ -915,53 +908,19 @@ function openQV(id){
 function closeQV(e){if(!e||e.target===document.getElementById('qv-overlay'))document.getElementById('qv-overlay').classList.remove('open')}
 
 /* WHATSAPP CHECKOUT */
-async function waCheckout(){
-  if(!cart.length){showToast('Your cart is empty','err');return;}
+function waCheckout(el){
+  if(!cart.length){return false;}
 
-  /* 1 — stock validation */
-  var problems=[];
-  cart.forEach(function(item){
-    var p=getProduct(item.id);
-    if(!p)return;
-    var stock=p.stock;
-    if(stock!==undefined&&stock!==null){
-      if(stock<=0){
-        problems.push('"'+item.name+'" is out of stock — please remove it from cart');
-      } else if(item.qty>stock){
-        problems.push('"'+item.name+'" — only '+stock+' left, you have '+item.qty+' in cart');
-      }
-    }
-  });
-  if(problems.length){
-    problems.forEach(function(msg){showToast('❌ '+msg,'err');});
-    return;
-  }
-
-  /* 2 — decrease stock in Supabase */
-  if(window._sb){
-    for(var k=0;k<cart.length;k++){
-      var item=cart[k];
-      var p=getProduct(item.id);
-      if(p&&p.stock!==undefined&&p.stock!==null){
-        var newStock=Math.max(0,p.stock-item.qty);
-        await window._sb.from('products').update({stock_quantity:newStock}).eq('id',item.id);
-        p.stock=newStock; // update local copy
-      }
-    }
-  }
-
-  /* 3 — build WhatsApp message */
-  var lines=cart.map(function(i){return '• '+i.name+' × '+i.qty+' = '+fmt(i.price*i.qty);}).join('\n');
+  /* build WhatsApp URL and set it on the link so browser follows naturally */
+  var lines=cart.map(function(i){return '• '+i.name+'\n   '+fmt(i.price)+' × '+i.qty+' = '+fmt(i.price*i.qty);}).join('\n');
   var waNum=(window._whatsapp||'96179317943').replace(/\D/g,'');
-  var msg='🛒 *New Order from Leelush:*\n\n'+lines+'\n\n💰 *Total: '+fmt(cartTotal())+'*\n\n_Sent from leelush.onrender.com_';
-  window.open('https://wa.me/'+waNum+'?text='+encodeURIComponent(msg),'_blank');
+  var msg='🛒 *New Order from Leelush:*\n\n'+lines+'\n\n─────────────────\n💰 *Total: '+fmt(cartTotal())+'*\n\n_Sent from leelush.onrender.com_';
+  el.href='https://wa.me/'+waNum+'?text='+encodeURIComponent(msg);
 
-  /* 4 — clear cart */
-  cart=[];
-  saveCart();
-  updateCartUI();
-  closeCart();
-  showToast('Order sent! Thank you 🎉','ok');
+  /* clear cart after giving the browser time to open the link */
+  setTimeout(function(){cart=[];saveCart();updateCartUI();closeCart();},500);
+
+  return true;
 }
 
 /* SEARCH */

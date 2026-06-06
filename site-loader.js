@@ -178,6 +178,7 @@
 
     /* WhatsApp links */
     if (wa) {
+      window._whatsapp = wa; // expose for waCheckout()
       document.querySelectorAll('a[href*="wa.me"]').forEach(function(el) {
         el.href = 'https://wa.me/' + wa;
       });
