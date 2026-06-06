@@ -1178,12 +1178,15 @@ async function renderContent() {
           <div class="form-group"><label>Stat — Customers (e.g. 10K+)</label><input id="ct-stat-customers" value="${v('stat_customers','10K+')}" /></div>
         </div>
 
-        <h3 style="color:var(--gold);font-size:.95rem;margin:20px 0 14px;border-bottom:1px solid var(--border);padding-bottom:8px">🏷️ Offer Banner</h3>
+        <h3 style="color:var(--gold);font-size:.95rem;margin:20px 0 14px;border-bottom:1px solid var(--border);padding-bottom:8px">🏷️ Offer Banner & Countdown Timer</h3>
         <div class="form-row">
           <div class="form-group"><label>Offer Title</label><input id="ct-offer-title" value="${v('offer_title','🎀 Special Makeup Sale')}" /></div>
           <div class="form-group"><label>Offer Subtitle</label><input id="ct-offer-sub" value="${v('offer_sub','30% off all makeup products — limited time only!')}" /></div>
         </div>
-        <div class="form-group"><label>Discount Code</label><input id="ct-offer-code" value="${v('offer_code','LEELUSH30')}" /></div>
+        <div class="form-row">
+          <div class="form-group"><label>Discount Code</label><input id="ct-offer-code" value="${v('offer_code','LEELUSH30')}" /></div>
+          <div class="form-group"><label>Offer End Date &amp; Time (countdown target)</label><input type="datetime-local" id="ct-offer-end" value="${s.offer_end_date ? s.offer_end_date.slice(0,16) : ''}" /></div>
+        </div>
 
         <h3 style="color:var(--gold);font-size:.95rem;margin:20px 0 14px;border-bottom:1px solid var(--border);padding-bottom:8px">ℹ️ About Section</h3>
         <div class="form-group"><label>About Us Text</label><textarea id="ct-about" rows="4">${v('about_text','Leelush is your premier destination for luxury beauty products.')}</textarea></div>
@@ -1215,6 +1218,7 @@ async function saveContent() {
     offer_title: g('ct-offer-title'),
     offer_sub: g('ct-offer-sub'),
     offer_code: g('ct-offer-code'),
+    offer_end_date: g('ct-offer-end') ? new Date(g('ct-offer-end')).toISOString() : '',
     about_text: g('ct-about'),
     footer_desc: g('ct-footer-desc'),
   };

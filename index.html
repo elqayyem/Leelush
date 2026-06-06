@@ -1003,32 +1003,36 @@ function sendContact(e){
 /* NEWSLETTER */
 function subNewsletter(e){e.preventDefault();showToast('Thank you! Subscribed successfully 🎉','ok');document.getElementById('nl-email').value=''}
 
-/* COUNTDOWN — persistent end date stored in localStorage */
-(function startCountdown(){
-  var KEY='ll_offer_end';
-  var stored=localStorage.getItem(KEY);
-  var end;
-  if(stored){
-    end=new Date(stored);
-    if(isNaN(end.getTime())||end<=new Date())end=null;
-  }
-  if(!end){
-    end=new Date(Date.now()+3*24*60*60*1000);
-    localStorage.setItem(KEY,end.toISOString());
+/* COUNTDOWN */
+var _cdInterval=null;
+function startCountdown(endDate){
+  if(_cdInterval)clearInterval(_cdInterval);
+  var end=endDate instanceof Date?endDate:new Date(endDate);
+  if(isNaN(end.getTime())||end<=new Date()){
+    // expired or invalid — auto-restart 7 days from now
+    end=new Date(Date.now()+7*24*60*60*1000);
   }
   function tick(){
     var diff=end-new Date();
     if(diff<=0){
-      ['cd-d','cd-h','cd-m','cd-s'].forEach(function(id){document.getElementById(id).textContent='00'});
-      return;
+      // auto-restart with fresh 7 days
+      end=new Date(Date.now()+7*24*60*60*1000);
+      diff=end-new Date();
     }
-    document.getElementById('cd-d').textContent=String(Math.floor(diff/86400000)).padStart(2,'0');
-    document.getElementById('cd-h').textContent=String(Math.floor(diff%86400000/3600000)).padStart(2,'0');
-    document.getElementById('cd-m').textContent=String(Math.floor(diff%3600000/60000)).padStart(2,'0');
-    document.getElementById('cd-s').textContent=String(Math.floor(diff%60000/1000)).padStart(2,'0');
+    var d=document.getElementById('cd-d');
+    var h=document.getElementById('cd-h');
+    var m=document.getElementById('cd-m');
+    var s=document.getElementById('cd-s');
+    if(d)d.textContent=String(Math.floor(diff/86400000)).padStart(2,'0');
+    if(h)h.textContent=String(Math.floor(diff%86400000/3600000)).padStart(2,'0');
+    if(m)m.textContent=String(Math.floor(diff%3600000/60000)).padStart(2,'0');
+    if(s)s.textContent=String(Math.floor(diff%60000/1000)).padStart(2,'0');
   }
-  tick();setInterval(tick,1000);
-})();
+  tick();
+  _cdInterval=setInterval(tick,1000);
+}
+// start with 7 days by default; site-loader will override with admin setting
+startCountdown(new Date(Date.now()+7*24*60*60*1000));
 
 /* TOAST */
 function showToast(msg,type,dur){

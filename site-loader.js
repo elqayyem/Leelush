@@ -148,6 +148,11 @@
     set('offer-sub', s.offer_sub);
     set('offer-code', s.offer_code);
 
+    /* Countdown timer — use admin end date if set */
+    if(s.offer_end_date && typeof window.startCountdown === 'function'){
+      window.startCountdown(new Date(s.offer_end_date));
+    }
+
     /* About */
     set('about-text', s.about_text);
 
