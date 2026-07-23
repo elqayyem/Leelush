@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self' https://*.supabase.co https://cdnjs.cloudflare.com; img-src 'self' data: blob: https://*.supabase.co https://*.supabase.in https://placehold.co; style-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://fonts.googleapis.com; font-src 'self' https://cdnjs.cloudflare.com https://fonts.gstatic.com; script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://cdn.jsdelivr.net;" />
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self' https://cdnjs.cloudflare.com; img-src 'self' data: blob: https://placehold.co; style-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://fonts.googleapis.com; font-src 'self' https://cdnjs.cloudflare.com https://fonts.gstatic.com; script-src 'self' 'unsafe-inline';" />
   <meta name="referrer" content="strict-origin-when-cross-origin" />
   <title>Leelush Admin</title>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700;900&display=swap" rel="stylesheet" />
@@ -226,19 +226,6 @@
 </head>
 <body>
 
-<!-- LOGIN -->
-<div id="login-screen">
-  <div class="login-card">
-    <div class="login-logo">Leelush</div>
-    <p class="login-sub">Store Admin Dashboard</p>
-    <div class="login-field"><label>Email</label><input type="email" id="login-email" placeholder="admin@leelush.com" /></div>
-    <div class="login-field"><label>Password</label><input type="password" id="login-password" placeholder="••••••••" onkeydown="if(event.key==='Enter')doLogin()" /></div>
-    <button class="login-btn" onclick="doLogin()">Login</button>
-    <div class="login-spinner" id="login-spinner"></div>
-    <div class="login-error" id="login-error">Invalid email or password</div>
-  </div>
-</div>
-
 <!-- SIDEBAR TOGGLE (mobile) -->
 <button id="sidebar-toggle" onclick="toggleSidebar()"><i class="fas fa-bars"></i></button>
 <div id="sidebar-backdrop" onclick="closeSidebar()"></div>
@@ -282,7 +269,7 @@
         <div class="nav-item" onclick="showPage('settings')"><i class="fas fa-cog"></i> Settings</div>
       </nav>
       <div class="sidebar-footer">
-        <button class="logout-btn" onclick="doLogout()"><i class="fas fa-sign-out-alt"></i> Logout</button>
+        <button class="logout-btn" style="background:rgba(76,175,80,0.12);border-color:rgba(76,175,80,0.35);color:#4CAF50" onclick="publishData()"><i class="fas fa-cloud-upload-alt"></i> Publish to Site</button>
       </div>
     </aside>
 
@@ -291,6 +278,7 @@
       <div class="topbar">
         <div class="topbar-title" id="topbar-title">Overview</div>
         <div class="topbar-actions">
+          <button id="publish-btn" class="topbar-btn" style="background:linear-gradient(135deg,#4CAF50,#2E7D32);color:#fff;border-color:transparent" onclick="publishData()"><i class="fas fa-cloud-upload-alt"></i> Publish</button>
           <a href="index.html" target="_blank" class="topbar-btn"><i class="fas fa-external-link-alt"></i> View Store</a>
           <div style="font-size:0.8rem;color:var(--gray)" id="topbar-time"></div>
         </div>
@@ -331,15 +319,78 @@
 <!-- TOAST -->
 <div id="admin-toast"></div>
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="data.js"></script>
 <script>
 'use strict';
 
-const SUPABASE_URL = 'https://tigusdkstanturuhtsrw.supabase.co';
-const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRpZ3VzZGtzdGFudHVydWh0c3J3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA2Nzg3NjEsImV4cCI6MjA5NjI1NDc2MX0.eo3e_Y3K6kdqZ4MKqdnfnyhQhjDWrVGLaqE2wOk3s1Y';
-const INACTIVITY_TIMEOUT = 30 * 60 * 1000;
+/* ============================================================
+   LOCAL DATA ENGINE — no Supabase, no network.
+   All edits live in the browser (localStorage working copy).
+   "Publish" downloads data.js which you commit to GitHub.
+   ============================================================ */
+const LS_KEY = 'leelush_admin_db_v1';
+const TABLES = ['products','categories','brands','offers','testimonials','orders','site_data'];
+let DB = null;
+let _dirty = false;
 
-const _supa = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+function ensureTables(db){ db = db || {}; TABLES.forEach(function(t){ if(!Array.isArray(db[t])) db[t] = []; }); if(!Array.isArray(db._media)) db._media = []; return db; }
+function loadDB(){
+  try { var raw = localStorage.getItem(LS_KEY); if(raw){ return ensureTables(JSON.parse(raw)); } } catch(e){}
+  return ensureTables(JSON.parse(JSON.stringify(window.LEELUSH_DATA || {})));
+}
+function persistDB(){
+  try { localStorage.setItem(LS_KEY, JSON.stringify(DB)); }
+  catch(e){ toast('Browser storage is full — click Publish to save your work to a file.', 'err'); }
+  _dirty = true; updatePublishBtn();
+}
+function nextId(table){ var max = 0; (DB[table]||[]).forEach(function(r){ if(typeof r.id === 'number' && r.id > max) max = r.id; }); return max + 1; }
+function siteDataUpsert(key, value){
+  if(!DB.site_data) DB.site_data = [];
+  var row = DB.site_data.filter(function(r){ return r.key === key; })[0];
+  if(row){ row.value = value; row.updated_at = new Date().toISOString(); }
+  else DB.site_data.push({ key: key, value: value, updated_at: new Date().toISOString() });
+  persistDB();
+}
+function fileToDataURL(file){ return new Promise(function(res, rej){ var r = new FileReader(); r.onload = function(){ res(r.result); }; r.onerror = rej; r.readAsDataURL(file); }); }
+
+/* ---- PUBLISH: download data.js for committing to GitHub ---- */
+function serializeData(){
+  var payload = { products: DB.products||[], categories: DB.categories||[], brands: DB.brands||[], offers: DB.offers||[], testimonials: DB.testimonials||[], orders: DB.orders||[], site_data: DB.site_data||[] };
+  return '/* Leelush data — generated by admin.html Publish. */\nwindow.LEELUSH_DATA = ' + JSON.stringify(payload, null, 2) + ';\n';
+}
+function publishData(){
+  var content = serializeData();
+  var blob = new Blob([content], { type: 'application/javascript;charset=utf-8' });
+  var url = URL.createObjectURL(blob);
+  var a = document.createElement('a'); a.href = url; a.download = 'data.js';
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(function(){ URL.revokeObjectURL(url); }, 2000);
+  _dirty = false; updatePublishBtn();
+  openModal('✅ File downloaded — one last step to go live', `
+    <div style="line-height:1.9;font-size:0.92rem">
+      <p style="margin-bottom:14px">A file named <b>data.js</b> was just downloaded to your device. Your changes are saved on this computer, but the <b>live website won't update until you upload that file to GitHub</b>:</p>
+      <ol style="margin:0 0 14px 20px;display:flex;flex-direction:column;gap:8px">
+        <li>Open your repository: <b>github.com/elqayyem/Leelush</b></li>
+        <li>Click the existing <b>data.js</b> file, then the pencil/upload icon.</li>
+        <li>Replace it with the <b>data.js</b> you just downloaded (drag &amp; drop), and click <b>Commit changes</b>.</li>
+        <li>Wait about 1 minute — your site rebuilds and the changes go live. 🎉</li>
+      </ol>
+      <p style="color:var(--gray)">Tip: you can make many edits and Publish once at the end — you don't need to publish after every change.</p>
+    </div>
+  `, null, 'Got it');
+  document.getElementById('modal-save-btn').style.display = 'none';
+}
+function revertLocal(){
+  confirmAction('Discard unsaved changes?', 'This reloads the last published data and throws away edits you have not published yet.', function(){
+    try { localStorage.removeItem(LS_KEY); } catch(e){}
+    location.reload();
+  });
+}
+function updatePublishBtn(){
+  var b = document.getElementById('publish-btn');
+  if(b) b.innerHTML = '<i class="fas fa-cloud-upload-alt"></i> ' + (_dirty ? 'Publish •' : 'Publish');
+}
+window.addEventListener('beforeunload', function(e){ if(_dirty){ e.preventDefault(); e.returnValue = ''; } });
 
 function escapeHTML(str) {
   if (typeof str !== 'string') return String(str || '');
@@ -364,10 +415,8 @@ function toast(msg, type) {
 function formatDate(d) { if (!d) return '-'; return new Date(d).toLocaleDateString('en-US', { year:'numeric', month:'short', day:'numeric' }); }
 function fmtPrice(v) { return '$' + parseFloat(v || 0).toFixed(2); }
 
-// INACTIVITY LOGOUT
-let _inactTimer;
-function resetInact() { clearTimeout(_inactTimer); _inactTimer = setTimeout(doLogout, INACTIVITY_TIMEOUT); }
-['mousemove','keydown','click','scroll','touchstart'].forEach(function(ev) { document.addEventListener(ev, resetInact); });
+// (auto-logout removed — the admin has no login in the file-based setup)
+function resetInact() {}
 
 // RATE LIMITING
 const _rateLimits = {};
@@ -379,41 +428,18 @@ function rateLimit(key, limitMs) {
   return true;
 }
 
-// AUTH
-let _currentUser = null;
-async function doLogin() {
-  if (!rateLimit('login', 2000)) return;
-  const email = document.getElementById('login-email').value.trim();
-  const pass = document.getElementById('login-password').value;
-  if (!email || !pass) { showLoginError('Please fill in all fields'); return; }
-  const spinner = document.getElementById('login-spinner');
-  const btn = document.querySelector('.login-btn');
-  spinner.style.display = 'block'; btn.style.display = 'none';
-  hideLoginError();
-  const { data, error } = await _supa.auth.signInWithPassword({ email, password: pass });
-  spinner.style.display = 'none'; btn.style.display = 'block';
-  if (error) { showLoginError(error.message || 'Invalid email or password'); return; }
-  _currentUser = data.user;
+// LOCAL INIT (no auth)
+let _currentUser = { email: 'admin@leelush' };
+function initLocal() {
+  DB = loadDB();
+  var ls = document.getElementById('login-screen');
+  if (ls) ls.style.display = 'none';
   initAdmin();
-}
-function showLoginError(msg) { const e = document.getElementById('login-error'); e.textContent = msg; e.style.display = 'block'; }
-function hideLoginError() { document.getElementById('login-error').style.display = 'none'; }
-async function doLogout() {
-  await _supa.auth.signOut();
-  _currentUser = null;
-  document.getElementById('admin-app').style.display = 'none';
-  document.getElementById('login-screen').style.display = 'flex';
-  document.getElementById('login-password').value = '';
-}
-async function checkSession() {
-  const { data } = await _supa.auth.getSession();
-  if (data && data.session && data.session.user) { _currentUser = data.session.user; initAdmin(); }
-  else { document.getElementById('login-screen').style.display = 'flex'; }
+  updatePublishBtn();
 }
 
 // INIT ADMIN
 function initAdmin() {
-  document.getElementById('login-screen').style.display = 'none';
   document.getElementById('admin-app').style.display = 'block';
   const u = _currentUser;
   document.getElementById('sb-email').textContent = u.email || '';
@@ -472,30 +498,64 @@ function confirmAction(title, sub, onOk) {
   document.getElementById('confirm-overlay').classList.add('open');
 }
 
-// DATA LAYER
+// DATA LAYER (in-memory, backed by localStorage working copy)
+function applyJoins(table, rows, select) {
+  if (table !== 'products' || !select) return rows;
+  var needCat = /categories\s*\(/.test(select);
+  var needBrand = /brands\s*\(/.test(select);
+  if (!needCat && !needBrand) return rows;
+  var catMap = {}, brandMap = {};
+  (DB.categories || []).forEach(function(c) { catMap[c.id] = c; });
+  (DB.brands || []).forEach(function(b) { brandMap[b.id] = b; });
+  return rows.map(function(r) {
+    var o = Object.assign({}, r);
+    if (needCat) { var c = catMap[r.category_id]; o.categories = c ? { name: c.name } : null; }
+    if (needBrand) { var b = brandMap[r.brand_id]; o.brands = b ? { name: b.name } : null; }
+    return o;
+  });
+}
 async function dbFetch(table, query) {
   query = query || {};
-  let q = _supa.from(table).select(query.select || '*');
-  if (query.eq) Object.entries(query.eq).forEach(function([k,v]) { q = q.eq(k, v); });
-  if (query.order) q = q.order(query.order, { ascending: query.asc !== undefined ? query.asc : false });
-  if (query.limit) q = q.limit(query.limit);
-  const { data, error } = await q;
-  if (error) { toast('Error fetching data: ' + error.message, 'err'); return []; }
-  return data || [];
+  var rows = (DB[table] || []).slice();
+  if (query.eq) Object.entries(query.eq).forEach(function([k,v]) { rows = rows.filter(function(r) { return String(r[k]) === String(v); }); });
+  if (query.order) {
+    var asc = query.asc !== undefined ? query.asc : false;
+    rows.sort(function(a, b) {
+      var x = a[query.order], y = b[query.order];
+      if (x == null && y == null) return 0;
+      if (x == null) return 1;
+      if (y == null) return -1;
+      if (x < y) return asc ? -1 : 1;
+      if (x > y) return asc ? 1 : -1;
+      return 0;
+    });
+  }
+  if (query.limit) rows = rows.slice(0, query.limit);
+  return applyJoins(table, rows, query.select);
 }
 async function dbInsert(table, row) {
-  const { data, error } = await _supa.from(table).insert([row]).select();
-  if (error) { toast('Error adding: ' + error.message, 'err'); return null; }
-  return data ? data[0] : null;
+  if (!DB[table]) DB[table] = [];
+  var rec = Object.assign({}, row);
+  rec.id = nextId(table);
+  if (rec.created_at === undefined) rec.created_at = new Date().toISOString();
+  DB[table].push(rec);
+  persistDB();
+  return rec;
 }
 async function dbUpdate(table, id, row) {
-  const { data, error } = await _supa.from(table).update(row).eq('id', id).select();
-  if (error) { toast('Error updating: ' + error.message, 'err'); return null; }
-  return data ? data[0] : null;
+  var arr = DB[table] || [];
+  var i = arr.findIndex(function(r) { return String(r.id) === String(id); });
+  if (i < 0) return null;
+  arr[i] = Object.assign({}, arr[i], row);
+  persistDB();
+  return arr[i];
 }
 async function dbDelete(table, id) {
-  const { error } = await _supa.from(table).delete().eq('id', id);
-  if (error) { toast('Error deleting: ' + error.message, 'err'); return false; }
+  var arr = DB[table] || [];
+  var i = arr.findIndex(function(r) { return String(r.id) === String(id); });
+  if (i < 0) return false;
+  arr.splice(i, 1);
+  persistDB();
   return true;
 }
 
@@ -516,13 +576,12 @@ async function handleFiles(files) {
   for (let i = 0; i < files.length; i++) {
     const file = files[i];
     if (!file.type.startsWith('image/')) { toast('Please select images only', 'err'); continue; }
-    if (file.size > 5 * 1024 * 1024) { toast('Image must be under 5MB', 'err'); continue; }
-    const fileName = Date.now() + '_' + file.name.replace(/[^a-zA-Z0-9._-]/g, '_');
-    const { data, error } = await _supa.storage.from('beauty-images').upload(fileName, file, { upsert: true });
-    if (error) { toast('Upload error', 'err'); continue; }
-    const { data: urlData } = _supa.storage.from('beauty-images').getPublicUrl(fileName);
-    addImagePreview(urlData.publicUrl);
-    toast('Image uploaded', 'ok');
+    if (file.size > 2 * 1024 * 1024) { toast('Please use an image under 2MB (large images bloat the data file)', 'err'); continue; }
+    try {
+      const dataUrl = await fileToDataURL(file);
+      addImagePreview(dataUrl);
+      toast('Image added', 'ok');
+    } catch (e) { toast('Could not read image', 'err'); }
   }
 }
 function addImageURL() { const input = document.getElementById('img-url-field'); if (!input || !input.value) return; addImagePreview(input.value.trim()); input.value = ''; }
@@ -546,7 +605,7 @@ async function renderOverview() {
   const active = prods.filter(function(p) { return p.is_active; }).length;
   const revenue = orders.reduce(function(s, o) { return s + parseFloat(o.total || 0); }, 0);
   const importBanner = prods.length === 0
-    ? '<div class="admin-card" style="margin-bottom:24px;border-color:rgba(212,175,55,0.5)"><div class="admin-card-body" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:16px"><div><div style="font-size:1rem;font-weight:700;color:var(--gold);margin-bottom:4px">&#9888;&#65039; No products in database</div><div style="color:var(--gray);font-size:0.88rem">Your Supabase database is empty. Click the button to import all 40 sample products instantly.</div></div><button class="btn-add" onclick="importSampleProducts()" style="white-space:nowrap"><i class="fas fa-cloud-upload-alt"></i> Import 40 Sample Products</button></div></div>'
+    ? '<div class="admin-card" style="margin-bottom:24px;border-color:rgba(212,175,55,0.5)"><div class="admin-card-body" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:16px"><div><div style="font-size:1rem;font-weight:700;color:var(--gold);margin-bottom:4px">&#9888;&#65039; No products yet</div><div style="color:var(--gray);font-size:0.88rem">Your store has no products. Click the button to load 40 sample products to start from.</div></div><button class="btn-add" onclick="importSampleProducts()" style="white-space:nowrap"><i class="fas fa-cloud-upload-alt"></i> Import 40 Sample Products</button></div></div>'
     : '';
   document.getElementById('page-content').innerHTML = `
     <div class="stats-grid">
@@ -1227,9 +1286,8 @@ async function saveContent() {
     about_text: g('ct-about'),
     footer_desc: g('ct-footer-desc'),
   };
-  const { error } = await _supa.from('site_data').upsert({ key: 'settings', value: settings });
-  if (error) { toast('Save error: ' + error.message, 'err'); return; }
-  toast('✅ All changes saved! Refresh the website to see them.', 'ok');
+  siteDataUpsert('settings', settings);
+  toast('✅ Saved on this device. Click Publish to make it live.', 'ok');
 }
 
 // MEDIA LIBRARY
@@ -1247,28 +1305,46 @@ async function renderMedia() {
   `;
   loadMediaFiles();
 }
+function collectMediaUrls() {
+  var seen = {}, list = [];
+  function add(u, removable) { if (u && !seen[u]) { seen[u] = 1; list.push({ url: u, removable: !!removable }); } }
+  (DB._media || []).forEach(function(u) { add(u, true); });
+  (DB.products || []).forEach(function(p) { add(p.image_url); (p.images || []).forEach(function(u){ add(u); }); });
+  (DB.brands || []).forEach(function(b) { add(b.logo_url); });
+  (DB.testimonials || []).forEach(function(t) { add(t.avatar_url); });
+  return list;
+}
 async function loadMediaFiles() {
-  const { data, error } = await _supa.storage.from('beauty-images').list('', { limit: 100, sortBy: { column: 'created_at', order: 'desc' } });
   const wrap = document.getElementById('media-grid-wrap');
-  if (error || !data || !data.length) { wrap.innerHTML = '<p style="text-align:center;color:var(--gray);padding:40px">No images found</p>'; return; }
-  const urls = data.map(function(f) { return { name: f.name, url: _supa.storage.from('beauty-images').getPublicUrl(f.name).data.publicUrl }; });
-  wrap.innerHTML = '<div class="media-grid">' + urls.map(function(f) { return '<div class="media-item"><img src="' + sanitizeURL(f.url) + '" alt="' + escapeHTML(f.name) + '" loading="lazy" onerror="this.src=\'https://placehold.co/140x140/1C2333/D4AF37?text=?\'" /><div class="media-item-overlay"><button class="media-action" onclick="copyToClipboard(\'' + sanitizeURL(f.url) + '\')" title="Copy URL"><i class="fas fa-copy"></i></button><button class="media-action del" onclick="deleteMediaFile(\'' + escapeHTML(f.name) + '\')" title="Delete"><i class="fas fa-trash"></i></button></div></div>'; }).join('') + '</div>';
+  const items = collectMediaUrls();
+  if (!items.length) { wrap.innerHTML = '<p style="text-align:center;color:var(--gray);padding:40px">No images yet. Upload some, or add product images.</p>'; return; }
+  wrap.innerHTML = '<div class="media-grid">' + items.map(function(f, i) {
+    const del = f.removable ? '<button class="media-action del" onclick="deleteMediaFile(' + i + ')" title="Remove"><i class="fas fa-trash"></i></button>' : '';
+    return '<div class="media-item"><img src="' + sanitizeURL(f.url) + '" loading="lazy" onerror="this.src=\'https://placehold.co/140x140/1C2333/D4AF37?text=?\'" /><div class="media-item-overlay"><button class="media-action" onclick="copyToClipboard(this.getAttribute(\'data-u\'))" data-u="' + escapeHTML(f.url) + '" title="Copy"><i class="fas fa-copy"></i></button>' + del + '</div></div>';
+  }).join('') + '</div>';
 }
 async function uploadMediaFiles(files) {
   if (!files || !files.length) return;
+  if (!DB._media) DB._media = [];
   for (let i = 0; i < files.length; i++) {
     const file = files[i];
     if (!file.type.startsWith('image/')) continue;
-    const name = Date.now() + '_' + file.name.replace(/[^a-zA-Z0-9._-]/g, '_');
-    const { error } = await _supa.storage.from('beauty-images').upload(name, file, { upsert: true });
-    if (error) { toast('Upload error: ' + error.message, 'err'); } else { toast('Uploaded: ' + file.name, 'ok'); }
+    if (file.size > 2 * 1024 * 1024) { toast('Skipped ' + file.name + ' — over 2MB', 'err'); continue; }
+    try { const dataUrl = await fileToDataURL(file); DB._media.push(dataUrl); toast('Added: ' + file.name, 'ok'); }
+    catch (e) { toast('Could not read ' + file.name, 'err'); }
   }
+  persistDB();
   loadMediaFiles();
 }
-async function deleteMediaFile(name) {
-  confirmAction('Delete Image', 'Are you sure you want to permanently delete this image?', async function() {
-    const { error } = await _supa.storage.from('beauty-images').remove([name]);
-    if (error) { toast('Delete error', 'err'); } else { toast('Deleted', 'ok'); loadMediaFiles(); }
+async function deleteMediaFile(index) {
+  confirmAction('Remove Image', 'Remove this image from the media library? (Images still used by a product will remain on that product.)', function() {
+    const items = collectMediaUrls();
+    const target = items[index];
+    if (target && target.removable) {
+      const pos = (DB._media || []).indexOf(target.url);
+      if (pos >= 0) { DB._media.splice(pos, 1); persistDB(); }
+    }
+    toast('Removed', 'ok'); loadMediaFiles();
   });
 }
 function copyToClipboard(text) {
@@ -1341,160 +1417,54 @@ async function renderDesign() {
 async function saveDesign() {
   if (!rateLimit('save-design', 1000)) return;
   const design = { primary: document.getElementById('ds-primary').value, accent: document.getElementById('ds-accent').value, dark: document.getElementById('ds-bg').value, gold: document.getElementById('ds-gold').value, logo_url: document.getElementById('ds-logo').value.trim(), favicon_url: document.getElementById('ds-favicon').value.trim(), font: document.getElementById('ds-font').value };
-  const { error } = await _supa.from('site_data').upsert({ key: 'design', value: design });
-  if (error) { toast('Save error', 'err'); return; }
-  toast('Design saved', 'ok');
+  siteDataUpsert('design', design);
+  toast('Design saved on this device. Click Publish to make it live.', 'ok');
 }
 
 // SETTINGS
 async function renderSettings() {
+  var counts = { products: (DB.products||[]).length, categories: (DB.categories||[]).length, brands: (DB.brands||[]).length, testimonials: (DB.testimonials||[]).length };
   document.getElementById('page-content').innerHTML = `
     <div class="admin-card">
-      <div class="admin-card-header"><div class="admin-card-title"><i class="fas fa-cog" style="color:var(--gold)"></i> General Settings</div></div>
+      <div class="admin-card-header"><div class="admin-card-title"><i class="fas fa-cloud-upload-alt" style="color:var(--gold)"></i> Publishing &amp; Data</div></div>
       <div class="admin-card-body">
+        <p style="color:var(--gray);font-size:0.9rem;line-height:1.8;margin-bottom:20px">
+          This store runs entirely from a single file (<b>data.js</b>) — <b>no database, no monthly cost, nothing to run out</b>.
+          Your edits are saved on this device as you work. When you're ready to make them appear on the live website,
+          click <b>Publish</b>, then upload the downloaded <b>data.js</b> to your GitHub repository.
+        </p>
+        <div style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:24px">
+          <button class="btn-save" onclick="publishData()"><i class="fas fa-cloud-upload-alt"></i> &nbsp;Publish (download data.js)</button>
+          <button class="btn-cancel" onclick="revertLocal()"><i class="fas fa-undo"></i> &nbsp;Discard unsaved changes</button>
+        </div>
         <div class="settings-grid">
           <div>
-            <h3 style="font-size:1rem;margin-bottom:16px;color:var(--gold)">Supabase Settings</h3>
-            <div class="form-group"><label>Supabase URL</label><input id="set-url" value="${SUPABASE_URL}" placeholder="https://xxx.supabase.co" style="font-size:0.85rem" /></div>
-            <div class="form-group"><label>Supabase Anon Key</label><input id="set-key" value="${SUPABASE_ANON_KEY}" placeholder="eyJhbGciOiJIUzI1NiIs..." style="font-size:0.75rem" /></div>
-            <p style="color:var(--gray);font-size:0.8rem;margin-top:8px">After changing credentials, update SUPABASE_URL and SUPABASE_ANON_KEY in admin.html and site-loader.js</p>
+            <h3 style="font-size:1rem;margin-bottom:12px;color:var(--gold)">Current data</h3>
+            <p style="color:var(--gray);font-size:0.9rem;line-height:1.9">
+              🧴 Products: <b style="color:var(--text)">${counts.products}</b><br/>
+              🏷️ Categories: <b style="color:var(--text)">${counts.categories}</b><br/>
+              ⭐ Brands: <b style="color:var(--text)">${counts.brands}</b><br/>
+              💬 Reviews: <b style="color:var(--text)">${counts.testimonials}</b>
+            </p>
           </div>
           <div>
-            <h3 style="font-size:1rem;margin-bottom:16px;color:var(--gold)">Security</h3>
+            <h3 style="font-size:1rem;margin-bottom:12px;color:var(--gold)">How it works</h3>
             <p style="color:var(--gray);font-size:0.88rem;line-height:1.8">
-              ✅ CSP enabled<br/>
-              ✅ RLS enabled on Supabase<br/>
-              ✅ Input sanitization<br/>
-              ✅ Auto-logout after 30 minutes<br/>
-              ✅ Rate limiting enabled<br/>
-              ✅ XSS protection via escapeHTML
+              ✅ 100% free — no Supabase, no server<br/>
+              ✅ Images stored in your repo (<code>images/</code>)<br/>
+              ✅ New uploads embed into the data file<br/>
+              ✅ Nothing goes live until you Publish<br/>
+              ✅ Safe: no password or key in the browser
             </p>
-            <div style="margin-top:20px">
-              <h3 style="font-size:1rem;margin-bottom:12px;color:var(--gold)">Database Setup</h3>
-              <button class="tbl-btn edit" onclick="showSQLModal()"><i class="fas fa-database"></i> View SQL Setup</button>
-            </div>
           </div>
         </div>
       </div>
     </div>
   `;
 }
-function showSQLModal() {
-  openModal('SQL – Create Supabase Tables', `
-    <p style="color:var(--gray);margin-bottom:16px;font-size:0.88rem">Run this SQL in the Supabase SQL Editor to create all required tables:</p>
-    <textarea style="width:100%;height:400px;background:var(--dark3);border:1px solid var(--border);color:var(--text);padding:12px;border-radius:8px;font-family:monospace;font-size:0.78rem" readonly>
--- Enable UUID extension
-create extension if not exists "uuid-ossp";
-
--- CATEGORIES
-create table if not exists categories (
-  id bigserial primary key,
-  name text not null,
-  description text,
-  icon text,
-  created_at timestamptz default now()
-);
-
--- BRANDS
-create table if not exists brands (
-  id bigserial primary key,
-  name text not null,
-  logo_url text,
-  website text,
-  created_at timestamptz default now()
-);
-
--- PRODUCTS
-create table if not exists products (
-  id bigserial primary key,
-  name text not null,
-  description text,
-  price numeric(10,2) not null default 0,
-  discount_price numeric(10,2),
-  stock_quantity integer default 0,
-  image_url text,
-  images jsonb,
-  category_id bigint references categories(id) on delete set null,
-  brand_id bigint references brands(id) on delete set null,
-  is_active boolean default true,
-  is_featured boolean default false,
-  is_bestseller boolean default false,
-  is_new_arrival boolean default false,
-  created_at timestamptz default now()
-);
-
--- OFFERS
-create table if not exists offers (
-  id bigserial primary key,
-  title text not null,
-  description text,
-  code text,
-  discount_percent integer default 0,
-  expires_at timestamptz,
-  is_active boolean default true,
-  created_at timestamptz default now()
-);
-
--- TESTIMONIALS
-create table if not exists testimonials (
-  id bigserial primary key,
-  name text not null,
-  text text not null,
-  rating integer default 5,
-  avatar_url text,
-  is_active boolean default true,
-  created_at timestamptz default now()
-);
-
--- ORDERS
-create table if not exists orders (
-  id bigserial primary key,
-  customer_name text,
-  phone text,
-  items jsonb,
-  total numeric(10,2),
-  status text default 'pending',
-  created_at timestamptz default now()
-);
-
--- SITE DATA
-create table if not exists site_data (
-  key text primary key,
-  value jsonb,
-  updated_at timestamptz default now()
-);
-
--- RLS
-alter table categories enable row level security;
-alter table brands enable row level security;
-alter table products enable row level security;
-alter table offers enable row level security;
-alter table testimonials enable row level security;
-alter table orders enable row level security;
-alter table site_data enable row level security;
-
-create policy "public_read_categories" on categories for select using (true);
-create policy "public_read_brands" on brands for select using (true);
-create policy "public_read_products" on products for select using (is_active = true);
-create policy "public_read_offers" on offers for select using (is_active = true);
-create policy "public_read_testimonials" on testimonials for select using (is_active = true);
-create policy "public_read_site_data" on site_data for select using (true);
-
-create policy "admin_all_categories" on categories for all using (auth.role() = 'authenticated');
-create policy "admin_all_brands" on brands for all using (auth.role() = 'authenticated');
-create policy "admin_all_products" on products for all using (auth.role() = 'authenticated');
-create policy "admin_all_offers" on offers for all using (auth.role() = 'authenticated');
-create policy "admin_all_testimonials" on testimonials for all using (auth.role() = 'authenticated');
-create policy "admin_all_orders" on orders for all using (auth.role() = 'authenticated');
-create policy "admin_all_site_data" on site_data for all using (auth.role() = 'authenticated');
-    </textarea>
-    <button class="btn-save" style="margin-top:12px" onclick="copyToClipboard(document.querySelector('#modal-body textarea').value)"><i class="fas fa-copy"></i> Copy SQL</button>
-  `, null, 'Close');
-  document.getElementById('modal-save-btn').style.display = 'none';
-}
 
 // STARTUP
-checkSession();
+initLocal();
 </script>
 </body>
 </html>

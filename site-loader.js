@@ -1,18 +1,15 @@
 /**
  * site-loader.js — Leelush
- * Fetches products from Supabase and overrides the storefront grids.
+ * Reads products & settings from the local data file (data.js → window.LEELUSH_DATA)
+ * and overrides the storefront grids. No Supabase / no network database.
  */
 (function () {
   'use strict';
 
-  const SUPABASE_URL = 'https://tigusdkstanturuhtsrw.supabase.co';
-  const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRpZ3VzZGtzdGFudHVydWh0c3J3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA2Nzg3NjEsImV4cCI6MjA5NjI1NDc2MX0.eo3e_Y3K6kdqZ4MKqdnfnyhQhjDWrVGLaqE2wOk3s1Y';
-  const CACHE_TTL = 5 * 60 * 1000; // 5 minutes
+  /* Local dataset injected by data.js (loaded before this script) */
+  var DATA = window.LEELUSH_DATA || { products: [], categories: [], brands: [], site_data: [] };
 
-  const _sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-  window._sb = _sb; // expose for stock updates from index.html
-
-  /* Map Supabase category name → index.html category slug */
+  /* Map category name → index.html category slug */
   function mapCat(name) {
     if (!name) return '';
     const n = name.toLowerCase();
@@ -23,13 +20,22 @@
     return n.replace(/\s+/g, '');
   }
 
-  /* Convert Supabase product row → format expected by index.html prodCard() */
+  /* Build id → name lookups for categories and brands */
+  function buildLookup(rows) {
+    var m = {};
+    (rows || []).forEach(function (r) { m[r.id] = r.name; });
+    return m;
+  }
+  var CAT_BY_ID = buildLookup(DATA.categories);
+  var BRAND_BY_ID = buildLookup(DATA.brands);
+
+  /* Convert a product row → format expected by index.html prodCard() */
   function convertProduct(p) {
     return {
       id: p.id,
       name: p.name || '',
-      brand: (p.brands && p.brands.name) || p.brand_name || '',
-      category: mapCat((p.categories && p.categories.name) || p.category_name || ''),
+      brand: (p.brands && p.brands.name) || BRAND_BY_ID[p.brand_id] || p.brand_name || '',
+      category: mapCat((p.categories && p.categories.name) || CAT_BY_ID[p.category_id] || p.category_name || ''),
       price: parseFloat(p.price) || 0,
       discount_price: p.discount_price ? parseFloat(p.discount_price) : null,
       image: p.image_url || 'https://placehold.co/380x380/FFE4EC/E8547A?text=Leelush',
@@ -40,64 +46,45 @@
     };
   }
 
-  /* Simple cache */
-  function cacheSet(key, data) {
-    try { localStorage.setItem('ll_' + key, JSON.stringify({ ts: Date.now(), data })); } catch(e) {}
-  }
-  function cacheGet(key) {
-    try {
-      const raw = localStorage.getItem('ll_' + key);
-      if (!raw) return null;
-      const obj = JSON.parse(raw);
-      if (Date.now() - obj.ts > CACHE_TTL) { localStorage.removeItem('ll_' + key); return null; }
-      return obj.data;
-    } catch(e) { return null; }
+  function getSettings() {
+    var rows = DATA.site_data || [];
+    var row = rows.filter(function (r) { return r.key === 'settings'; })[0];
+    return (row && row.value) || {};
   }
 
-  async function loadSite() {
+  function loadSite() {
     try {
-      /* --- always fetch fresh products (no cache) so admin changes show instantly --- */
-      const { data, error } = await _sb
-        .from('products')
-        .select('*, categories(name), brands(name)')
-        .eq('is_active', true);
-      if (error) throw error;
-      const rows = data || [];
+      var rows = (DATA.products || []).filter(function (p) { return p.is_active !== false; });
 
-      if (!rows.length) return; // nothing in Supabase yet — keep sample data
+      if (rows.length) {
+        const products = rows.map(convertProduct);
 
-      const products = rows.map(convertProduct);
-
-      /* replace the global product list so cart/search/QV all work */
-      if (window.SAMPLE_PRODUCTS) {
-        window.SAMPLE_PRODUCTS.length = 0;
-        products.forEach(function(p) { window.SAMPLE_PRODUCTS.push(p); });
-      }
-      window._allProducts = products;
-
-      /* re-render all grids using index.html's own functions */
-      if (typeof window.renderAll === 'function') {
-        window.renderAll();
-      } else {
-        /* fallback: call renderGrid directly with correct IDs */
-        if (typeof window.renderGrid === 'function') {
-          window.renderGrid('featured-grid',    products.filter(function(p){ return p.is_featured; }));
-          window.renderGrid('skincare-grid',    products.filter(function(p){ return p.category === 'skincare'; }));
-          window.renderGrid('makeup-grid',      products.filter(function(p){ return p.category === 'makeup'; }));
-          window.renderGrid('hair-grid',        products.filter(function(p){ return p.category === 'hair'; }));
-          window.renderGrid('bath-grid',        products.filter(function(p){ return p.category === 'bath'; }));
-          window.renderGrid('bestsellers-grid', products.filter(function(p){ return p.is_bestseller; }));
-          window.renderGrid('newarrivals-grid', products.filter(function(p){ return p.is_new_arrival; }));
+        /* replace the global product list so cart/search/QV all work */
+        if (window.SAMPLE_PRODUCTS) {
+          window.SAMPLE_PRODUCTS.length = 0;
+          products.forEach(function (p) { window.SAMPLE_PRODUCTS.push(p); });
         }
+        window._allProducts = products;
+
+        /* re-render all grids using index.html's own functions */
+        if (typeof window.renderAll === 'function') {
+          window.renderAll();
+        } else if (typeof window.renderGrid === 'function') {
+          window.renderGrid('featured-grid',    products.filter(function (p) { return p.is_featured; }));
+          window.renderGrid('skincare-grid',    products.filter(function (p) { return p.category === 'skincare'; }));
+          window.renderGrid('makeup-grid',      products.filter(function (p) { return p.category === 'makeup'; }));
+          window.renderGrid('hair-grid',        products.filter(function (p) { return p.category === 'hair'; }));
+          window.renderGrid('bath-grid',        products.filter(function (p) { return p.category === 'bath'; }));
+          window.renderGrid('bestsellers-grid', products.filter(function (p) { return p.is_bestseller; }));
+          window.renderGrid('newarrivals-grid', products.filter(function (p) { return p.is_new_arrival; }));
+        }
+
+        /* sync cart quantities after re-render */
+        if (typeof window.syncQtys === 'function') window.syncQtys();
       }
 
-      /* sync cart quantities after re-render */
-      if (typeof window.syncQtys === 'function') window.syncQtys();
-
-      /* --- fetch settings --- */
-      const { data: settingsRows } = await _sb.from('site_data').select('*').eq('key', 'settings');
-      const settings = (settingsRows && settingsRows[0] && settingsRows[0].value) || {};
-      applySettings(settings);
+      /* --- apply settings --- */
+      applySettings(getSettings());
 
     } catch (err) {
       console.warn('[Leelush] site-loader error:', err);
@@ -108,11 +95,6 @@
     if (!val) return;
     var el = document.getElementById(id);
     if (el) el.textContent = val;
-  }
-  function setHref(id, val) {
-    if (!val) return;
-    var el = document.getElementById(id);
-    if (el) el.href = val;
   }
 
   function applySettings(s) {
@@ -146,20 +128,17 @@
     /* Offer banner */
     var noOfferWrap = document.getElementById('no-offer-wrap');
     var offerActiveWrap = document.getElementById('offer-active-wrap');
-    if(s.offer_active === false){
-      /* No active offer — show "no offers" message */
-      if(noOfferWrap) noOfferWrap.style.display = 'block';
-      if(offerActiveWrap) offerActiveWrap.style.display = 'none';
-      if(window._cdInterval) clearInterval(window._cdInterval);
+    if (s.offer_active === false) {
+      if (noOfferWrap) noOfferWrap.style.display = 'block';
+      if (offerActiveWrap) offerActiveWrap.style.display = 'none';
+      if (window._cdInterval) clearInterval(window._cdInterval);
     } else {
-      /* Active offer */
-      if(noOfferWrap) noOfferWrap.style.display = 'none';
-      if(offerActiveWrap) offerActiveWrap.style.display = '';
+      if (noOfferWrap) noOfferWrap.style.display = 'none';
+      if (offerActiveWrap) offerActiveWrap.style.display = '';
       set('offer-title', s.offer_title);
       set('offer-sub', s.offer_sub);
       set('offer-code', s.offer_code);
-      /* Start countdown with exact admin date */
-      if(s.offer_end_date && typeof window.startCountdown === 'function'){
+      if (s.offer_end_date && typeof window.startCountdown === 'function') {
         window.startCountdown(new Date(s.offer_end_date));
       }
     }
@@ -179,7 +158,7 @@
     /* WhatsApp links */
     if (wa) {
       window._whatsapp = wa; // expose for waCheckout()
-      document.querySelectorAll('a[href*="wa.me"]').forEach(function(el) {
+      document.querySelectorAll('a[href*="wa.me"]').forEach(function (el) {
         el.href = 'https://wa.me/' + wa;
       });
     }
@@ -187,7 +166,7 @@
     /* Instagram link */
     if (s.instagram) {
       var igLink = document.getElementById('f-ig');
-      if (igLink) igLink.href = 'https://instagram.com/' + s.instagram.replace('@','');
+      if (igLink) igLink.href = 'https://instagram.com/' + s.instagram.replace('@', '');
     }
   }
 
@@ -198,9 +177,7 @@
     loadSite();
   }
 
-  /* Expose cache-clear so admin can trigger a refresh after importing */
-  window.leelushClearCache = function() {
-    ['ll_products_v2'].forEach(function(k) { localStorage.removeItem(k); });
-  };
+  /* No-op kept for compatibility with any callers */
+  window.leelushClearCache = function () {};
 
 })();

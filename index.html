@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
-<meta http-equiv="Content-Security-Policy" content="default-src 'self' https://*.supabase.co https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; img-src 'self' data: blob: https://*.supabase.co https://placehold.co https://picsum.photos https://images.unsplash.com; style-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://fonts.googleapis.com; font-src 'self' https://cdnjs.cloudflare.com https://fonts.gstatic.com; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net;"/>
+<meta http-equiv="Content-Security-Policy" content="default-src 'self' https://cdnjs.cloudflare.com; img-src 'self' data: blob: https://placehold.co https://picsum.photos https://images.unsplash.com; style-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://fonts.googleapis.com; font-src 'self' https://cdnjs.cloudflare.com https://fonts.gstatic.com; script-src 'self' 'unsafe-inline';"/>
 <meta name="referrer" content="strict-origin-when-cross-origin"/>
 <title>Leelush – Luxury Beauty Store</title>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700;900&display=swap" rel="stylesheet"/>
@@ -597,7 +597,6 @@ img{max-width:100%;display:block}
 <!-- TOAST -->
 <div id="toast-c"></div>
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
 'use strict';
 
@@ -711,7 +710,7 @@ window.renderGrid=function renderGrid(id,products){
 }
 
 window.renderAll=function renderAll(){
-  /* use Supabase products if loaded, otherwise fall back to sample data */
+  /* use loaded products (from data.js) if present, otherwise fall back to sample data */
   const S=(window._allProducts&&window._allProducts.length)?window._allProducts:SAMPLE_PRODUCTS;
   window.renderGrid('featured-grid',S.filter(function(p){return p.is_featured;}));
   window.renderGrid('skincare-grid',S.filter(function(p){return p.category==='skincare';}));
@@ -1029,6 +1028,7 @@ renderAll();
 updateCartUI();
 updateWishUI();
 </script>
+<script src="data.js"></script>
 <script src="site-loader.js"></script>
 </body>
 </html>
